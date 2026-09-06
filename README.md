@@ -22,6 +22,8 @@ queue, the display follows that player's title/artist/album and clears previous
 queue lyrics. MA 2.10.2's Connect endpoint exposes a source URI, not the current
 Spotify track URI, so this path explicitly reports unavailable lyrics rather
 than guessing a song. See [external-source limits](docs/music-assistant.md#spotify-connect-and-external-sources).
+Direct Spotify cover URLs require the separate, default-off
+[`MA_ALLOW_SPOTIFY_ARTWORK` opt-in](docs/music-assistant.md#optional-spotify-connect-artwork).
 
 **Start here: [complete Raspberry Pi installation walkthrough](docs/installation-guide.md).**
 From shopping list and Wi-Fi setup to anonymous public cloning, MA credentials,

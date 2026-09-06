@@ -11,6 +11,7 @@ const schema = z.object({
   MA_PLAYER_ID: z.string().min(1).optional(),
   MA_QUEUE_ID: z.string().min(1).optional(),
   MA_ALLOW_LYRICS_REFRESH: bool,
+  MA_ALLOW_SPOTIFY_ARTWORK: bool,
   CEC_ENABLED: bool,
   CEC_REMOTE_ENABLED: bool,
   CEC_DEVICE: z.string().max(32).regex(/^\/dev\/cec(?:0|[1-9][0-9]*)$/).default("/dev/cec0"),

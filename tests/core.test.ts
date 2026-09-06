@@ -9,6 +9,12 @@ import { SettingsStore, settingsPatchSchema } from "../src/server/settings.js";
 import { loadConfig } from "../src/server/config.js";
 import { DEFAULT_AMBIENT } from "../src/shared/ambient.js";
 
+it("keeps Spotify artwork network access explicitly opt-in", () => {
+  expect(loadConfig({ DEMO_MODE: "true" }).MA_ALLOW_SPOTIFY_ARTWORK).toBe(false);
+  expect(loadConfig({ DEMO_MODE: "true", MA_ALLOW_SPOTIFY_ARTWORK: "true" }).MA_ALLOW_SPOTIFY_ARTWORK).toBe(true);
+  expect(() => loadConfig({ DEMO_MODE: "true", MA_ALLOW_SPOTIFY_ARTWORK: "yes" })).toThrow("MA_ALLOW_SPOTIFY_ARTWORK");
+});
+
 describe("LRC", () => {
   it("orders repeated timestamps, offsets and Unicode without markup interpretation", () => {
     const result = parseLyrics("\uFEFF[offset:-500]\r\n[00:03.12][00:01.2]Synthetic café 世界\r\n[00:00.100]<00:00.100><script>synthetic</script>");

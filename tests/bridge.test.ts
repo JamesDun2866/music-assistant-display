@@ -11,6 +11,19 @@ const anchor = (id: string, playback: QueueAnchor["playback"] = "playing", posit
 });
 const flush = async () => { await new Promise((resolve) => setTimeout(resolve, 0)); };
 describe("playback state machine", () => {
+  it("preserves catalog artwork on sparse external snapshots but not across tracks", async () => {
+    const bridge = new Bridge({ capability: "available", fetch: async () => parseLyrics(null) },
+      { get: async () => null, put: async () => {} }, { visualOffsetMs: 0 });
+    const current: QueueAnchor = { ...anchor("exact:one"), precision: "ma-player" };
+    bridge.accept(current);
+    bridge.updateArtwork("exact:one", "/api/artwork/catalog-one");
+    bridge.accept(current);
+    expect(bridge.snapshot().track?.artworkUrl).toBe("/api/artwork/catalog-one");
+    bridge.accept({ ...anchor("exact:two"), precision: "ma-player" });
+    expect(bridge.snapshot().track?.artworkUrl).toBeNull();
+    await flush();
+    bridge.close();
+  });
   it("cancels queued lyrics for metadata-only sources and recovers when an exact timed identity becomes available", async () => {
     let resolve: ((value: Lyrics) => void) | undefined;
     let oldSignal: AbortSignal | undefined;

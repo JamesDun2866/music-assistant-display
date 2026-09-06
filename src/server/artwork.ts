@@ -1,9 +1,20 @@
 import { maBaseUrl } from "./ma-client.js";
 import type { Artwork } from "./http.js";
 
+type ImageEntry = { url: string; version: string; artwork?: Artwork };
+
 export class ArtworkStore {
-  private images = new Map<string, { proxyId: string; artwork?: Artwork }>();
-  constructor(private readonly maUrl: string) {}
+  private images = new Map<string, ImageEntry>();
+  constructor(private readonly maUrl: string, private readonly allowSpotifyArtwork = false) {}
+  setFromPlayerUrl(identity: string, raw: string, spotifySource: boolean): string | null {
+    const proxied = this.setFromMaUrl(identity, raw);
+    if (proxied) return proxied;
+    if (!this.allowSpotifyArtwork || !spotifySource) return null;
+    // Accept only canonical cover URLs, never arbitrary hosts, paths, queries or redirects.
+    const match = /^https:\/\/i\.scdn\.co\/image\/([a-fA-F0-9]{40})$/.exec(raw);
+    if (!match) return null;
+    return this.remember(identity, raw, `spotify-${match[1]}`);
+  }
   setFromMaUrl(identity: string, raw: string): string | null {
     const base = maBaseUrl(this.maUrl);
     if (!URL.canParse(raw, base)) return null;
@@ -15,18 +26,24 @@ export class ArtworkStore {
   }
   set(identity: string, proxyId: string): string {
     if (!/^[a-fA-F0-9]{64}$/.test(proxyId)) throw new Error("invalid_image_proxy_id");
+    const url = new URL(`imageproxy/${proxyId}?size=512&fmt=jpeg`, maBaseUrl(this.maUrl)).href;
+    return this.remember(identity, url, proxyId);
+  }
+  private remember(identity: string, url: string, version: string): string {
     const previous = this.images.get(identity);
     this.images.delete(identity);
-    this.images.set(identity, previous?.proxyId === proxyId ? previous : { proxyId });
+    this.images.set(identity, previous?.url === url ? previous : { url, version });
     while (this.images.size > 8) this.images.delete(this.images.keys().next().value!);
-    return `/api/artwork/${encodeURIComponent(identity)}?v=${proxyId}`;
+    return `/api/artwork/${encodeURIComponent(identity)}?v=${version}`;
   }
   async get(identity: string, signal: AbortSignal): Promise<Artwork | null> {
     const image = this.images.get(identity);
     if (!image) return null;
     if (image.artwork) return image.artwork;
-    const url = new URL(`imageproxy/${image.proxyId}?size=512&fmt=jpeg`, maBaseUrl(this.maUrl));
-    const response = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]), redirect: "error" });
+    const response = await fetch(image.url, {
+      signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]), redirect: "error",
+      credentials: "omit", referrerPolicy: "no-referrer",
+    });
     if (response.status === 404) return null;
     if (!response.ok || !response.body) throw new Error("artwork_request_failed");
     const type = response.headers.get("content-type")?.split(";")[0];

@@ -120,10 +120,38 @@ never fuzzy-matched. Missing or stale player timing disables synchronized lyrics
 without hiding the reported metadata. Timing is labelled approximate MA player
 timing, not queue or native Sendspin synchronization.
 
-Artwork is shown only when MA supplies an image URL on its own verified
+By default, artwork is shown only when MA supplies an image URL on its own verified
 `/imageproxy/<64-hex-id>` route (including the configured reverse-proxy prefix),
 or an exact Track lookup supplies a proxy ID. Raw Spotify/CDN image URLs are not
-fetched; those sources show the normal artwork placeholder.
+fetched by default; those sources show the normal artwork placeholder.
+
+### Optional Spotify Connect artwork
+
+Connect can supply a direct Spotify cover URL rather than an MA image-proxy URL.
+To permit the backend to fetch these covers, explicitly set this in
+`/etc/sendspin-karaoke/environment` (or `.env` for development) and restart the
+service after installing a release with this setting:
+
+```ini
+MA_ALLOW_SPOTIFY_ARTWORK=true
+```
+
+This is off by default, including when the setting is absent in an existing
+installation. It allows only canonical HTTPS `i.scdn.co/image/<40-hex-id>` URLs
+reported by MA for a Spotify/Spotify Connect source. No title search, Spotify
+account login, MA metadata refresh, or new lyric provider is involved.
+
+**Privacy:** enabling it contacts Spotify's image service from the Pi, exposing
+your public IP and the requested cover identifier to that service. The backend
+sends no MA token, cookies or referrer. The browser still loads a local artwork
+route; the external URL is not sent to it. Redirects and other hosts/paths are
+rejected. Downloads retain the eight-second timeout, 2 MiB byte cap, raster
+type/signature checks and eight-entry in-memory cache. Artwork changes are
+versioned separately from lyrics identity; unavailable artwork uses a placeholder.
+Other URL formats remain unsupported rather than expanding network access silently.
+
+This does not fix Connect's missing exact track URI or enable lyric matching.
+Set `MA_ALLOW_SPOTIFY_ARTWORK=false` and restart to disable direct cover fetching.
 
 For troubleshooting, first compare MA's own player screen with this display.
 Correct title/artist in MA but not on the display points to the source/queue path,
