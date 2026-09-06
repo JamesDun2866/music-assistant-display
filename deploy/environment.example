@@ -11,6 +11,8 @@ DEMO_MODE=true
 # MA_QUEUE_ID=replace-with-queue-id
 # Opt in only if MA may refresh/write library metadata while fetching lyrics.
 MA_ALLOW_LYRICS_REFRESH=false
+# Opt in to direct HTTPS Spotify cover downloads from i.scdn.co (no MA token sent).
+MA_ALLOW_SPOTIFY_ARTWORK=false
 CEC_ENABLED=false
 # Opt-in built-in Pi CEC remote navigation; ignored in demo or with CEC disabled.
 CEC_REMOTE_ENABLED=false

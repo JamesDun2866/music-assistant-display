@@ -145,6 +145,7 @@ variables.
 | `MA_PLAYER_ID` | Intended MA player |
 | `MA_QUEUE_ID` | Intended MA queue; required along with the other three MA fields in live mode |
 | `MA_ALLOW_LYRICS_REFRESH` | `false` by default; opt in to provider enrichment that may refresh/write MA library metadata |
+| `MA_ALLOW_SPOTIFY_ARTWORK` | `false` by default; opt in to backend HTTPS cover downloads from the restricted Spotify image host; exposes your public IP and cover identifier to that service |
 | `CEC_ENABLED` | `false` by default; enable only after reading [CEC](cec.md) |
 | `CEC_REMOTE_ENABLED` | `false` by default; persistent native remote input also requires master CEC enabled and live (non-demo) mode |
 | `CEC_DEVICE` | Exact connected kernel character device, default `/dev/cec0`; inspect before enabling, `/dev/cec1` supported |

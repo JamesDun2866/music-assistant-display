@@ -23,6 +23,16 @@ only affect the local simulator. Prefer TLS for MA traffic on an untrusted
 network, with a trusted certificate; certificate verification is never disabled.
 Unencrypted MA WebSocket traffic is readable by a network observer.
 
+Spotify Connect cover downloads are separately opt-in with
+`MA_ALLOW_SPOTIFY_ARTWORK=true`; absent/false keeps artwork requests restricted
+to MA. This permits only HTTPS `i.scdn.co/image/<40-hex-id>` URLs from MA-reported
+Spotify sources, never arbitrary image URLs, URL credentials, ports, queries,
+redirects or additional hosts. Spotify's image service sees your public IP and
+the cover requested. No MA token, cookies or referrer is sent, and the browser
+receives only a local image route. Downloads retain the bounded raster handling
+and in-memory cache used for MA artwork. This flag does not change library
+refresh permissions or resolve missing lyric identities.
+
 Persistent state contains display/Ambient preferences, uploaded image copies
 and a bounded local lyrics cache.
 Lyrics may be copyrighted; this project ships only original synthetic examples.

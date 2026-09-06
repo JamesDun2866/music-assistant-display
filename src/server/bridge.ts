@@ -23,6 +23,7 @@ export class Bridge extends EventEmitter {
   private generation = 0;
   private sequence = 0;
   private track: Track | null = null;
+  private hydratedArtwork: string | null = null;
   private itemKey: string | null = null;
   private lyrics: Lyrics = emptyLyrics();
   private connection: ConnectionState = "connecting";
@@ -76,6 +77,7 @@ export class Bridge extends EventEmitter {
   }
   updateArtwork(identity: string, artworkUrl: string): void {
     if (this.track?.identity !== identity) return;
+    this.hydratedArtwork = artworkUrl;
     this.track = { ...this.track, artworkUrl };
     this.changed();
   }
@@ -94,6 +96,7 @@ export class Bridge extends EventEmitter {
       this.preloadAbort?.abort();
       this.lastPreload = null;
       this.request = nextTrack ? anchor.request : null;
+      this.hydratedArtwork = null;
       this.track = nextTrack;
       this.lyrics = nextTrack ? this.request
         ? { ...emptyLyrics(), status: "loading", message: "Loading lyrics..." }
@@ -101,7 +104,9 @@ export class Bridge extends EventEmitter {
         : emptyLyrics();
       if (this.request) void this.load(this.request, this.generation);
     } else {
-      this.track = nextTrack ? { ...nextTrack, artworkUrl: nextTrack.artworkUrl ?? this.track?.artworkUrl ?? null } : null;
+      this.track = nextTrack ? { ...nextTrack, artworkUrl: nextTrack.artworkUrl
+        ?? this.hydratedArtwork
+        ?? (anchor.precision === "ma-player" ? null : this.track?.artworkUrl ?? null) } : null;
       if (this.request && this.lyrics.status === "error" && this.now() >= this.retryAt && !this.abort) {
         void this.load(this.request, this.generation);
       }

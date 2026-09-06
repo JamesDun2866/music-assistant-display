@@ -33,7 +33,7 @@ async function main(): Promise<void> {
     adapter: config.CEC_ADAPTER, allowStandby: config.CEC_ALLOW_STANDBY,
   });
   const client = config.DEMO_MODE ? null : new MaClient(config.MA_URL!, config.MA_TOKEN!);
-  const artwork = client ? new ArtworkStore(config.MA_URL!) : null;
+  const artwork = client ? new ArtworkStore(config.MA_URL!, config.MA_ALLOW_SPOTIFY_ARTWORK) : null;
   const provider = client ? new MaLyricsProvider(client, config.MA_ALLOW_LYRICS_REFRESH, (identity, track) => {
     const proxyId = imageId(track);
     if (proxyId && artwork) bridge.updateArtwork(identity, artwork.set(identity, proxyId));

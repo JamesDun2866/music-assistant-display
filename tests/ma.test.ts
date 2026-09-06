@@ -257,6 +257,30 @@ describe("verified MA wire contract", () => {
   });
 });
 describe("external MA player identity", () => {
+  it("updates Connect cover URLs without changing lyrics identity and clears missing covers", () => {
+    const store = new ArtworkStore("http://ma.example", true);
+    const bridge = new Bridge({ capability: "available", fetch: vi.fn() },
+      { get: async () => null, put: async () => {} }, { visualOffsetMs: 0 });
+    const player = externalPlayer();
+    const cover = (id: string | null) => ({
+      ...player, current_media: { ...player.current_media, image_url: id ? `https://i.scdn.co/image/${id.repeat(40)}` : null },
+    });
+    try {
+      const first = playerAnchor(cover("a"), "exact-cast", "exact-group", Date.now(), store);
+      bridge.accept(first);
+      expect(first.request).toBeNull();
+      expect(bridge.snapshot().track?.artworkUrl).toContain(`v=spotify-${"a".repeat(40)}`);
+      const second = playerAnchor(cover("b"), "exact-cast", "exact-group", Date.now(), store);
+      bridge.accept(second);
+      expect(second.track?.identity).toBe(first.track?.identity);
+      expect(bridge.snapshot().track?.artworkUrl).toContain(`v=spotify-${"b".repeat(40)}`);
+      expect(bridge.snapshot().lyrics.status).toBe("unsupported");
+      bridge.accept(playerAnchor(cover(null), "exact-cast", "exact-group", Date.now(), store));
+      expect(bridge.snapshot().track?.artworkUrl).toBeNull();
+      const disabled = new ArtworkStore("http://ma.example");
+      expect(playerAnchor(cover("a"), "exact-cast", "exact-group", Date.now(), disabled).track?.artworkUrl).toBeNull();
+    } finally { bridge.close(); }
+  });
   it("does not confuse an endpoint, stream, episode or title with a Spotify track", () => {
     for (const uri of [
       externalPlayer().current_media.uri, "https://stream.example/song",
