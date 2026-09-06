@@ -30,6 +30,14 @@ used to search for lyrics. The configured queue must be the active queue for the
 target CAST (which may be a group queue). A mismatch freezes the display rather
 than silently following another player.
 
+If MA explicitly reports no active queue, the bridge can instead read the
+configured player's external-source metadata, with the same configured group
+owner constraint. Display occurrence identity is separate from catalog identity:
+an AudioSource URI does not identify a song, and display text never initiates a
+lyrics search. Missing exact identity yields an explicit unsupported-lyrics state
+and cancels previous queue work. External player clocks are labelled separately.
+See [Spotify Connect limitations](music-assistant.md#spotify-connect-and-external-sources).
+
 `PlaybackClock` isolates the timing source. Its baseline implementation anchors a
 millisecond position to `performance.now()` and advances only at speed 1.
 Paused/stale/stopped clocks have speed 0. Explicit seek/repeat/next updates replace

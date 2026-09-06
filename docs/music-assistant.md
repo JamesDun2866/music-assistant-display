@@ -38,6 +38,8 @@ current `activeQueueId`. Set that exact value as `MA_QUEUE_ID`. Group queue IDs
 can differ from individual player IDs. When group membership/source changes,
 the bridge re-resolves the active queue and **refuses to follow a different
 configured queue**. Reconfigure the expected queue deliberately if needed.
+Perform this initial discovery during ordinary MA queue playback, not while
+an external Spotify Connect source is active: the latter can have no active queue.
 
 Set `DEMO_MODE=false` and restart after configuring all four MA values. Demo
 does not automatically fall back to or from live mode. The production JS
@@ -61,6 +63,7 @@ wire-level subscription command.
 | Command | Arguments and result |
 |---|---|
 | `player_queues/get_active_queue` | `{player_id}` -> full queue or null; follows synced/group/active-source routing |
+| `players/get` | `{player_id}` -> player state, including `current_media`; used only when the active queue is null |
 | `music/item_by_uri` | `{uri, allow_update_metadata:false}` -> actual full Track |
 | `metadata/get_track_lyrics` | `{track: fullTrack}` -> `[plainLyricsOrNull, lrcLyricsOrNull]` |
 | `players/all`, `player_queues/all` | Discovery only; results are stripped to IDs/names before printing |
@@ -78,6 +81,55 @@ tracks/next correctly. Metadata resolution may return a library representation
 for a provider URI; pass that entire returned Track to the lyrics endpoint.
 Do not mix a library item ID with another provider instance, search by title,
 or invent a simplified endpoint.
+
+## Spotify Connect and external sources
+
+External-source playback is not necessarily MA queue playback. In the verified
+**MA 2.10.2** source, the Spotify Connect plugin updates live source metadata and
+emits `player_updated`. The MA queue is preserved, and
+`player_queues/get_active_queue` normally returns null while the source is active.
+Reading the old queue cannot identify the externally playing song.
+
+Only after an explicit null active-queue response, the display reads the
+configured player's `current_media` using `players/get`. Title, artist and album
+are display metadata, not search inputs. Song changes are detected even when the
+source URI stays constant. The old queue's lyrics, pending lyric requests and
+timing events cannot replace this external-source display. Returning to the
+configured MA queue restores the ordinary exact-URI lyrics path.
+
+Player identity and grouping are still checked. For the external-source path,
+the selected player's sync leader, active group, or ungrouped player ID must
+match `MA_QUEUE_ID`. Unknown or differently routed groups are refused, not followed
+by name. A non-null but mismatched/unavailable MA queue is never replaced with an
+external-source fallback.
+
+**This fixes stale/blank metadata, not the MA Connect lyrics identity limitation.**
+The plugin internally knows the Spotify track URI, but MA's public player
+projection sets `current_media.uri` to the **AudioSource endpoint URI** and
+`media_type` to `audio_source`. It copies title/artist/album but does not expose
+that internal track URI. The registered source item/browse/provider APIs do not
+provide it either. The display shows an explicit unsupported-lyrics explanation;
+it never sends this endpoint URI to a Track/lyrics lookup or caches lyrics under it.
+Its hashed display occurrence key is not a catalog identity.
+
+Some other external player integrations can report an actual Spotify **track**
+URI in `current_media` with media type `track`. Only recognized exact Spotify
+track URIs use the existing `music/item_by_uri` and lyrics provider path; provider
+availability and the existing library-refresh opt-in still apply. Titles are
+never fuzzy-matched. Missing or stale player timing disables synchronized lyrics
+without hiding the reported metadata. Timing is labelled approximate MA player
+timing, not queue or native Sendspin synchronization.
+
+Artwork is shown only when MA supplies an image URL on its own verified
+`/imageproxy/<64-hex-id>` route (including the configured reverse-proxy prefix),
+or an exact Track lookup supplies a proxy ID. Raw Spotify/CDN image URLs are not
+fetched; those sources show the normal artwork placeholder.
+
+For troubleshooting, first compare MA's own player screen with this display.
+Correct title/artist in MA but not on the display points to the source/queue path,
+not to lyric provider availability. Enabling `MA_ALLOW_LYRICS_REFRESH`, clearing
+the lyrics cache, or changing token permissions cannot recover an unexposed track
+URI. Do not change those settings merely to diagnose Connect.
 
 ## Read-only and enrichment policy
 
@@ -136,3 +188,8 @@ placeholder. Legacy `?provider=...&path=...` proxy syntax is not used.
 - [Queue clock model](https://github.com/music-assistant/models/blob/1.1.205/music_assistant_models/player_queue.py)
 - [Current image proxy](https://github.com/music-assistant/server/blob/2.10.2/music_assistant/controllers/metadata/images.py)
 - [MA lyrics setup](https://www.music-assistant.io/metadata/lyrics/)
+- [Connect backend metadata projection](https://github.com/music-assistant/server/blob/243c4561c1744501a3087101127c339f4269831b/music_assistant/providers/spotify_connect/provider.py#L1160-L1171)
+- [Public external-source PlayerMedia (endpoint URI, not track URI)](https://github.com/music-assistant/server/blob/243c4561c1744501a3087101127c339f4269831b/music_assistant/models/player.py#L3040-L3078)
+- [External-source active-queue resolution](https://github.com/music-assistant/server/blob/243c4561c1744501a3087101127c339f4269831b/music_assistant/controllers/players/controller.py#L2176-L2194)
+- [Public Player/PlayerMedia fields and player clock](https://github.com/music-assistant/models/blob/99df2a566be5a58150d13c08823069e382b516ce/music_assistant_models/player.py)
+- [AudioSource item lookup returns the source catalog object](https://github.com/music-assistant/server/blob/243c4561c1744501a3087101127c339f4269831b/music_assistant/controllers/music/controller.py#L1158-L1169)

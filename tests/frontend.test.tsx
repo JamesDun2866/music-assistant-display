@@ -141,6 +141,16 @@ describe("receipt-anchored playback clock", () => {
 });
 
 describe("lyrics rendering", () => {
+  it("accepts external player snapshots and explains missing exact identity without showing old lyrics", () => {
+    const external = snapshotSchema.parse(snapshot({
+      precision: "ma-player", speed: 0,
+      lyrics: { status: "unsupported", lines: [], plain: null, message: "No exact track URI is available." },
+    }));
+    render(<LyricsStage snapshot={external} displayPositionMs={0} stale={false} cleared={false} />);
+    expect(screen.getByText("Lyrics unavailable")).toBeInTheDocument();
+    expect(screen.getByText("No exact track URI is available.")).toBeInTheDocument();
+    expect(screen.queryByText("First line")).not.toBeInTheDocument();
+  });
   it("marks the current timed line and retains its neighbors", () => {
     render(<LyricsStage snapshot={snapshot()} displayPositionMs={2_000} stale={false} cleared={false} />);
     expect(screen.getByText("Second line")).toHaveAttribute("aria-current", "true");
@@ -163,7 +173,7 @@ describe("lyrics rendering", () => {
     ["missing", "Just the music, for now"],
     ["loading", "Finding the words"],
     ["error", "Lyrics couldn’t load"],
-    ["unsupported", "Timing unavailable"],
+    ["unsupported", "Lyrics unavailable"],
   ] as const)("distinguishes the %s state", (status, heading) => {
     render(<LyricsStage snapshot={snapshot({
       lyrics: { status, lines: [], plain: null, message: null },

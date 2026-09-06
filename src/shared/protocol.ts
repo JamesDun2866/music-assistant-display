@@ -44,7 +44,7 @@ export interface Snapshot {
   viewMode: ViewMode;
   lyricFollowMode: LyricFollowMode;
   ambient: AmbientSettings;
-  precision: "ma-queue" | "demo";
+  precision: "ma-queue" | "ma-player" | "demo";
   message: string | null;
   cec: CecStatus;
 }

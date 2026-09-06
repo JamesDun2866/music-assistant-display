@@ -38,7 +38,7 @@ export const snapshotSchema: z.ZodType<Snapshot, z.ZodTypeDef, unknown> = z.obje
   viewMode: z.enum(["now-playing", "lyrics", "split", "ambient"]).default("split"),
   lyricFollowMode: z.enum(["smooth", "instant"]).default("smooth"),
   ambient: ambientSettingsSchema.default(DEFAULT_AMBIENT),
-  precision: z.enum(["ma-queue", "demo"]),
+  precision: z.enum(["ma-queue", "ma-player", "demo"]),
   message: text.nullable(),
   cec: z.object({
     enabled: z.boolean(),

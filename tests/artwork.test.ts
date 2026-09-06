@@ -2,6 +2,17 @@ import { afterEach, expect, it, vi } from "vitest";
 import { ArtworkStore } from "../src/server/artwork.js";
 
 afterEach(() => vi.unstubAllGlobals());
+it("extracts external player artwork only from this MA server's bounded proxy route", () => {
+  const artwork = new ArtworkStore("http://ma.example/base");
+  const id = "a".repeat(64);
+  expect(artwork.setFromMaUrl("external:one", `/base/imageproxy/${id}?size=1000`)).toBe(`/api/artwork/external%3Aone?v=${id}`);
+  expect(artwork.setFromMaUrl("external:one", `http://ma.example/base/imageproxy/${id}`)).not.toBeNull();
+  for (const url of [
+    `https://external.example/imageproxy/${id}`, `http://ma.example/imageproxy/${id}`,
+    "http://ma.example/base/imageproxy?path=untrusted", `http://user:secret@ma.example/base/imageproxy/${id}`,
+    "javascript:alert(1)", `http://ma.example/base/imageproxy/${id}/extra`,
+  ]) expect(artwork.setFromMaUrl("external:one", url)).toBeNull();
+});
 it("uses only validated MA proxy IDs, no tokens, and caches bounded raster data", async () => {
   const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array([255, 216, 255, 217]), { headers: { "Content-Type": "image/jpeg" } }));
   vi.stubGlobal("fetch", fetcher);

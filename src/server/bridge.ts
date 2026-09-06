@@ -15,6 +15,9 @@ export interface QueueAnchor {
   playback: PlaybackState;
   positionMs: number;
   next?: TrackRequest | null;
+  precision?: "ma-queue" | "ma-player";
+  speed?: 0 | 1;
+  lyricsUnavailable?: string;
 }
 export class Bridge extends EventEmitter {
   private generation = 0;
@@ -31,6 +34,7 @@ export class Bridge extends EventEmitter {
   private lastPreload: string | null = null;
   private request: TrackRequest | null = null;
   private retryAt = 0;
+  private precision: "ma-queue" | "ma-player" = "ma-queue";
   constructor(
     private readonly provider: LyricsProvider,
     private readonly cache: Pick<LyricsCache, "get" | "put">,
@@ -45,7 +49,7 @@ export class Bridge extends EventEmitter {
       sequence: ++this.sequence, generation: this.generation, demo: this.demo,
       connection: this.connection, playback: this.playback, track: this.track,
       lyrics: this.lyrics, positionMs: this.clock.position(), speed: this.clock.speed,
-      visualOffsetMs: this.settings.visualOffsetMs, precision: this.demo ? "demo" : "ma-queue",
+      visualOffsetMs: this.settings.visualOffsetMs, precision: this.demo ? "demo" : this.precision,
       viewMode: this.settings.viewMode ?? "split",
       lyricFollowMode: this.settings.lyricFollowMode ?? "smooth",
       ambient: structuredClone(this.settings.ambient ?? DEFAULT_AMBIENT),
@@ -80,8 +84,9 @@ export class Bridge extends EventEmitter {
     this.connection = "connected";
     this.message = null;
     this.playback = anchor.playback;
+    this.precision = anchor.precision ?? "ma-queue";
     const nextTrack = anchor.playback === "idle" ? null : anchor.track;
-    const key = nextTrack ? `${anchor.itemKey}\0${nextTrack.identity}` : null;
+    const key = nextTrack ? `${anchor.itemKey}\0${nextTrack.identity}\0${anchor.request?.identity ?? ""}` : null;
     if (key !== this.itemKey) {
       this.itemKey = key;
       this.generation++;
@@ -90,7 +95,10 @@ export class Bridge extends EventEmitter {
       this.lastPreload = null;
       this.request = nextTrack ? anchor.request : null;
       this.track = nextTrack;
-      this.lyrics = nextTrack ? { ...emptyLyrics(), status: "loading", message: "Loading lyrics..." } : emptyLyrics();
+      this.lyrics = nextTrack ? this.request
+        ? { ...emptyLyrics(), status: "loading", message: "Loading lyrics..." }
+        : { ...emptyLyrics(), status: "unsupported", message: anchor.lyricsUnavailable ?? "No exact lyrics identity is available." }
+        : emptyLyrics();
       if (this.request) void this.load(this.request, this.generation);
     } else {
       this.track = nextTrack ? { ...nextTrack, artworkUrl: nextTrack.artworkUrl ?? this.track?.artworkUrl ?? null } : null;
@@ -98,7 +106,8 @@ export class Bridge extends EventEmitter {
         void this.load(this.request, this.generation);
       }
     }
-    this.clock.anchor(nextTrack ? anchor.positionMs : 0, nextTrack && anchor.playback === "playing" ? 1 : 0, nextTrack?.durationMs);
+    this.clock.anchor(nextTrack ? anchor.positionMs : 0,
+      nextTrack && anchor.playback === "playing" ? anchor.speed ?? 1 : 0, nextTrack?.durationMs);
     if (anchor.next && nextTrack && this.lyrics.status !== "loading" && anchor.next.identity !== this.lastPreload && anchor.next.identity !== nextTrack.identity) {
       this.lastPreload = anchor.next.identity;
       void this.preload(anchor.next);
