@@ -127,7 +127,7 @@ export function LyricsStage({ snapshot, displayPositionMs, cleared, stale }: Pic
   if (lyrics.status === "error") return <EmptyStage title="Lyrics couldn’t load">
     {lyrics.message || "The lyrics source returned an error. Playback is unaffected; try the next song."}
   </EmptyStage>;
-  if (lyrics.status === "unsupported") return <EmptyStage title="Timing unavailable">
+  if (lyrics.status === "unsupported") return <EmptyStage title="Lyrics unavailable">
     {lyrics.message || "This lyrics format isn’t supported. Playback continues on your player."}
   </EmptyStage>;
   return <EmptyStage title="Just the music, for now">
@@ -384,7 +384,8 @@ export function App() {
 
       <div className="display-tools">
         <span className="local-note">{ambientMode ? "Your room. A little quieter." : track && snapshot?.precision === "ma-queue"
-          ? "Approximate queue-event sync" : "Local display · No audio output"}</span>
+          ? "Approximate queue-event sync" : track && snapshot?.precision === "ma-player"
+            ? "External source · Approximate player timing" : "Local display · No audio output"}</span>
         <div className="tool-actions">
           {ambientMode && <details ref={libraryDetails} className="ambient-library" onToggle={(event) => {
             setLibraryOpen(event.currentTarget.open);
@@ -422,6 +423,7 @@ export function App() {
                 <h2 id="timing-heading">Make the words meet the music</h2>
                 <p>Adjust this screen, not playback. A positive offset shows lyrics earlier. Saved on the local service.</p>
                 {snapshot?.precision === "ma-queue" && <p>Timing follows approximate Music Assistant queue events, not the Sendspin audio clock.</p>}
+                {snapshot?.precision === "ma-player" && <p>External-source metadata and approximate timing come from Music Assistant, not the Sendspin audio clock. Lyrics require an exact track URI and a reliable playback clock.</p>}
                 <div className="offset-controls">
                   <button disabled={localDisabled || offset <= -30_000} onClick={() => changeOffset(offset - 100)} aria-label="Show lyrics 100 milliseconds later">−100 ms</button>
                   <output aria-label="Visual offset">{offsetText}</output>

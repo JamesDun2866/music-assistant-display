@@ -17,6 +17,12 @@ lyrics by exact track URI and follows the CAST's exact active queue. Timing is
 clock or word-level karaoke. No browser audio player is created and no groups
 or playback settings are changed.
 
+**Spotify Connect:** when MA reports an external source instead of an active
+queue, the display follows that player's title/artist/album and clears previous
+queue lyrics. MA 2.10.2's Connect endpoint exposes a source URI, not the current
+Spotify track URI, so this path explicitly reports unavailable lyrics rather
+than guessing a song. See [external-source limits](docs/music-assistant.md#spotify-connect-and-external-sources).
+
 **Start here: [complete Raspberry Pi installation walkthrough](docs/installation-guide.md).**
 From shopping list and Wi-Fi setup to anonymous public cloning, MA credentials,
 desktop kiosk and recovery, including optional HDMI-CEC and **model-checked

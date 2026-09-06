@@ -4,6 +4,7 @@ import type { MaClient, MaEvent } from "./ma-client.js";
 import { imageId, imageSchema, mediaSchema } from "./ma-provider.js";
 import type { ArtworkStore } from "./artwork.js";
 import { log } from "./log.js";
+import { playerAnchor, playerEventSchema } from "./ma-player.js";
 
 const itemSchema = z.object({
   queue_item_id: z.string().max(4096),
@@ -86,6 +87,10 @@ export class MaMonitor {
   private onEvent = (event: MaEvent) => {
     if (event.object_id !== this.queueId && event.object_id !== this.playerId) return;
     if (!["queue_updated", "queue_items_updated", "queue_time_updated", "player_updated", "player_added", "player_removed"].includes(event.event)) return;
+    if (event.event.startsWith("queue_") && this.current?.precision === "ma-player") {
+      this.schedule();
+      return;
+    }
     if (event.event === "queue_time_updated" && event.object_id === this.queueId &&
       typeof event.data === "number" && Number.isFinite(event.data) && event.data >= 0) {
       // The scalar seek anchor has no timestamp: apply at receipt, then reconcile the binding.
@@ -112,11 +117,7 @@ export class MaMonitor {
         this.bridge.invalidate("Queue changed; refreshing exact target.");
       }
     } else if (event.event.startsWith("player_")) {
-      const route = z.object({
-        active_source: z.string().nullable().optional(),
-        active_group: z.string().nullable().optional(),
-        synced_to: z.string().nullable().optional(),
-      }).safeParse(event.data);
+      const route = playerEventSchema.safeParse(event.data);
       const fingerprint = route.success ? JSON.stringify(route.data) : "unavailable";
       if (event.event === "player_removed" || this.routing.get(event.object_id!) !== fingerprint) {
         this.revision++;
@@ -153,9 +154,14 @@ export class MaMonitor {
     try {
       const raw = await this.client.request("player_queues/get_active_queue", { player_id: this.playerId }, abort.signal);
       if (revision !== this.revision || abort.signal.aborted) { this.schedule(); return; }
-      const anchor = queueAnchor(raw, this.queueId, this.client.serverNowMs(), this.artwork);
+      const player = raw === null
+        ? await this.client.request("players/get", { player_id: this.playerId }, abort.signal) : null;
+      if (revision !== this.revision || abort.signal.aborted) { this.schedule(); return; }
+      const anchor = raw === null
+        ? playerAnchor(player, this.playerId, this.queueId, this.client.serverNowMs(), this.artwork)
+        : queueAnchor(raw, this.queueId, this.client.serverNowMs(), this.artwork);
       // Time events must not starve acquisition, but an older in-flight snapshot must not undo a seek.
-      if (this.latestTime && this.latestTime.sequence > timingSequence && this.latestTime.revision === revision &&
+      if (anchor.precision !== "ma-player" && this.latestTime && this.latestTime.sequence > timingSequence && this.latestTime.revision === revision &&
         (!this.structure || this.fingerprint(anchor) === this.structure)) {
         anchor.positionMs = this.latestTime.positionMs + (anchor.playback === "playing" ? performance.now() - this.latestTime.at : 0);
       }
@@ -169,6 +175,7 @@ export class MaMonitor {
       const known = error instanceof Error && [
         "target_queue_mismatch", "target_queue_unavailable", "target_queue_inactive",
         "unsupported_playback_speed", "unsupported_media_type", "stale_or_invalid_queue_timestamp",
+        "target_player_mismatch", "target_player_unavailable", "external_source_unconfirmed", "external_metadata_unavailable",
       ].includes(error.message) ? error.message : "queue_read_failed";
       this.bridge.invalidate(`Music Assistant: ${known.replaceAll("_", " ")}. Check target IDs, version and permissions.`);
       log("ma_queue_unavailable", known);

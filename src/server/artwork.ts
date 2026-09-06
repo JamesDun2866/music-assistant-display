@@ -4,6 +4,15 @@ import type { Artwork } from "./http.js";
 export class ArtworkStore {
   private images = new Map<string, { proxyId: string; artwork?: Artwork }>();
   constructor(private readonly maUrl: string) {}
+  setFromMaUrl(identity: string, raw: string): string | null {
+    const base = maBaseUrl(this.maUrl);
+    if (!URL.canParse(raw, base)) return null;
+    const url = new URL(raw, base);
+    const prefix = `${base.pathname}imageproxy/`;
+    if (url.origin !== base.origin || url.username || url.password || !url.pathname.startsWith(prefix)) return null;
+    const proxyId = url.pathname.slice(prefix.length);
+    return /^[a-fA-F0-9]{64}$/.test(proxyId) ? this.set(identity, proxyId) : null;
+  }
   set(identity: string, proxyId: string): string {
     if (!/^[a-fA-F0-9]{64}$/.test(proxyId)) throw new Error("invalid_image_proxy_id");
     const previous = this.images.get(identity);

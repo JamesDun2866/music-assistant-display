@@ -11,6 +11,38 @@ const anchor = (id: string, playback: QueueAnchor["playback"] = "playing", posit
 });
 const flush = async () => { await new Promise((resolve) => setTimeout(resolve, 0)); };
 describe("playback state machine", () => {
+  it("cancels queued lyrics for metadata-only sources and recovers when an exact timed identity becomes available", async () => {
+    let resolve: ((value: Lyrics) => void) | undefined;
+    let oldSignal: AbortSignal | undefined;
+    const fetch = vi.fn((_request, signal: AbortSignal) => {
+      oldSignal = signal;
+      return new Promise<Lyrics>((done) => { resolve = done; });
+    });
+    const cache = { get: vi.fn(async () => null), put: vi.fn(async () => {}) };
+    const bridge = new Bridge({ capability: "available", fetch }, cache, { visualOffsetMs: 0 });
+    bridge.accept(anchor("queued"));
+    await flush();
+    const external: QueueAnchor = {
+      ...anchor("external:synthetic"), request: null, speed: 0, precision: "ma-player",
+      lyricsUnavailable: "No exact track URI.",
+    };
+    bridge.accept(external);
+    expect(oldSignal?.aborted).toBe(true);
+    resolve!(parseLyrics("[00:00]Obsolete synthetic lyrics"));
+    await flush();
+    expect(bridge.snapshot()).toMatchObject({
+      precision: "ma-player", speed: 0, lyrics: { status: "unsupported", lines: [], message: "No exact track URI." },
+    });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(cache.put).not.toHaveBeenCalled();
+    bridge.accept({ ...external, request: { identity: "exact:synthetic", uri: "exact:synthetic" }, speed: 1 });
+    await flush();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    resolve!(parseLyrics("[00:00]Current synthetic lyrics"));
+    await flush();
+    expect(bridge.snapshot().lyrics.lines[0]?.text).toBe("Current synthetic lyrics");
+    bridge.close();
+  });
   it("never changes ambient preferences or view for queue changes, stale state, stop or invalidation", async () => {
     let now = 0;
     const settings = {

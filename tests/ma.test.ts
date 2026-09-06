@@ -8,6 +8,7 @@ import { ArtworkStore } from "../src/server/artwork.js";
 import { Bridge } from "../src/server/bridge.js";
 import { parseLyrics } from "../src/server/lrc.js";
 import { UnavailableSendspinLyricsProvider } from "../src/server/provider.js";
+import { playerAnchor, spotifyTrackUri } from "../src/server/ma-player.js";
 
 const syntheticTrack = (id = "one", provider = "synthetic") => ({
   uri: `${provider}://track/${id}`, item_id: id, provider, media_type: "track", name: `Synthetic ${id}`,
@@ -20,6 +21,16 @@ const queue = (id = "one") => ({
   elapsed_time: 2, elapsed_time_last_updated: Date.now() / 1000, playback_speed: 1,
   current_item: { queue_item_id: id, name: `Synthetic ${id}`, media_item: syntheticTrack(id), duration: 60 },
   next_item: null,
+});
+const externalPlayer = (title = "Synthetic external one") => ({
+  player_id: "exact-cast", available: true, active_group: "exact-group", synced_to: null,
+  active_source: "spotify_connect--synthetic://audio_source/exact-group",
+  playback_state: "playing", elapsed_time: 3, elapsed_time_last_updated: Date.now() / 1000,
+  current_media: {
+    uri: "spotify_connect--synthetic://audio_source/exact-group", media_type: "audio_source",
+    title, artist: "Synthetic external artist", album: "Synthetic external album", duration: 60,
+    queue_item_id: null,
+  },
 });
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); vi.useRealTimers(); });
@@ -121,6 +132,162 @@ describe("verified MA wire contract", () => {
     const mock = await mockMa(() => null);
     await expect(mock.client.request("players/cmd/group" as MaCommand)).rejects.toThrow("not_allowed");
     expect(mock.commands).toEqual([]);
+  });
+  it("follows Connect metadata across a stable source URI, ignores the old queue, and returns to MA lyrics", async () => {
+    let current: ReturnType<typeof queue> | null = queue();
+    let player = externalPlayer();
+    const requests: string[] = [];
+    const mock = await mockMa((command, args) => {
+      if (command === "player_queues/get_active_queue") return current;
+      if (command === "players/get") { expect(args).toEqual({ player_id: "exact-cast" }); return player; }
+      if (command === "music/item_by_uri") {
+        requests.push(String(args.uri));
+        return syntheticTrack(String(args.uri).split("/").at(-1));
+      }
+      if (command === "metadata/get_track_lyrics") {
+        return (args.track as { item_id: string }).item_id === "two" ? [null, null] : [null, "[00:00]Synthetic queue lyrics"];
+      }
+      throw new Error(`unexpected_command_${command}`);
+    });
+    const cachePut = vi.fn(async () => {});
+    const bridge = new Bridge(new MaLyricsProvider(mock.client), { get: async () => null, put: cachePut }, { visualOffsetMs: 0 });
+    const monitor = new MaMonitor(mock.client, bridge, "exact-cast", "exact-group", new ArtworkStore(mock.url));
+    const emit = (event: string, object_id: string, data: unknown) => {
+      for (const socket of mock.sockets) socket.send(JSON.stringify({ event, object_id, data }));
+    };
+    try {
+      monitor.start();
+      await vi.waitFor(() => expect(bridge.snapshot().lyrics.status).toBe("timed"));
+      current = null;
+      emit("player_updated", "exact-cast", player);
+      await vi.waitFor(() => expect(bridge.snapshot().track?.title).toBe(player.current_media.title));
+      expect(bridge.snapshot()).toMatchObject({
+        precision: "ma-player", lyrics: { status: "unsupported", lines: [] },
+        track: { artist: player.current_media.artist, album: player.current_media.album },
+      });
+      expect(bridge.snapshot().lyrics.message).toContain("no exact supported track URI");
+      const firstIdentity = bridge.snapshot().track?.identity;
+      player = externalPlayer("Synthetic external two");
+      emit("player_updated", "exact-cast", player);
+      await vi.waitFor(() => expect(bridge.snapshot().track?.title).toBe(player.current_media.title));
+      expect(bridge.snapshot().track?.identity).not.toBe(firstIdentity);
+      emit("queue_updated", "exact-group", queue("old"));
+      emit("queue_time_updated", "exact-group", 50);
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      expect(bridge.snapshot().track?.title).toBe("Synthetic external two");
+      expect(bridge.snapshot().positionMs).toBeLessThan(10_000);
+      expect(requests).toEqual(["synthetic://track/one"]);
+      expect(cachePut.mock.calls).toHaveLength(1);
+      current = queue("two");
+      emit("player_updated", "exact-cast", { ...player, active_source: "exact-group" });
+      await vi.waitFor(() => expect(bridge.snapshot()).toMatchObject({
+        precision: "ma-queue", track: { identity: "synthetic://track/two" }, lyrics: { status: "missing" },
+      }));
+      current = queue("three");
+      emit("queue_updated", "exact-group", current);
+      await vi.waitFor(() => expect(bridge.snapshot().lyrics.status).toBe("timed"));
+      expect(bridge.snapshot().track?.identity).toBe("synthetic://track/three");
+    } finally { monitor.close(); bridge.close(); }
+  });
+  it("fetches lyrics only for an exact externally reported Spotify track, with normal missing results", async () => {
+    const firstId = "A".repeat(22);
+    const secondId = "B".repeat(22);
+    let player = {
+      ...externalPlayer(), active_source: "spotify",
+      current_media: { ...externalPlayer().current_media, media_type: "track", uri: `spotify:track:${firstId}` },
+    };
+    const mock = await mockMa((command, args) => {
+      if (command === "player_queues/get_active_queue") return null;
+      if (command === "players/get") return player;
+      if (command === "music/item_by_uri") {
+        expect(args.allow_update_metadata).toBe(false);
+        return syntheticTrack(String(args.uri).split("/").at(-1), "spotify");
+      }
+      if (command === "metadata/get_track_lyrics") {
+        return (args.track as { item_id: string }).item_id === firstId ? [null, "[00:00]Synthetic exact lyrics"] : [null, null];
+      }
+      throw new Error(`unexpected_command_${command}`);
+    });
+    const bridge = new Bridge(new MaLyricsProvider(mock.client), { get: async () => null, put: async () => {} }, { visualOffsetMs: 0 });
+    const monitor = new MaMonitor(mock.client, bridge, "exact-cast", "exact-group", new ArtworkStore(mock.url));
+    try {
+      monitor.start();
+      await vi.waitFor(() => expect(bridge.snapshot().lyrics.status).toBe("timed"));
+      expect(bridge.snapshot().track?.identity).toBe(`spotify://track/${firstId}`);
+      player = { ...player, current_media: { ...player.current_media, uri: `spotify:track:${secondId}` } };
+      for (const socket of mock.sockets) socket.send(JSON.stringify({ event: "player_updated", object_id: "exact-cast", data: player }));
+      await vi.waitFor(() => expect(bridge.snapshot()).toMatchObject({
+        track: { identity: `spotify://track/${secondId}` }, lyrics: { status: "missing" },
+      }));
+    } finally { monitor.close(); bridge.close(); }
+  });
+  it("discards an external player read overtaken by a queue transition", async () => {
+    let current: ReturnType<typeof queue> | null = null;
+    let release: ((value: unknown) => void) | undefined;
+    const mock = await mockMa((command) => {
+      if (command === "player_queues/get_active_queue") return current;
+      if (command === "players/get") return new Promise((resolve) => { release = resolve; });
+      throw new Error(`unexpected_command_${command}`);
+    });
+    const bridge = new Bridge({ capability: "available", fetch: async () => parseLyrics(null) },
+      { get: async () => null, put: async () => {} }, { visualOffsetMs: 0 });
+    const monitor = new MaMonitor(mock.client, bridge, "exact-cast", "exact-group", new ArtworkStore(mock.url));
+    try {
+      monitor.start();
+      await vi.waitFor(() => expect(release).toBeDefined());
+      current = queue("new");
+      for (const socket of mock.sockets) socket.send(JSON.stringify({ event: "queue_updated", object_id: "exact-group", data: current }));
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      release!(externalPlayer());
+      await vi.waitFor(() => expect(bridge.snapshot().track?.identity).toBe("synthetic://track/new"));
+      expect(bridge.snapshot().precision).toBe("ma-queue");
+    } finally { monitor.close(); bridge.close(); }
+  });
+  it("never substitutes an external player for a different active MA queue", async () => {
+    const mock = await mockMa(() => ({ ...queue(), queue_id: "other-group" }));
+    const bridge = new Bridge({ capability: "available", fetch: async () => parseLyrics(null) },
+      { get: async () => null, put: async () => {} }, { visualOffsetMs: 0 });
+    const monitor = new MaMonitor(mock.client, bridge, "exact-cast", "exact-group", new ArtworkStore(mock.url));
+    try {
+      monitor.start();
+      await vi.waitFor(() => expect(bridge.snapshot().message).toContain("target queue mismatch"));
+      expect(bridge.snapshot().track).toBeNull();
+      expect(mock.commands).not.toContain("players/get");
+    } finally { monitor.close(); bridge.close(); }
+  });
+});
+describe("external MA player identity", () => {
+  it("does not confuse an endpoint, stream, episode or title with a Spotify track", () => {
+    for (const uri of [
+      externalPlayer().current_media.uri, "https://stream.example/song",
+      `spotify:episode:${"A".repeat(22)}`, "Synthetic title", `https://open.spotify.com.evil.example/track/${"A".repeat(22)}`,
+    ]) expect(spotifyTrackUri(uri)).toBeNull();
+    for (const uri of [`spotify:track:${"A".repeat(22)}`, `spotify://track/${"A".repeat(22)}`,
+      `https://open.spotify.com/track/${"A".repeat(22)}?si=synthetic`]) {
+      expect(spotifyTrackUri(uri)).toBe(`spotify://track/${"A".repeat(22)}`);
+    }
+  });
+  it("enforces exact player and group binding, and clears on idle", () => {
+    const player = externalPlayer();
+    expect(() => playerAnchor(player, "wrong", "exact-group", Date.now())).toThrow("target_player_mismatch");
+    expect(() => playerAnchor({ ...player, active_group: "other" }, "exact-cast", "exact-group", Date.now())).toThrow("target_queue_mismatch");
+    expect(() => playerAnchor({ ...player, synced_to: "other" }, "exact-cast", "exact-group", Date.now())).toThrow("target_queue_mismatch");
+    expect(() => playerAnchor({ ...player, available: false }, "exact-cast", "exact-group", Date.now())).toThrow("unavailable");
+    expect(() => playerAnchor({ ...player, active_source: "exact-group" }, "exact-cast", "exact-group", Date.now())).toThrow("unconfirmed");
+    expect(() => playerAnchor({ ...player, current_media: null }, "exact-cast", "exact-group", Date.now())).toThrow("metadata_unavailable");
+    expect(playerAnchor({ ...player, playback_state: "idle" }, "exact-cast", "exact-group", Date.now())).toMatchObject({ track: null, request: null });
+  });
+  it("uses the player's clock, freezes paused time, and never invents missing or stale timing", () => {
+    const player = { ...externalPlayer(), elapsed_time: 3, elapsed_time_last_updated: 100 };
+    expect(playerAnchor(player, "exact-cast", "exact-group", 101_000)).toMatchObject({ positionMs: 4000, speed: 1 });
+    expect(playerAnchor({ ...player, playback_state: "paused" }, "exact-cast", "exact-group", 200_000)).toMatchObject({ positionMs: 3000, speed: 0 });
+    const exact = { ...player, current_media: { ...player.current_media, media_type: "track", uri: `spotify:track:${"A".repeat(22)}` } };
+    for (const timing of [{ elapsed_time: null }, { elapsed_time_last_updated: null }, { elapsed_time_last_updated: 1 }]) {
+      const result = playerAnchor({ ...exact, ...timing }, "exact-cast", "exact-group", 300_000);
+      expect(result).toMatchObject({ request: null, speed: 0, positionMs: 0 });
+      expect(result.lyricsUnavailable).toContain("playback clock");
+      expect(result.track?.title).toBe(player.current_media.title);
+    }
   });
 });
 describe("MA provider", () => {
