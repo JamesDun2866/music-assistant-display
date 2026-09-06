@@ -144,11 +144,11 @@ describe("lyrics rendering", () => {
   it("accepts external player snapshots and explains missing exact identity without showing old lyrics", () => {
     const external = snapshotSchema.parse(snapshot({
       precision: "ma-player", speed: 0,
-      lyrics: { status: "unsupported", lines: [], plain: null, message: "No exact track URI is available." },
+      lyrics: { status: "unsupported", lines: [], plain: null, message: "Music Assistant does not yet support lyrics via Connect." },
     }));
     render(<LyricsStage snapshot={external} displayPositionMs={0} stale={false} cleared={false} />);
     expect(screen.getByText("Lyrics unavailable")).toBeInTheDocument();
-    expect(screen.getByText("No exact track URI is available.")).toBeInTheDocument();
+    expect(screen.getByText("Music Assistant does not yet support lyrics via Connect.")).toBeInTheDocument();
     expect(screen.queryByText("First line")).not.toBeInTheDocument();
   });
   it("marks the current timed line and retains its neighbors", () => {
