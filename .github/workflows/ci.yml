@@ -1,0 +1,35 @@
+name: Service checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Test native CEC helper and Linux UAPI ABI
+        if: runner.os == 'Linux'
+        run: python3 -I -B tests/native_cec_test.py
+      - name: Test opt-in kiosk cursor setup
+        run: python -I -B tests/kiosk_cursor_test.py
+      - run: npm run build
+      - name: Install script-free production dependencies
+        run: npm ci --omit=dev --ignore-scripts
+      - name: Exercise production decoder
+        run: node --input-type=module -e "import sharp from 'sharp'; import { decodeAmbientImage } from './dist/server/server/ambient-decoder.js'; for (const [width,height,expectedWidth,expectedHeight] of [[64,32,64,32],[4096,2304,3840,2160]]) { const png = await sharp({create:{width,height,channels:3,background:'#789a93'}}).png().toBuffer(); const image = await decodeAmbientImage(png,'image/png'); const info = await sharp(image.data).metadata(); if(info.format !== 'jpeg' || info.width !== expectedWidth || info.height !== expectedHeight) process.exit(1); }"
+      - name: Check deployment shell syntax
+        if: runner.os == 'Linux'
+        run: for script in scripts/*.sh; do bash -n "$script" || exit 1; done

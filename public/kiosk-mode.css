@@ -1,0 +1,11 @@
+html[data-kiosk="true"] {
+  background: #0b1210;
+}
+
+html[data-kiosk="true"],
+html[data-kiosk="true"] *,
+html[data-kiosk="true"] *::before,
+html[data-kiosk="true"] *::after,
+html[data-kiosk="true"] *::file-selector-button {
+  cursor: none !important;
+}

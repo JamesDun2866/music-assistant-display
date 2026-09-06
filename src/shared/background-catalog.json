@@ -1,0 +1,546 @@
+[
+  {
+    "id": "builtin-golden-gate",
+    "title": "Golden Gate Afternoon",
+    "source": "builtin",
+    "url": "/backgrounds/golden-gate.jpg?v=d6df501ea56c",
+    "thumbnailUrl": "/backgrounds/thumbnails/golden-gate.jpg?v=75ef89c16e70",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2194547,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/3409068082/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-lone-pine",
+    "title": "Lone Pine Sunset",
+    "source": "builtin",
+    "url": "/backgrounds/lone-pine.jpg?v=6933fb62fe6e",
+    "thumbnailUrl": "/backgrounds/thumbnails/lone-pine.jpg?v=38276e9575ea",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 441299,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/5910108497/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-rockaway",
+    "title": "Rockaway Sunset Sky",
+    "source": "builtin",
+    "url": "/backgrounds/rockaway.jpg?v=eea04c740c51",
+    "thumbnailUrl": "/backgrounds/thumbnails/rockaway.jpg?v=7708438dff77",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1160606,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/6249263074/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-bonzai",
+    "title": "Bonzai Rock Sunset",
+    "source": "builtin",
+    "url": "/backgrounds/bonzai.jpg?v=ecb826dd6ea2",
+    "thumbnailUrl": "/backgrounds/thumbnails/bonzai.jpg?v=5f99f4db9afd",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 950082,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/6899851215/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-grand-canyon-sunset",
+    "title": "Grand Canyon Sunset",
+    "source": "builtin",
+    "url": "/backgrounds/grand-canyon-sunset.jpg?v=397dd7a456fa",
+    "thumbnailUrl": "/backgrounds/thumbnails/grand-canyon-sunset.jpg?v=545b6ea25f8f",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2070305,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/55033232729/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-fujisan-sunrise",
+    "title": "Fuji-san Sunrise",
+    "source": "builtin",
+    "url": "/backgrounds/fujisan-sunrise.jpg?v=73019159618a",
+    "thumbnailUrl": "/backgrounds/thumbnails/fujisan-sunrise.jpg?v=ec297181f80f",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1402958,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/54855857393/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-bliss",
+    "title": "Bliss",
+    "source": "builtin",
+    "url": "/backgrounds/bliss.jpg?v=d336ca73cd40",
+    "thumbnailUrl": "/backgrounds/thumbnails/bliss.jpg?v=66f781ab24d3",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1083241,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/54488185898/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-sand-trails",
+    "title": "Sand Trails",
+    "source": "builtin",
+    "url": "/backgrounds/sand-trails.jpg?v=3f432bc31253",
+    "thumbnailUrl": "/backgrounds/thumbnails/sand-trails.jpg?v=14e82906b6da",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1366963,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/45158181915/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-the-wave",
+    "title": "The Wave",
+    "source": "builtin",
+    "url": "/backgrounds/the-wave.jpg?v=6920beb1f091",
+    "thumbnailUrl": "/backgrounds/thumbnails/the-wave.jpg?v=28bb756a9065",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 3636903,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/52929227115/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-gray-mirror",
+    "title": "Gray Lake",
+    "source": "builtin",
+    "url": "/backgrounds/gray-mirror.jpg?v=85a9ebca0e5e",
+    "thumbnailUrl": "/backgrounds/thumbnails/gray-mirror.jpg?v=505bd0803747",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1925929,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/8440283318/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-monument-valley",
+    "title": "Monument Valley Sunset",
+    "source": "builtin",
+    "url": "/backgrounds/monument-valley.jpg?v=e1c4f9087110",
+    "thumbnailUrl": "/backgrounds/thumbnails/monument-valley.jpg?v=cecbc4c623fb",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2058594,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/44943115621/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-sunset-pier",
+    "title": "Sunset Pier",
+    "source": "builtin",
+    "url": "/backgrounds/sunset-pier.jpg?v=57c1780d8a0b",
+    "thumbnailUrl": "/backgrounds/thumbnails/sunset-pier.jpg?v=6881bdc89df4",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1193762,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/12280569835/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-false-kiva",
+    "title": "False Kiva",
+    "source": "builtin",
+    "url": "/backgrounds/false-kiva.jpg?v=aa8742db7e94",
+    "thumbnailUrl": "/backgrounds/thumbnails/false-kiva.jpg?v=6a2e9f9f02cc",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2162907,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/52433724895/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-rolling-hills",
+    "title": "Rolling Hills",
+    "source": "builtin",
+    "url": "/backgrounds/rolling-hills.jpg?v=8093dac5c279",
+    "thumbnailUrl": "/backgrounds/thumbnails/rolling-hills.jpg?v=62bb5a1e2007",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 3599491,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/52433501823/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-wide-loop",
+    "title": "Wide Loop",
+    "source": "builtin",
+    "url": "/backgrounds/wide-loop.jpg?v=be1b0f0b3e7f",
+    "thumbnailUrl": "/backgrounds/thumbnails/wide-loop.jpg?v=73f92a2a427e",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2744894,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/42597187025/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-eye-in-the-sky",
+    "title": "Eye in the Sky",
+    "source": "builtin",
+    "url": "/backgrounds/eye-in-the-sky.jpg?v=93b46f0deba0",
+    "thumbnailUrl": "/backgrounds/thumbnails/eye-in-the-sky.jpg?v=fa384def6dea",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1139812,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/44465053515/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-shark-fin-cove",
+    "title": "Sharktooth",
+    "source": "builtin",
+    "url": "/backgrounds/shark-fin-cove.jpg?v=38d8b91b2168",
+    "thumbnailUrl": "/backgrounds/thumbnails/shark-fin-cove.jpg?v=99f641a144ef",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1492522,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/44322416190/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-pink-waves",
+    "title": "Pink Waves",
+    "source": "builtin",
+    "url": "/backgrounds/pink-waves.jpg?v=4381d96ee6de",
+    "thumbnailUrl": "/backgrounds/thumbnails/pink-waves.jpg?v=9fb88a610d40",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 946841,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/46736410561/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-fog-valley",
+    "title": "Fog Valley",
+    "source": "builtin",
+    "url": "/backgrounds/fog-valley.jpg?v=e4777b6756b9",
+    "thumbnailUrl": "/backgrounds/thumbnails/fog-valley.jpg?v=6542c94c497e",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 687968,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/19489500310/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-grand-entrance",
+    "title": "Grand Entrance",
+    "source": "builtin",
+    "url": "/backgrounds/grand-entrance.jpg?v=8e91caf24083",
+    "thumbnailUrl": "/backgrounds/thumbnails/grand-entrance.jpg?v=3438f2ccdc30",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1553847,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/51411788263/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-salt-lakes",
+    "title": "Salt Lakes II",
+    "source": "builtin",
+    "url": "/backgrounds/salt-lakes.jpg?v=2882f7824f54",
+    "thumbnailUrl": "/backgrounds/thumbnails/salt-lakes.jpg?v=c277b5d559df",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2821063,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/51402831891/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-mobius-arch",
+    "title": "Mobius Arch",
+    "source": "builtin",
+    "url": "/backgrounds/mobius-arch.jpg?v=5757a19d809a",
+    "thumbnailUrl": "/backgrounds/thumbnails/mobius-arch.jpg?v=a871a36c94b3",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2320623,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/9254611750/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-into-the-storm",
+    "title": "Into the Storm",
+    "source": "builtin",
+    "url": "/backgrounds/into-the-storm.jpg?v=0b83172dab61",
+    "thumbnailUrl": "/backgrounds/thumbnails/into-the-storm.jpg?v=a8de0c32db44",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1288762,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/32450652070/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-white-tree",
+    "title": "White Tree",
+    "source": "builtin",
+    "url": "/backgrounds/white-tree.jpg?v=cab443591da0",
+    "thumbnailUrl": "/backgrounds/thumbnails/white-tree.jpg?v=4e99321d9b12",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1753024,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/16199195845/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-bryce-canyon",
+    "title": "Bryce Canyon",
+    "source": "builtin",
+    "url": "/backgrounds/bryce-canyon.jpg?v=68cd21e0f44c",
+    "thumbnailUrl": "/backgrounds/thumbnails/bryce-canyon.jpg?v=bc66bcce596e",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2075954,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/9296967879/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-sierra-sunset",
+    "title": "Sierra Sunset",
+    "source": "builtin",
+    "url": "/backgrounds/sierra-sunset.jpg?v=7dba0734de0a",
+    "thumbnailUrl": "/backgrounds/thumbnails/sierra-sunset.jpg?v=e6aedcdd4b87",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1802555,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/5911366388/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-the-cave",
+    "title": "The Cave",
+    "source": "builtin",
+    "url": "/backgrounds/the-cave.jpg?v=9f3d8dc6dceb",
+    "thumbnailUrl": "/backgrounds/thumbnails/the-cave.jpg?v=f61735d57aab",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1154015,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/6934434271/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-napali-coast",
+    "title": "Napali Coast",
+    "source": "builtin",
+    "url": "/backgrounds/napali-coast.jpg?v=0bb9e4ee3899",
+    "thumbnailUrl": "/backgrounds/thumbnails/napali-coast.jpg?v=29dac49881dc",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1983192,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/6840341477/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-urban-infinite",
+    "title": "Urban Infinite",
+    "source": "builtin",
+    "url": "/backgrounds/urban-infinite.jpg?v=e4f4e1ab4b8c",
+    "thumbnailUrl": "/backgrounds/thumbnails/urban-infinite.jpg?v=af7af6147b56",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2390856,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/49616740326/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-delicate-arch",
+    "title": "Delicate Arch",
+    "source": "builtin",
+    "url": "/backgrounds/delicate-arch.jpg?v=11cb0131ad92",
+    "thumbnailUrl": "/backgrounds/thumbnails/delicate-arch.jpg?v=edb51782b6da",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2267889,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/7010365913/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-light-to-sand",
+    "title": "Light to Sand",
+    "source": "builtin",
+    "url": "/backgrounds/light-to-sand.jpg?v=b7fbb75e7692",
+    "thumbnailUrl": "/backgrounds/thumbnails/light-to-sand.jpg?v=c6843fba88d9",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1625279,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/8338439169/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-marine-layers",
+    "title": "Marine Layers",
+    "source": "builtin",
+    "url": "/backgrounds/marine-layers.jpg?v=6c5c95f0b4e0",
+    "thumbnailUrl": "/backgrounds/thumbnails/marine-layers.jpg?v=29fce7cebbe0",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 2750045,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/49376576473/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-grand-teton",
+    "title": "Grand Teton",
+    "source": "builtin",
+    "url": "/backgrounds/grand-teton.jpg?v=b3c8fb875e65",
+    "thumbnailUrl": "/backgrounds/thumbnails/grand-teton.jpg?v=3147bf954d89",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 1107962,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/7926134090/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "id": "builtin-rainbow-sunrise",
+    "title": "Rainbow Sunrise",
+    "source": "builtin",
+    "url": "/backgrounds/rainbow-sunrise.jpg?v=be2e3ed2f14a",
+    "thumbnailUrl": "/backgrounds/thumbnails/rainbow-sunrise.jpg?v=123bdbe9d6f8",
+    "width": 3840,
+    "height": 2160,
+    "bytes": 936359,
+    "credit": {
+      "author": "Romain Guy",
+      "sourceUrl": "https://www.flickr.com/photos/romainguy/49324749913/",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  }
+]

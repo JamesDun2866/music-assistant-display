@@ -1,0 +1,40 @@
+[Unit]
+Description=Music Assistant Display local backend
+After=local-fs.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=sendspin-karaoke
+Group=sendspin-karaoke
+WorkingDirectory=/opt/sendspin-karaoke/current
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=/etc/sendspin-karaoke/environment
+ExecStart=/usr/bin/node /opt/sendspin-karaoke/current/dist/server/server/index.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+LogRateLimitIntervalSec=30s
+LogRateLimitBurst=100
+MemoryMax=512M
+StateDirectory=sendspin-karaoke
+StateDirectoryMode=0750
+UMask=0027
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+ReadWritePaths=/var/lib/sendspin-karaoke
+# Device access is supplied by ordinary video/dialout group permissions.
+# PrivateDevices would hide CEC hardware; MemoryDenyWriteExecute breaks V8 JIT.
+
+[Install]
+WantedBy=multi-user.target

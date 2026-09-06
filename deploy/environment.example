@@ -1,0 +1,20 @@
+# systemd EnvironmentFile syntax, NOT a shell script. Never commit real tokens.
+HOST=127.0.0.1
+PORT=8787
+STATE_DIR=/var/lib/sendspin-karaoke
+# Start safely with local demo assets until Music Assistant is configured.
+DEMO_MODE=true
+# Uncomment and fill ALL four MA fields before setting DEMO_MODE=false.
+# MA_URL=http://music-assistant.local:8095
+# MA_TOKEN=replace-with-your-token
+# MA_PLAYER_ID=replace-with-player-id
+# MA_QUEUE_ID=replace-with-queue-id
+# Opt in only if MA may refresh/write library metadata while fetching lyrics.
+MA_ALLOW_LYRICS_REFRESH=false
+CEC_ENABLED=false
+# Opt-in built-in Pi CEC remote navigation; ignored in demo or with CEC disabled.
+CEC_REMOTE_ENABLED=false
+CEC_DEVICE=/dev/cec0
+# Legacy one-shot adapter only; ignored when CEC_REMOTE_ENABLED=true.
+# CEC_ADAPTER=/dev/cec0
+CEC_ALLOW_STANDBY=false

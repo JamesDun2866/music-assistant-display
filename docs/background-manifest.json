@@ -1,0 +1,2557 @@
+{
+  "version": 1,
+  "native4kCount": 34,
+  "legacyCount": 0,
+  "photos": [
+    {
+      "id": "builtin-golden-gate",
+      "title": "Golden Gate Afternoon",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/golden-gate-afternoon/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/3409068082/",
+      "flickrId": "3409068082",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:07.321Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/3364/3409068082_6a1a259908_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/3409068082",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/3364/3409068082_bbecd0b7cc_o.jpg",
+          "width": 5616,
+          "height": 3351
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5616,
+          "height": 3159
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/3364/3409068082_bbecd0b7cc_o.jpg",
+        "width": 5616,
+        "height": 3351,
+        "bytes": 5856183,
+        "sha256": "7f49790bacf598835fd3f8a5dd95d355ecfb69b84081a4965ae60157422173be",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/3409068082/",
+        "metadataPageSha256": "0ac5fde8fc384422deeebb3fb5c840a1ec34c4ae8a769ec21af3baffa0605bfb",
+        "creatorPageSha256": "d96af035fa40d7e623b60e1388254b5c6a9728c2ac3fbff95356869d1182a2c0"
+      },
+      "output": {
+        "file": "public/backgrounds/golden-gate.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2194547,
+        "sha256": "d6df501ea56cd7e2dcf2b183a9c1b78cdb76876708eee29def9559de3900a8da"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/golden-gate.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 30701,
+        "sha256": "75ef89c16e702316cd6dab3228e22e5157d97bd24501eba49cff2a2df6ffa998"
+      }
+    },
+    {
+      "id": "builtin-lone-pine",
+      "title": "Lone Pine Sunset",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/lone-pine-sunset/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/5910108497/",
+      "flickrId": "5910108497",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:07.873Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/6027/5910108497_a8c317774a_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/5910108497",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/6027/5910108497_1a5d08c83a_o.jpg",
+          "width": 5276,
+          "height": 3517
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5276,
+          "height": 2967
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/6027/5910108497_1a5d08c83a_o.jpg",
+        "width": 5276,
+        "height": 3517,
+        "bytes": 2234582,
+        "sha256": "88d514554f8e4c4133a9a3605183e679e4dd508c3736814a23facd9a8d1d28f5",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/5910108497/",
+        "metadataPageSha256": "e6927dea03240eee650c40b5d5122c57bcec44bfc44f6a0251471c5c5391fd99",
+        "creatorPageSha256": "b97515b117fee4ed289ea386e3b99e00ac759bcb7c057a538ad5ed7c74c57d9b"
+      },
+      "output": {
+        "file": "public/backgrounds/lone-pine.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 441299,
+        "sha256": "6933fb62fe6e3919bb2eb7595b23c70d9b24c6ff7868c554be6385ae0206691e"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/lone-pine.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 8866,
+        "sha256": "38276e9575eadd8fe8428a00581cca664e6decc0f30922ff4ab925f7a72074a6"
+      }
+    },
+    {
+      "id": "builtin-rockaway",
+      "title": "Rockaway Sunset Sky",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/rockaway-sunset-sky/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/6249263074/",
+      "flickrId": "6249263074",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:08.525Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/6040/6249263074_2e411529e6_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/6249263074",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/6040/6249263074_c19cfe3901_o.jpg",
+          "width": 5426,
+          "height": 3148
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5426,
+          "height": 3052
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/6040/6249263074_c19cfe3901_o.jpg",
+        "width": 5426,
+        "height": 3148,
+        "bytes": 4085555,
+        "sha256": "a18be15da48045609b9b233546e528460fe95128a1d8723230c5a95dc32bb411",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/6249263074/",
+        "metadataPageSha256": "fed4236269c161effc74cf82ca5c2493f9f25f1696fa6845749ec8c9630eb94f",
+        "creatorPageSha256": "be433f1d62540038e197a6de489d733844c1f200deb29b3e2223ac19f4fc7927"
+      },
+      "output": {
+        "file": "public/backgrounds/rockaway.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1160606,
+        "sha256": "eea04c740c51fbbda5b4cb0f9de11219175137f60de0f43cf29c178864935352"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/rockaway.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 16482,
+        "sha256": "7708438dff777d9cc5b1fa17fd1ec1fa4e91b899d6e497f30b7593750f4521fd"
+      }
+    },
+    {
+      "id": "builtin-bonzai",
+      "title": "Bonzai Rock Sunset",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/bonzai-rock/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/6899851215/",
+      "flickrId": "6899851215",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:09.167Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/7209/6899851215_f47cd2d6ac_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/6899851215",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/7209/6899851215_d53c9c54fe_o.jpg",
+          "width": 5545,
+          "height": 3540
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5545,
+          "height": 3119
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/7209/6899851215_d53c9c54fe_o.jpg",
+        "width": 5545,
+        "height": 3540,
+        "bytes": 3583624,
+        "sha256": "99139c4b170c45514ccb240a0cf0bd380d1bfa9b53972a0246c6fb7321715b3b",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/6899851215/",
+        "metadataPageSha256": "8dc842c3673407b8633bb2d0c7bda3def3c7f632f7dbe3812e25b2db871f5a53",
+        "creatorPageSha256": "eb70910a5656c96a36a48d2c07bc4e4ddb36b50291f7c5280c4dcaa4dd113805"
+      },
+      "output": {
+        "file": "public/backgrounds/bonzai.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 950082,
+        "sha256": "ecb826dd6ea2ca7edc5f5cf13a3d604056583300e5703a32ba2db08aeb15afc7"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/bonzai.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 15987,
+        "sha256": "5f99f4db9afda0f8faf7461add00ac12de9070b78cb3d5ebcbcb8ac0619f6d6d"
+      }
+    },
+    {
+      "id": "builtin-grand-canyon-sunset",
+      "title": "Grand Canyon Sunset",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2026/grand-canyon-sunset/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/55033232729/",
+      "flickrId": "55033232729",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:11.662Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/55033232729_75cee99c29_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/55033232729",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/55033232729_e12a8cb479_o.jpg",
+          "width": 11240,
+          "height": 8431
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 11240,
+          "height": 6322
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/55033232729_e12a8cb479_o.jpg",
+        "width": 11240,
+        "height": 8431,
+        "bytes": 41926848,
+        "sha256": "0300c34620a232d752e79bdde6d05c98cef0fde1b03b8de52a13565bb8888637",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/55033232729/",
+        "metadataPageSha256": "41acbb8a1fa5d62a7fc6511cbf800c8a18582cb136c0ce43c5f7f5b7b2f1e2d2",
+        "creatorPageSha256": "d65ca96f455eedbc87349961f8e09a08d52e2d62a1de6f56e26636e39607daf9"
+      },
+      "output": {
+        "file": "public/backgrounds/grand-canyon-sunset.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2070305,
+        "sha256": "397dd7a456fa6265bdfa2312d7e8e958b0de6538a9678f91f9d631d56e376ccb"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/grand-canyon-sunset.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 26179,
+        "sha256": "545b6ea25f8fd89fdfbf933b8d9c37832f9f82447c08ffb9733687af71d8a258"
+      }
+    },
+    {
+      "id": "builtin-fujisan-sunrise",
+      "title": "Fuji-san Sunrise",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2025/fujisan-sunrise/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/54855857393/",
+      "flickrId": "54855857393",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:12.756Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/54855857393_4802181be6_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/54855857393",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/54855857393_2e27f59ea4_o.jpg",
+          "width": 11656,
+          "height": 6556
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 11655,
+          "height": 6556
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/54855857393_2e27f59ea4_o.jpg",
+        "width": 11656,
+        "height": 6556,
+        "bytes": 27941727,
+        "sha256": "e9a47aa42e0932b24bf32d563459a1d1598175b26441457a1c4a0d30432fa122",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/54855857393/",
+        "metadataPageSha256": "37746a66702b6f9d65ebd24d143fdb3cdc8466462d76101bc574877b833b6307",
+        "creatorPageSha256": "ea62b2050fb982774faacd6547ba838d7c7009ba581202febdf0e1962ceff282"
+      },
+      "output": {
+        "file": "public/backgrounds/fujisan-sunrise.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1402958,
+        "sha256": "73019159618a07f59b37eb0bdb395d50030ea3535d2c660230a50fe7beca73dc"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/fujisan-sunrise.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 19081,
+        "sha256": "ec297181f80f4bcbbe418c6ac8b6cf8fcc013ed9335eec82193703f8f4371896"
+      }
+    },
+    {
+      "id": "builtin-bliss",
+      "title": "Bliss",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2025/bliss/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/54488185898/",
+      "flickrId": "54488185898",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:14.231Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/54488185898_75b5ce1599_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/54488185898",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/54488185898_537358bcaf_o.jpg",
+          "width": 11656,
+          "height": 4302
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 7648,
+          "height": 4302
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/54488185898_537358bcaf_o.jpg",
+        "width": 11656,
+        "height": 4302,
+        "bytes": 12588783,
+        "sha256": "00d92502153fe875acdd3a91ac59277f0ed36a18e1e1a5191b460d2a4c36b102",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/54488185898/",
+        "metadataPageSha256": "4fecc2f9951f10139db009bd936f75181f28b6f4b5e7ba9736478449cd164739",
+        "creatorPageSha256": "643fd8fa95da8984dfb0ab115eb86579cf48ea97ff4aecfff44214c2aa9d0606"
+      },
+      "output": {
+        "file": "public/backgrounds/bliss.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1083241,
+        "sha256": "d336ca73cd40dda026a45567e994f6508032e8cb9824ddd7484293b2c2f1ca15"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/bliss.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 20230,
+        "sha256": "66f781ab24d3ccbe2a7f2d3fc732764f16a2b99ed4bfc9241b695916ba8788d8"
+      }
+    },
+    {
+      "id": "builtin-sand-trails",
+      "title": "Sand Trails",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2024/sand-trails/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/45158181915/",
+      "flickrId": "45158181915",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:14.870Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/4870/45158181915_919a98fe19_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/45158181915",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/4870/45158181915_1844425022_o.jpg",
+          "width": 5745,
+          "height": 2404
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 4273,
+          "height": 2404
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/4870/45158181915_1844425022_o.jpg",
+        "width": 5745,
+        "height": 2404,
+        "bytes": 3205041,
+        "sha256": "23fd0ffa6b463a766680969e42779ed7eca471623f92bd5f7d1160c8f949f21f",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/45158181915/",
+        "metadataPageSha256": "d5dd60a9bef52cbc982ea4b15506edbd3763be6ec78b3072de874e8771f3543f",
+        "creatorPageSha256": "c67491d9969e8687bd6c8bf02fff3df6606e478cc439cb2638b7a705866d53f1"
+      },
+      "output": {
+        "file": "public/backgrounds/sand-trails.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1366963,
+        "sha256": "3f432bc312531412703a94b7717f6998035cee4ed45b7e1905d4876ea3b658f4"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/sand-trails.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 19057,
+        "sha256": "14e82906b6da2d65526c391ac7a228c4572dc0809a98e431aa39c0a9351ffb98"
+      }
+    },
+    {
+      "id": "builtin-the-wave",
+      "title": "The Wave",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2023/the-wave/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/52929227115/",
+      "flickrId": "52929227115",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:17.043Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/52929227115_37d8e13c82_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/52929227115",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/52929227115_f7ebdcdc0d_o.jpg",
+          "width": 8424,
+          "height": 11232
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8424,
+          "height": 4738
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/52929227115_f7ebdcdc0d_o.jpg",
+        "width": 8424,
+        "height": 11232,
+        "bytes": 38567297,
+        "sha256": "6570642ec1238e6b7a74d227d1541fa6b556dd599622888e52e0afa7183b7d2b",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/52929227115/",
+        "metadataPageSha256": "bc72e96f3bdcbe1f3cdfe88656e9af3785e6a57087ae4106d40f45a3533f87ae",
+        "creatorPageSha256": "c990aab6c3af82f723850dcdf0716af59a7be70a4385f35a527054e79882ffd5"
+      },
+      "output": {
+        "file": "public/backgrounds/the-wave.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 3636903,
+        "sha256": "6920beb1f0911d039d9152cb2b47fca6454288e9aaae25a53988c1b05c2253cd"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/the-wave.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 37665,
+        "sha256": "28bb756a9065126403a1368e788dc4681d50b9563b3a1299996692c32259106d"
+      }
+    },
+    {
+      "id": "builtin-gray-mirror",
+      "title": "Gray Lake",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2023/gray-mirror/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/8440283318/",
+      "flickrId": "8440283318",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:17.743Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/8440283318_918514ee6e_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/8440283318",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/8440283318_12b9441e11_o.jpg",
+          "width": 5430,
+          "height": 3619
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5430,
+          "height": 3054
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/8440283318_12b9441e11_o.jpg",
+        "width": 5430,
+        "height": 3619,
+        "bytes": 5446035,
+        "sha256": "cc7f232cfc91a8c6d8c308fe59c58c0170b7a6ba16fb885a0655930d47794fc9",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/8440283318/",
+        "metadataPageSha256": "9f88b3e6497714bf611ff20a013ea1f00bd75d09a6ad99b24f2151de230a08d1",
+        "creatorPageSha256": "60fec39d00ab7a4fc0f3ed92ad92f61ac9d102f98be3bc59d4c3aa2d89a5d17b"
+      },
+      "output": {
+        "file": "public/backgrounds/gray-mirror.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1925929,
+        "sha256": "85a9ebca0e5e743dacc66b573780188d5287b20a9107ea1c12c4273b4beb7b6c"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/gray-mirror.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 28663,
+        "sha256": "505bd0803747ff82120bdf9748d09686ba4ed0b07512345a8b781fc4f7c5b83c"
+      }
+    },
+    {
+      "id": "builtin-monument-valley",
+      "title": "Monument Valley Sunset",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/monument-valley-sunset/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/44943115621/",
+      "flickrId": "44943115621",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:18.343Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/1950/44943115621_8ce2b30e96_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/44943115621",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/1950/44943115621_1cdf1a2d31_o.jpg",
+          "width": 5220,
+          "height": 2936
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5219,
+          "height": 2936
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/1950/44943115621_1cdf1a2d31_o.jpg",
+        "width": 5220,
+        "height": 2936,
+        "bytes": 6772941,
+        "sha256": "0f1572278cba7cb4ffa80ecb790f6d41f95435044a3146b7efe5552b95861c74",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/44943115621/",
+        "metadataPageSha256": "5ca2da36929ef272bfe2657b40fffe8e866a079e69d408eec7c680ceb411fca6",
+        "creatorPageSha256": "b89a4fc782f84719693680a6631290f1f87babd095ea9aaf32a149b2b2e70ab4"
+      },
+      "output": {
+        "file": "public/backgrounds/monument-valley.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2058594,
+        "sha256": "e1c4f9087110e41a8279f41c5fcc1d65212bbf497c6a4e260685937872e7bb55"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/monument-valley.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 23145,
+        "sha256": "cecbc4c623fb79f554b752a3967c7185a82c565ccc1538cf65ff468bb1f4166c"
+      }
+    },
+    {
+      "id": "builtin-sunset-pier",
+      "title": "Sunset Pier",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/sunset-pier/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/12280569835/",
+      "flickrId": "12280569835",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:19.065Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/3691/12280569835_d8dc46d840_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/12280569835",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/3691/12280569835_64474705b2_o.jpg",
+          "width": 5976,
+          "height": 3362
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5976,
+          "height": 3361
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/3691/12280569835_64474705b2_o.jpg",
+        "width": 5976,
+        "height": 3362,
+        "bytes": 4756594,
+        "sha256": "4a9b6cc32958d2c88d6de8393fe6e961c50e0b52b8d67247f394c5c6bd2cd5d1",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/12280569835/",
+        "metadataPageSha256": "b942e24cf3c6e10bea332780634f670d68c8d01bcc3e205476f62f933b930d3c",
+        "creatorPageSha256": "beebcb6df863ed00a4e880664996b4b553c611909dc8957df1b3d38b09eab76e"
+      },
+      "output": {
+        "file": "public/backgrounds/sunset-pier.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1193762,
+        "sha256": "57c1780d8a0b27c3cec38b97a660174de170abee5237b236b896279bd1317077"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/sunset-pier.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 20997,
+        "sha256": "6881bdc89df437d1dbc343f38fdcf04b2aeee823e21d3df654c7d244e60cbe14"
+      }
+    },
+    {
+      "id": "builtin-false-kiva",
+      "title": "False Kiva",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/false-kiva/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/52433724895/",
+      "flickrId": "52433724895",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:20.461Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/52433724895_3bd92fd82b_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/52433724895",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/52433724895_e72f7dfbbe_o.jpg",
+          "width": 8688,
+          "height": 5792
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8688,
+          "height": 4887
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/52433724895_e72f7dfbbe_o.jpg",
+        "width": 8688,
+        "height": 5792,
+        "bytes": 17010226,
+        "sha256": "c352d57f689387db4c4c431d64c75c4210d1298013a090d474d80319ace85fbe",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/52433724895/",
+        "metadataPageSha256": "68dd6276d438b2c309d3ae411f7b85a90b847c682f7d58b0306c6265867f7d4f",
+        "creatorPageSha256": "178ad6940bdcb2fb22acf06fca81f9b4034878da95dff8138fff1a4ff407b5bb"
+      },
+      "output": {
+        "file": "public/backgrounds/false-kiva.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2162907,
+        "sha256": "aa8742db7e9404829e376bf6fa4a25bd975f11529238af31d822602c0ba199ff"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/false-kiva.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 31006,
+        "sha256": "6a2e9f9f02cc516118482dc084538a261d4dfc5cd38801348120a7482deb8277"
+      }
+    },
+    {
+      "id": "builtin-rolling-hills",
+      "title": "Rolling Hills",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/rolling-hills/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/52433501823/",
+      "flickrId": "52433501823",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:22.849Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/52433501823_2922e9fe03_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/52433501823",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/52433501823_2e12561a99_o.jpg",
+          "width": 10880,
+          "height": 8160
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 10880,
+          "height": 6120
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/52433501823_2e12561a99_o.jpg",
+        "width": 10880,
+        "height": 8160,
+        "bytes": 49263487,
+        "sha256": "76b9a71786c972eeb95fde35aed23ecf71614eb99f6c904dcf21355628e4075f",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/52433501823/",
+        "metadataPageSha256": "f0115a606f5f357a2bc4c8a14d406291d643ef99198db938e8caf9a38c3a5abf",
+        "creatorPageSha256": "a1390813a93c44cc8ba8a0780a9a6e4e99ec8b0688124c0c28f327f67cc1caab"
+      },
+      "output": {
+        "file": "public/backgrounds/rolling-hills.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 3599491,
+        "sha256": "8093dac5c2799f3f63f9dab5b75bb46b0535db9445067bc5176aa451a463fedc"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/rolling-hills.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 32691,
+        "sha256": "62bb5a1e2007387c9f89ad3d3c35921c617f96d5d107372ab954033b9edae04e"
+      }
+    },
+    {
+      "id": "builtin-wide-loop",
+      "title": "Wide Loop",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/wide-loop/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/42597187025/",
+      "flickrId": "42597187025",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:23.748Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/42597187025_993a7c30dc_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/42597187025",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/42597187025_514ced75ed_o.jpg",
+          "width": 5948,
+          "height": 3965
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5948,
+          "height": 3345
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/42597187025_514ced75ed_o.jpg",
+        "width": 5948,
+        "height": 3965,
+        "bytes": 9430010,
+        "sha256": "31f998c67a7c27e0624a338a2fae2b635492cbc513dfe0699933ed2c87ce2ebe",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/42597187025/",
+        "metadataPageSha256": "ff122c667b5e57784e117d606a762f813fa4de88368954b2b2bfd62139080115",
+        "creatorPageSha256": "60d538df4e82bfb6a1d2eae1524a6f969daad25ae936204f102b8538891137f6"
+      },
+      "output": {
+        "file": "public/backgrounds/wide-loop.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2744894,
+        "sha256": "be1b0f0b3e7f95ecdda7d682053ea92d1bcc471b7fa0a85bdabfd8d529e38dae"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/wide-loop.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 35254,
+        "sha256": "73f92a2a427e77793ad968126bcb6472feed697ee5ac6d862d75e4b34aafeff2"
+      }
+    },
+    {
+      "id": "builtin-eye-in-the-sky",
+      "title": "Eye in the Sky",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/eye-in-the-sky/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/44465053515/",
+      "flickrId": "44465053515",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:24.692Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/44465053515_54464b6cfd_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/44465053515",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/44465053515_fbd75256bb_o.jpg",
+          "width": 8688,
+          "height": 3635
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 6462,
+          "height": 3635
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/44465053515_fbd75256bb_o.jpg",
+        "width": 8688,
+        "height": 3635,
+        "bytes": 6774497,
+        "sha256": "a3a5eaf958da30da1b5fda787d0b121bed161a8e88f7f3541ea7f19e11062482",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/44465053515/",
+        "metadataPageSha256": "176be223e22b690a4b91daff7dd6268bd5709f4d6eafa25cb5d9d7147bac4ddf",
+        "creatorPageSha256": "4ee87ba26c872f991e3b43c966895b9723e9829fc0d3eec9b61c9cf602218dea"
+      },
+      "output": {
+        "file": "public/backgrounds/eye-in-the-sky.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1139812,
+        "sha256": "93b46f0deba036359dcd93fc94afa966679c37e60e20ed56a935d54d62c68790"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/eye-in-the-sky.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 16353,
+        "sha256": "fa384def6deac41ab525372c78f6349e7f03f6038496d0e98b47a8bbdb99d43b"
+      }
+    },
+    {
+      "id": "builtin-shark-fin-cove",
+      "title": "Sharktooth",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/shark-fin-cove/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/44322416190/",
+      "flickrId": "44322416190",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:25.954Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/4812/44322416190_4dd62d7050_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/44322416190",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/4812/44322416190_94219ec00c_o.jpg",
+          "width": 8256,
+          "height": 6192
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8256,
+          "height": 4644
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/4812/44322416190_94219ec00c_o.jpg",
+        "width": 8256,
+        "height": 6192,
+        "bytes": 11221497,
+        "sha256": "aac5b75cf3ea2947e084e707146d622d0ae0f4702c7fa3741ff497a86cce315a",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/44322416190/",
+        "metadataPageSha256": "3cc5a05ed6a492a732b4cb68e44dc1fa05b5f6f7469bce4e96cca93e583d22d0",
+        "creatorPageSha256": "22be634031cb54b64f75c4255d48402ee06fe08abc88fd0401b13f7200a2a8da"
+      },
+      "output": {
+        "file": "public/backgrounds/shark-fin-cove.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1492522,
+        "sha256": "38d8b91b21685bac356ec9e35912bc95475d690d4f5a47cd77ef2ab16cf7951f"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/shark-fin-cove.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 25434,
+        "sha256": "99f641a144ef5804fff7be35a771a9a13f4191e92d7caf3ead13fce963cb4901"
+      }
+    },
+    {
+      "id": "builtin-pink-waves",
+      "title": "Pink Waves",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2022/pink-waves/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/46736410561/",
+      "flickrId": "46736410561",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:26.676Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/4830/46736410561_5b64510122_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/46736410561",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/4830/46736410561_3baf12dbc7_o.jpg",
+          "width": 5963,
+          "height": 3354
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5962,
+          "height": 3354
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/4830/46736410561_3baf12dbc7_o.jpg",
+        "width": 5963,
+        "height": 3354,
+        "bytes": 3124799,
+        "sha256": "c55b09dedb2aed77cebce5a1a520f6c9e8e841c1299a9e76aafa3c56aeeee9e6",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/46736410561/",
+        "metadataPageSha256": "bb451d98313a42a7a98e5233d79774abe31921b311b23f6cc5d14a122cc31ed9",
+        "creatorPageSha256": "783b435073c41a7f20fbb0d234bb1b236a89741cf442fe108d72d0f487d94c32"
+      },
+      "output": {
+        "file": "public/backgrounds/pink-waves.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 946841,
+        "sha256": "4381d96ee6dee8faac7ccc5ccc9a76d0d957d77c98b777174a4fddb275846f1f"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/pink-waves.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 21049,
+        "sha256": "9fb88a610d4079198594e7e5ef1e1adef5c4030898a42e2a61f1363283703620"
+      }
+    },
+    {
+      "id": "builtin-fog-valley",
+      "title": "Fog Valley",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2021/fog-valley/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/19489500310/",
+      "flickrId": "19489500310",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:27.798Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/469/19489500310_ca8c0a5201_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/19489500310",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/469/19489500310_ecb59b4ae6_o.jpg",
+          "width": 8322,
+          "height": 4682
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8322,
+          "height": 4681
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/469/19489500310_ecb59b4ae6_o.jpg",
+        "width": 8322,
+        "height": 4682,
+        "bytes": 4220197,
+        "sha256": "8240383fe672e465652091f3414eafea8eb3debf4cc198202d310e19f799ac40",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/19489500310/",
+        "metadataPageSha256": "54e23978fc2dabbaa0ae108cafe85a7542d977b69d0d075bbb92b680042e4603",
+        "creatorPageSha256": "973656db67220512a5bddc206434960cfd274444118f0d30ab5fdacd7f45f968"
+      },
+      "output": {
+        "file": "public/backgrounds/fog-valley.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 687968,
+        "sha256": "e4777b6756b929b454273fae800fe926dc894fe2e715767529c5fe2ed7256d95"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/fog-valley.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 7613,
+        "sha256": "6542c94c497eaefde3c4f6a04144c0ceba93d4e61a9f1f1d8db0b83d57977800"
+      }
+    },
+    {
+      "id": "builtin-grand-entrance",
+      "title": "Grand Entrance",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2021/grand-entrance/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/51411788263/",
+      "flickrId": "51411788263",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:29.038Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/51411788263_f55fab594f_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/51411788263",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/51411788263_7bc45dcb17_o.jpg",
+          "width": 8365,
+          "height": 5577
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8365,
+          "height": 4705
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/51411788263_7bc45dcb17_o.jpg",
+        "width": 8365,
+        "height": 5577,
+        "bytes": 10402511,
+        "sha256": "64b50f706b79cd70dc2aa73e3a3c1702a11b0c2ba191156973744235287795cc",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/51411788263/",
+        "metadataPageSha256": "c442cc94a639c07454816138c67e997efa2e25e0c3b6c1850bfa75cb5505b6ac",
+        "creatorPageSha256": "2ce9a5c28e29aea3ee3e6deda37e0e6e5fbd7c45ab44480a8be39cbb5b789409"
+      },
+      "output": {
+        "file": "public/backgrounds/grand-entrance.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1553847,
+        "sha256": "8e91caf24083c7f80434f6a03b99c14ae9984d0f22a8d81df87c1941ff779c97"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/grand-entrance.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 24016,
+        "sha256": "3438f2ccdc30b5b009182ec86949e2df4c5940371e8d051a668d0a1aeb659531"
+      }
+    },
+    {
+      "id": "builtin-salt-lakes",
+      "title": "Salt Lakes II",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2021/salt-lakes/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/51402831891/",
+      "flickrId": "51402831891",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:30.113Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/51402831891_b2f5db41d6_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/51402831891",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/51402831891_21df653085_o.jpg",
+          "width": 5593,
+          "height": 8390
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5593,
+          "height": 3146
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/51402831891_21df653085_o.jpg",
+        "width": 5593,
+        "height": 8390,
+        "bytes": 20673346,
+        "sha256": "b0068681fdba590f1ab76bad2852bbc2038abb63c030e2ca43f6025ed99118e4",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/51402831891/",
+        "metadataPageSha256": "2378af0a0b83f9d41a0bd079016634a35ae151bcd0ada47107a38e3b8385c76c",
+        "creatorPageSha256": "c8870f311068ab23b9f437c11b2af358a3eb04b010e4eff91fd3f73298b8578d"
+      },
+      "output": {
+        "file": "public/backgrounds/salt-lakes.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2821063,
+        "sha256": "2882f7824f54630fe22380acae391da5c5ca4a1156fd82fbb70d4d0bb0305642"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/salt-lakes.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 33835,
+        "sha256": "c277b5d559df54a39ec7fd229d80c4687898bb49454c21f4a36e13c713fcf29c"
+      }
+    },
+    {
+      "id": "builtin-mobius-arch",
+      "title": "Mobius Arch",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2021/mobius-arch/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/9254611750/",
+      "flickrId": "9254611750",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:30.884Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/5454/9254611750_be8d6b96fc_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/9254611750",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/5454/9254611750_bfa748f998_o.jpg",
+          "width": 5760,
+          "height": 3840
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5760,
+          "height": 3240
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/5454/9254611750_bfa748f998_o.jpg",
+        "width": 5760,
+        "height": 3840,
+        "bytes": 5623939,
+        "sha256": "9cc4b5012542eeee6f2ad722d876bd599e99cadfda853490fa92ce7a15e688b9",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/9254611750/",
+        "metadataPageSha256": "054f6bb2ad44500ea2ebd3156b99bf16059e4eb5ba5dbe296a8609649c9fb61d",
+        "creatorPageSha256": "8c29af7f9c1b122e9a740ecfed8e23990fbffd28fe1d3718a21ea25c181c51ab"
+      },
+      "output": {
+        "file": "public/backgrounds/mobius-arch.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2320623,
+        "sha256": "5757a19d809aaed7fdbfb0fa305fb1e73bc2f999cea85b010073b616b8f71d5b"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/mobius-arch.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 24448,
+        "sha256": "a871a36c94b3cc7e315eb018f6948c3c37319d48bc539fb4b6f11040826af699"
+      }
+    },
+    {
+      "id": "builtin-into-the-storm",
+      "title": "Into the Storm",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2021/into-the-storm/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/32450652070/",
+      "flickrId": "32450652070",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:32.135Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/406/32450652070_b2679e053c_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/32450652070",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/406/32450652070_9c9dcaf394_o.jpg",
+          "width": 8688,
+          "height": 4888
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8688,
+          "height": 4887
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/406/32450652070_9c9dcaf394_o.jpg",
+        "width": 8688,
+        "height": 4888,
+        "bytes": 7932855,
+        "sha256": "64db72fd8fa5afdc67ae3607a26dec2f25e73ee188f1106eddfe76492ea17e87",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/32450652070/",
+        "metadataPageSha256": "b720b3ec3f750670af2fde39505e071ac2c0e98e3eec03d646211ecb9eb3a30a",
+        "creatorPageSha256": "83986366816cc37f233b0c1495ac5281dfa48368c674fc8baf8234124691432f"
+      },
+      "output": {
+        "file": "public/backgrounds/into-the-storm.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1288762,
+        "sha256": "0b83172dab61bcb7d4bed74881891525e61c70624f46b77dbc727e4b22d4f7d1"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/into-the-storm.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 18843,
+        "sha256": "a8de0c32db4463f86b018eb292a69dcdf3861a5ab8b5556936f52f056cea92d2"
+      }
+    },
+    {
+      "id": "builtin-white-tree",
+      "title": "White Tree",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/white-tree/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/16199195845/",
+      "flickrId": "16199195845",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:32.578Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/8662/16199195845_aab824a8b4_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/16199195845",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/8662/16199195845_a3ed1446bf_o.jpg",
+          "width": 4201,
+          "height": 2806
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 4201,
+          "height": 2363
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/8662/16199195845_a3ed1446bf_o.jpg",
+        "width": 4201,
+        "height": 2806,
+        "bytes": 3511336,
+        "sha256": "25154aafddfddf7dc9982441c1b6111348154ef9ddfbb6a1192daf7f6162c3b9",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/16199195845/",
+        "metadataPageSha256": "7b9af4cabaa4ab980161dad6a8fe9c14789552b657af504ffc3b1be8df050faa",
+        "creatorPageSha256": "2ebc21359d000d9227ebf8ac009983904274e7dc6692377cdd92d17e6d67fda8"
+      },
+      "output": {
+        "file": "public/backgrounds/white-tree.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1753024,
+        "sha256": "cab443591da0a4416bf55652a8432512504515ec23c382e02822225f6074682d"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/white-tree.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 21276,
+        "sha256": "4e99321d9b125f7d8f8eefd6fc0f7cc96d009215acdd5bf913fbdbe57df1c002"
+      }
+    },
+    {
+      "id": "builtin-bryce-canyon",
+      "title": "Bryce Canyon",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/bryce-canyon/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/9296967879/",
+      "flickrId": "9296967879",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:33.216Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/3805/9296967879_247bf15ef0_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/9296967879",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/3805/9296967879_bc5a0b0e78_o.jpg",
+          "width": 5760,
+          "height": 3240
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5760,
+          "height": 3240
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/3805/9296967879_bc5a0b0e78_o.jpg",
+        "width": 5760,
+        "height": 3240,
+        "bytes": 6671626,
+        "sha256": "c4fa5e13422dabfcab1db8342f0d237a696ccb0b442f93c9f10ee33674b8368d",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/9296967879/",
+        "metadataPageSha256": "ba162925ab6ef0ecd113fea02c646cd34d1fb61c85161b2e9bfcd732d41d1c0d",
+        "creatorPageSha256": "e4a716979e320c72479f65e6bc96bcce70eae90c94896af9ca073d9b1ca2f42d"
+      },
+      "output": {
+        "file": "public/backgrounds/bryce-canyon.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2075954,
+        "sha256": "68cd21e0f44c13e11589ff1be3c37cf43be0fd8d1b78333bdbf945368f90c6d3"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/bryce-canyon.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 27974,
+        "sha256": "bc66bcce596e39739da74b9bcfd4769876db082266b6a7ad8b49131c0669e485"
+      }
+    },
+    {
+      "id": "builtin-sierra-sunset",
+      "title": "Sierra Sunset",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/sierra-sunset/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/5911366388/",
+      "flickrId": "5911366388",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:33.914Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/6024/5911366388_f3d2d6fcba_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/5911366388",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/6024/5911366388_600e7e6734_o.jpg",
+          "width": 5616,
+          "height": 3744
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5616,
+          "height": 3159
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/6024/5911366388_600e7e6734_o.jpg",
+        "width": 5616,
+        "height": 3744,
+        "bytes": 8309359,
+        "sha256": "1975b206b3d1df3a79035c1af142cd32d15705404eacd4db3b616a76bdb1fa3c",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/5911366388/",
+        "metadataPageSha256": "547ce01b40dfd8a0f779599a3027e62b1aa696b5dd18a52bd1850cfd76144775",
+        "creatorPageSha256": "dc23245d286a82b49d047c12fdd1257b82cda3968ad4c830096cbac09b05c6a9"
+      },
+      "output": {
+        "file": "public/backgrounds/sierra-sunset.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1802555,
+        "sha256": "7dba0734de0a0e6b68a933ec4c59520561d4cc72b26012e8ac2306ae4741c925"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/sierra-sunset.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 22784,
+        "sha256": "e6aedcdd4b87e59f5374b605ef1efe0b9b1325fc1fb81b9d833b87e89052c584"
+      }
+    },
+    {
+      "id": "builtin-the-cave",
+      "title": "The Cave",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/the-cave/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/6934434271/",
+      "flickrId": "6934434271",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:34.540Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/7177/6934434271_67c97e56fd_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/6934434271",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/7177/6934434271_ac75ed59b8_o.jpg",
+          "width": 5464,
+          "height": 3643
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5464,
+          "height": 3073
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/7177/6934434271_ac75ed59b8_o.jpg",
+        "width": 5464,
+        "height": 3643,
+        "bytes": 4088098,
+        "sha256": "44e90457b0496928cb2d46d7b203a488c3618badea24a7cc449ca854c6139ec2",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/6934434271/",
+        "metadataPageSha256": "c30fff3d0e51ba37af7de56287db465b72d183bdc6c50b5aafdebd83fe9f22c2",
+        "creatorPageSha256": "69a15ea2b8984f72a186e6b757715ed102cf254e768f6b278b600d6443eb7295"
+      },
+      "output": {
+        "file": "public/backgrounds/the-cave.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1154015,
+        "sha256": "9f3d8dc6dcebd316ec05934595e3c9746bd9de84100d5bd74f02fb297d03a412"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/the-cave.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 21054,
+        "sha256": "f61735d57aab74151ec50b2149f7f519b51ba70652ac421a553af2e97c2b5846"
+      }
+    },
+    {
+      "id": "builtin-napali-coast",
+      "title": "Napali Coast",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/napali-coast/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/6840341477/",
+      "flickrId": "6840341477",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:35.207Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/7014/6840341477_e5a0599627_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/6840341477",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/7014/6840341477_e49612bc59_o.jpg",
+          "width": 5514,
+          "height": 3676
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5514,
+          "height": 3101
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/7014/6840341477_e49612bc59_o.jpg",
+        "width": 5514,
+        "height": 3676,
+        "bytes": 7280014,
+        "sha256": "6bf5f068dcb3920cf0e5a07b63be42d8fbaf4393315715925a7db4bda6b1b1c2",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/6840341477/",
+        "metadataPageSha256": "c5d8c338dde34f7c5ee114c76e55bfa2f77ab6383d5605dc9cc358099aac387d",
+        "creatorPageSha256": "a84ac0daa42e862a8a99933adc8946e258f7984881937376a7b91957da239f84"
+      },
+      "output": {
+        "file": "public/backgrounds/napali-coast.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1983192,
+        "sha256": "0bb9e4ee3899c8d79dcd52519e716051995b5604d19502bc61b44ef95d3ab0b0"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/napali-coast.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 23770,
+        "sha256": "29dac49881dcde334edee0c90f74cc1f11b804ffc56dab23f811f0a594edfd41"
+      }
+    },
+    {
+      "id": "builtin-urban-infinite",
+      "title": "Urban Infinite",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/urban-infinite/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/49616740326/",
+      "flickrId": "49616740326",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:36.407Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/49616740326_3c6a997424_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/49616740326",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/49616740326_a24d20b2a3_o.jpg",
+          "width": 4829,
+          "height": 7236
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "south",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 4829,
+          "height": 2716
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/49616740326_a24d20b2a3_o.jpg",
+        "width": 4829,
+        "height": 7236,
+        "bytes": 13316523,
+        "sha256": "ad10b70dc21c5f6af515a510cab8844db657483067d8968c972a70888a69c64f",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/49616740326/",
+        "metadataPageSha256": "86e7a2397d6eca682240256e34e95c034b79f631cc53501af6fdd8c177c892b0",
+        "creatorPageSha256": "87940eda9a569b85df8d1230134a96cb454297c9c0ea2f46f80f548f766d518c"
+      },
+      "output": {
+        "file": "public/backgrounds/urban-infinite.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2390856,
+        "sha256": "e4f4e1ab4b8cb935d9be04bae2acd0893f185757189973ccdbe7b42c19e582fd"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/urban-infinite.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 25116,
+        "sha256": "af7af6147b566ce95dcf3495568469ec16ee964b4b6fc9bae08ad94005ad7696"
+      }
+    },
+    {
+      "id": "builtin-delicate-arch",
+      "title": "Delicate Arch",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/delicate-arch/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/7010365913/",
+      "flickrId": "7010365913",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:37.049Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/7068/7010365913_587862aef5_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/7010365913",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/7068/7010365913_a50e1bc987_o.jpg",
+          "width": 5154,
+          "height": 3436
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5154,
+          "height": 2899
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/7068/7010365913_a50e1bc987_o.jpg",
+        "width": 5154,
+        "height": 3436,
+        "bytes": 7813914,
+        "sha256": "47dad3ff276a4cffddb0793ecb89e7aeb1fc16a84e358915ac656a24fed5fcb9",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/7010365913/",
+        "metadataPageSha256": "871f031e1a2007af8011210389ed8b4a857bec872df88de142b98e312ad5c200",
+        "creatorPageSha256": "9d26f3d2177d67f942bc70ddd173fddb071858d7ba4bbcf92570ee6acc2343b6"
+      },
+      "output": {
+        "file": "public/backgrounds/delicate-arch.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2267889,
+        "sha256": "11cb0131ad928a863408fe4d40910843b3e203f301e7828767f62e1cc278b1b4"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/delicate-arch.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 29423,
+        "sha256": "edb51782b6da0af346207de6ef1432a086b9f4bc9c43ec0fa66e962d3a2ba217"
+      }
+    },
+    {
+      "id": "builtin-light-to-sand",
+      "title": "Light to Sand",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/light-to-sand/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/8338439169/",
+      "flickrId": "8338439169",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:37.720Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/8499/8338439169_8e763a6021_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/8338439169",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/8499/8338439169_03b01c6a16_o.jpg",
+          "width": 5569,
+          "height": 3713
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5569,
+          "height": 3132
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/8499/8338439169_03b01c6a16_o.jpg",
+        "width": 5569,
+        "height": 3713,
+        "bytes": 6767442,
+        "sha256": "cbf04764619782351dff223ab877c05e38bad70839a983ffe5d05368a4523fa1",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/8338439169/",
+        "metadataPageSha256": "12439d113b327298528dc68fba9c1adff7b5823d8b4e9c6813dffc4da3c141ee",
+        "creatorPageSha256": "a0409c6439bb13aec3a7102c25f699ec31d34da92086aed40ddde9d5720fc291"
+      },
+      "output": {
+        "file": "public/backgrounds/light-to-sand.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1625279,
+        "sha256": "b7fbb75e769299137b9eb18017be28fd120fd7b28ded04ffc9ee4375e83db489"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/light-to-sand.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 20448,
+        "sha256": "c6843fba88d9f0e1b48a915724abdd2179dc7334a553ba119bd5a80e927253c8"
+      }
+    },
+    {
+      "id": "builtin-marine-layers",
+      "title": "Marine Layers",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/marine-layers/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/49376576473/",
+      "flickrId": "49376576473",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:39.069Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/49376576473_09a29e293e_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/49376576473",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/49376576473_03368e130e_o.jpg",
+          "width": 8256,
+          "height": 5504
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 8256,
+          "height": 4644
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/49376576473_03368e130e_o.jpg",
+        "width": 8256,
+        "height": 5504,
+        "bytes": 17979552,
+        "sha256": "d85561efe154837880c80d5f2c080d3b4ecdcd6e4a80f0fbddf8f8e52fcdb096",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/49376576473/",
+        "metadataPageSha256": "934d7a76e72510a5d04ef698e2edc225dee97c8ced7927281902e8504fea0039",
+        "creatorPageSha256": "46040e97b81f77fd3ead363be1362ad83ba25ec9caeab4e1575fd4cf91c35c43"
+      },
+      "output": {
+        "file": "public/backgrounds/marine-layers.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 2750045,
+        "sha256": "6c5c95f0b4e018d9232b74290a06c16becdbf322df7d43887f14d6c46a2445b0"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/marine-layers.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 35970,
+        "sha256": "29fce7cebbe0ee5df8a6575bc778ecb3505dbd4424873b5010cd1f884a8b4271"
+      }
+    },
+    {
+      "id": "builtin-grand-teton",
+      "title": "Grand Teton",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/grand-teton/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/7926134090/",
+      "flickrId": "7926134090",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:39.677Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/8455/7926134090_3460d13094_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/7926134090",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/8455/7926134090_b197974509_o.jpg",
+          "width": 5448,
+          "height": 3065
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5448,
+          "height": 3064
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/8455/7926134090_b197974509_o.jpg",
+        "width": 5448,
+        "height": 3065,
+        "bytes": 3518409,
+        "sha256": "31a53a30ce9536b7c08ca4dd9e56cd046d512dc17c6e39b215d26346c1e6a95d",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/7926134090/",
+        "metadataPageSha256": "f807a593abbcb2e139b2ca8856ba8b47e416d782a134aabcf0ec4f471973a168",
+        "creatorPageSha256": "31ceced2d2debbb38145ee8e4a93de9b7f5e0ab691898bcd7db90fa5c578073f"
+      },
+      "output": {
+        "file": "public/backgrounds/grand-teton.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 1107962,
+        "sha256": "b3c8fb875e65e30fca123c6ad04ecfb054e5bc17acde3f621e4855804a691d67"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/grand-teton.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 15502,
+        "sha256": "3147bf954d89cdc756c13acd190fc7afb3ec2db8c985517ad74e580e4286c1c1"
+      }
+    },
+    {
+      "id": "builtin-rainbow-sunrise",
+      "title": "Rainbow Sunrise",
+      "author": "Romain Guy",
+      "creatorUrl": "https://www.curious-creature.com/posts/2020/rainbow-sunrise/",
+      "photoUrl": "https://www.flickr.com/photos/romainguy/49324749913/",
+      "flickrId": "49324749913",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "reviewedAt": "2026-09-05T21:28:40.368Z",
+      "evidence": {
+        "imageObject": {
+          "@context": "https://schema.org/",
+          "@type": "ImageObject",
+          "contentUrl": "https://live.staticflickr.com/65535/49324749913_05238ee9ce_b.jpg",
+          "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "acquireLicensePage": "https://www.flickr.com/photos/romainguy/49324749913",
+          "author": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Romain Guy",
+            "url": "https://www.flickr.com/photos/romainguy",
+            "image": "https://live.staticflickr.com/5344/buddyicons/24046097@N00.jpg?1369087315#24046097@N00"
+          }
+        },
+        "originalSize": {
+          "url": "https://live.staticflickr.com/65535/49324749913_057c51ff71_o.jpg",
+          "width": 5984,
+          "height": 3366
+        }
+      },
+      "processing": {
+        "autoOrient": true,
+        "fit": "cover",
+        "position": "centre",
+        "withoutEnlargement": true,
+        "jpegQuality": 90,
+        "chromaSubsampling": "4:2:0",
+        "stripMetadata": true,
+        "usableSourceCrop": {
+          "width": 5984,
+          "height": 3366
+        }
+      },
+      "source": {
+        "url": "https://live.staticflickr.com/65535/49324749913_057c51ff71_o.jpg",
+        "width": 5984,
+        "height": 3366,
+        "bytes": 2697715,
+        "sha256": "e905036a4deefc59083ad05611f3ce89b734a4ef8fad434cfdc79ae4ff2ff746",
+        "orientation": 1,
+        "metadataPage": "https://www.flickr.com/photos/romainguy/49324749913/",
+        "metadataPageSha256": "579132c78416f88872e79d925f0386e2cfb42a55149ac1058eea68421781caed",
+        "creatorPageSha256": "162f9a481b38bf820c4c0b0451ebb0e4df462bb31fac309aecc7a6c781c225b1"
+      },
+      "output": {
+        "file": "public/backgrounds/rainbow-sunrise.jpg",
+        "width": 3840,
+        "height": 2160,
+        "bytes": 936359,
+        "sha256": "be2e3ed2f14a47d12117cc326fe6ad1206e1e57d5bbd94e4d6bb2c9d5936a695"
+      },
+      "thumbnail": {
+        "file": "public/backgrounds/thumbnails/rainbow-sunrise.jpg",
+        "width": 480,
+        "height": 270,
+        "bytes": 20629,
+        "sha256": "123bdbe9d6f87f4254d355fda44b9431aec97b0614f146a5088d83712b40a515"
+      }
+    }
+  ]
+}
