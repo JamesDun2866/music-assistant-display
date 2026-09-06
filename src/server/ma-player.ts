@@ -59,6 +59,8 @@ export function playerAnchor(raw: unknown, playerId: string, queueId: string,
     throw new Error("unsupported_media_type");
   }
   const uri = media.media_type === "track" ? spotifyTrackUri(media.uri) : null;
+  const spotifySource = player.active_source === "spotify"
+    || /^spotify_connect(?:--[^:]+)?:\/\/audio_source\//.test(player.active_source);
   // This hash is a display occurrence key, never a catalog identity or lyrics lookup.
   const occurrence = createHash("sha256").update(JSON.stringify([
     playerId, player.active_source, media.uri, media.title, media.artist, media.album, media.duration,
@@ -73,12 +75,13 @@ export function playerAnchor(raw: unknown, playerId: string, queueId: string,
       identity, title: media.title || "External audio", artist: media.artist ?? "",
       album: media.album ?? "", durationMs: media.duration == null ? null : media.duration * 1000,
       artworkUrl: media.image_url && artwork ? artwork.setFromPlayerUrl(identity, media.image_url,
-        player.active_source === "spotify" || /^spotify_connect(?:--[^:]+)?:\/\/audio_source\//.test(player.active_source)) : null,
+        spotifySource) : null,
     },
     itemKey: `external:${occurrence}`,
     request: uri && timed ? { identity: uri, uri } : null,
     lyricsUnavailable: !uri
-      ? "Music Assistant exposes external-source metadata but no exact supported track URI. Lyrics cannot be matched safely."
+      ? spotifySource ? "Music Assistant does not yet support lyrics via Connect."
+        : "Music Assistant exposes external-source metadata but no exact supported track URI. Lyrics cannot be matched safely."
       : !timed ? "Music Assistant exposes this track without a reliable playback clock. Synchronized lyrics are unavailable." : undefined,
     playback: player.playback_state,
     positionMs: timed ? player.elapsed_time! * 1000 + Math.max(0, age) : 0,

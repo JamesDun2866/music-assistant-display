@@ -165,7 +165,7 @@ describe("verified MA wire contract", () => {
         precision: "ma-player", lyrics: { status: "unsupported", lines: [] },
         track: { artist: player.current_media.artist, album: player.current_media.album },
       });
-      expect(bridge.snapshot().lyrics.message).toContain("no exact supported track URI");
+      expect(bridge.snapshot().lyrics.message).toBe("Music Assistant does not yet support lyrics via Connect.");
       const firstIdentity = bridge.snapshot().track?.identity;
       player = externalPlayer("Synthetic external two");
       emit("player_updated", "exact-cast", player);
@@ -257,6 +257,15 @@ describe("verified MA wire contract", () => {
   });
 });
 describe("external MA player identity", () => {
+  it("uses the simple Connect explanation only for Spotify sources missing exact identity", () => {
+    const player = externalPlayer();
+    for (const active_source of [player.active_source, "spotify"]) {
+      expect(playerAnchor({ ...player, active_source }, "exact-cast", "exact-group", Date.now()).lyricsUnavailable)
+        .toBe("Music Assistant does not yet support lyrics via Connect.");
+    }
+    expect(playerAnchor({ ...player, active_source: "other-source" }, "exact-cast", "exact-group", Date.now()).lyricsUnavailable)
+      .toContain("no exact supported track URI");
+  });
   it("updates Connect cover URLs without changing lyrics identity and clears missing covers", () => {
     const store = new ArtworkStore("http://ma.example", true);
     const bridge = new Bridge({ capability: "available", fetch: vi.fn() },
