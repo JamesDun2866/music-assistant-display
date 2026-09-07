@@ -11,6 +11,11 @@ installation, use the [installation walkthrough](installation-guide.md).
 
 ## Before you start
 
+The separately installed [UCA222 source and optional recorder](uca222-source.md)
+also ships on public `main`, but is not updated or restarted by the display
+scripts below. Use its [source-only update procedure](uca222-source.md#operation-updates-and-recovery)
+to preserve pairing and configuration; stop any recording before its restart.
+
 This guide updates a checkout of **JamesDun2866/music-assistant-display**.
 Public clones and fetches over HTTPS need no GitHub account, token or deploy
 key. SSH origins are also accepted for contributors who already use SSH.

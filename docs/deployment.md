@@ -7,6 +7,12 @@ the operational reference for the native scripts and service layout.
 
 ## Supported target and design
 
+The optional [UCA222 capture and recording service](uca222-source.md) has its
+own installer, service account, Python environment, configuration and pairing
+state. The display scripts described here neither install nor remove it.
+For moving the MA server itself, see the separate
+[Home Assistant to Docker/Dockge migration guide](music-assistant-migration.md).
+
 Use a **fresh Raspberry Pi OS Trixie (Debian 13), 64-bit desktop image**, with its
 default **labwc/Wayland** session. The project baseline is a **Pi 4 or Pi 5 with
 2 GB RAM**, a reliable power supply, microSD storage, and HDMI display. More RAM

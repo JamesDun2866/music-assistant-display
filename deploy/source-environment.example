@@ -1,0 +1,7 @@
+# Opt-in source service only; does not affect the karaoke display.
+# Use the native Sendspin endpoint, not MA's web UI or websocket API.
+SOURCE_SERVER_URL=
+# Exact stereo capture selector printed by `sendspin-karaoke-source devices`.
+# Example only: hw:CARD=CODEC,DEV=0. Do not use a numerical/default device.
+SOURCE_DEVICE=
+SOURCE_NAME="UCA222 Line In"

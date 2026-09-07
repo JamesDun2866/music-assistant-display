@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sendspin-karaoke-source"
+version = "0.2.0"
+description = "Opt-in paired Sendspin USB stereo line-input service"
+requires-python = ">=3.12"
+dependencies = [
+  "aiosendspin[source]==9.1.1",
+  "sounddevice==0.5.3",
+  "soundfile==0.13.1",
+]
+
+[project.optional-dependencies]
+test = ["aiosendspin[server]==9.1.1"]
+
+[project.scripts]
+sendspin-karaoke-source = "sendspin_karaoke_source.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sendspin_karaoke_source*"]

@@ -55,5 +55,15 @@ JPEGs generated with Sharp do not inherit its native libraries' LGPL license.
 
 Chromium, Python, libCEC/cec-utils, labwc, Node.js and other system packages
 are installed separately under their respective licenses, not relicensed here.
+
+The optional UCA222 source declares its separately downloaded Python dependencies
+in `source/pyproject.toml`, including pinned `aiosendspin`, `sounddevice` and
+`soundfile`. PortAudio, ALSA and libsndfile are installed separately as system
+libraries; Python wheels may include native libraries with their own notices.
+Retain and review the exact installed packages' licenses before redistributing
+a source-service virtual environment or appliance image. Recordings are user
+content, not bundled project assets; record and share only audio you are entitled
+to use.
+
 The package's `private: true` prevents accidental npm publication; it does not
 require authentication to clone the public GitHub repository.

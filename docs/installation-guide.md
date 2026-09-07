@@ -6,6 +6,11 @@ The Pi supplies the screen, not the audio.** Keep the CAST's stock firmware.
 There is no Spotify login, Pi audio player, or requirement for the draft Sendspin
 lyrics protocol.
 
+**Already have the display and want to capture records/CDs with a UCA222?**
+Use the [separate USB line-in and optional recording guide](uca222-source.md).
+It adds an opt-in service alongside this display without reinstalling the Pi
+or moving Music Assistant. The steps on this page install the display only.
+
 The optional receiver chapter is for **TX-NR6100 only: check the rear-panel/model
 label first**. Skip that chapter if the label differs or you prefer your
 existing speakers.

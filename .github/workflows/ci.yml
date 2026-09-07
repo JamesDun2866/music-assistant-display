@@ -5,6 +5,28 @@ on:
 permissions:
   contents: read
 jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libportaudio2 libsndfile1
+      - run: python -m venv source/.venv
+      - run: source/.venv/bin/python -m pip install './source[test]'
+      - name: Check installed source CLI and shell runtime
+        run: |
+          source/.venv/bin/sendspin-karaoke-source check-device --help
+          source/.venv/bin/sendspin-karaoke-source record-start --help
+          bash -n scripts/install-source.sh
+          bash -n scripts/check-source-runtime.sh
+          bash -n scripts/source-cli.sh
+      - name: Test opt-in capture lifecycle and real paired Sendspin protocol
+        run: source/.venv/bin/python -I -B -m unittest discover -s source/tests -p 'test_*.py' -v
   checks:
     strategy:
       matrix:
