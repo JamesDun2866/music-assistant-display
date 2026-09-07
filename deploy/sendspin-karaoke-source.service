@@ -1,0 +1,40 @@
+[Unit]
+Description=Opt-in paired Sendspin USB stereo line input
+Wants=network-online.target
+After=network-online.target sound.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=sendspin-karaoke-source
+Group=sendspin-karaoke-source
+SupplementaryGroups=audio
+EnvironmentFile=/etc/sendspin-karaoke-source/environment
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/opt/sendspin-karaoke-source/current/venv/bin/sendspin-karaoke-source run --state-dir /var/lib/sendspin-karaoke-source
+WorkingDirectory=/var/lib/sendspin-karaoke-source
+StateDirectory=sendspin-karaoke-source
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=10
+RestartPreventExitStatus=2 3
+TimeoutStopSec=15
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+DevicePolicy=closed
+DeviceAllow=char-alsa rw
+ReadWritePaths=/var/lib/sendspin-karaoke-source
+
+[Install]
+WantedBy=multi-user.target

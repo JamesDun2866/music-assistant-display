@@ -23,6 +23,47 @@ only affect the local simulator. Prefer TLS for MA traffic on an untrusted
 network, with a trusted certificate; certificate verification is never disabled.
 Unencrypted MA WebSocket traffic is readable by a network observer.
 
+## Optional USB audio source
+
+The separately installed [UCA222 source service](uca222-source.md) is an
+explicit exception to the display's no-audio role: it captures the selected
+stereo input and sends audio to its paired Sendspin server when that server
+requests playback. Treat pairing as authorization for the MA server to
+request capture, not merely permission to show a device name. Do not connect
+a microphone or other sensitive source unintentionally.
+
+It uses its own service account, audio-device access, configuration and
+private pairing state, not the display's MA token or browser. Protect
+`/var/lib/sendspin-karaoke-source` and its backups as credentials. Do not share
+pairing PINs or copy an identity to another concurrently running device.
+Pair only with your intended MA server on a trusted network. The ordinary
+display installer does not enable this service; stop and disable
+`sendspin-karaoke-source.service` to prevent future capture requests.
+
+Captured samples are not saved by default. Explicit local recording commands
+can start capture immediately, independently of MA playback or connectivity,
+and save FLAC/WAV files under the private
+`/var/lib/sendspin-karaoke-source/recordings` directory. Five seconds of
+continuous below-threshold audio stops recording; it does not rearm itself,
+stop MA playback, or guarantee a stop if surface noise exceeds the threshold.
+Stopping playback in MA is therefore not a recording-stop command. Use the
+local recording stop control or stop the source service to end local capture.
+
+Recording controls use a private Unix socket in the source state directory,
+not the display browser or a LAN HTTP endpoint. Run them as the source service
+account; do not make the state directory or socket accessible to everyone.
+Keep recordings and backups private, including files marked incomplete after
+an error. Export individual completed audio files rather than sharing the
+whole state directory with its pairing credentials. Recording is off after a
+service restart and is never enabled by installation or ordinary MA playback.
+
+Sending audio to MA still makes it available to MA and the selected
+downstream players; their retention, access and transport security are
+separate from this Pi service. The source does not perform cloud song
+recognition or upload audio for lyrics.
+
+## Display data and controls
+
 Spotify Connect cover downloads are separately opt-in with
 `MA_ALLOW_SPOTIFY_ARTWORK=true`; absent/false keeps artwork requests restricted
 to MA. This permits only HTTPS `i.scdn.co/image/<40-hex-id>` URLs from MA-reported

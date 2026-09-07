@@ -30,6 +30,16 @@ From shopping list and Wi-Fi setup to anonymous public cloning, MA credentials,
 desktop kiosk and recovery, including optional HDMI-CEC and **model-checked
 Onkyo TX-NR6100** HDMI-video/CAST-analog-audio routing.
 
+**Optional UCA222 line-in and recording:** the separately installed
+[native Sendspin source service](docs/uca222-source.md) sends a USB stereo
+input to MA 2.10.2 Live Inputs, with its own pairing and boot service.
+The display, CAST output and HDMI setup stay unchanged. Optional
+[local FLAC/WAV recording](docs/uca222-source.md#optional-flacwav-recording)
+starts only on explicit request, including without MA playback, and stops
+after five continuous seconds below the silence threshold without rearming.
+Recording is off by default; there are no recording controls in the display UI.
+Analogue input does not supply track identities or lyrics.
+
 ## A music-first TV interface
 
 The original dark Now Playing interface puts large album artwork, track/artist/
@@ -144,6 +154,8 @@ Standby is deliberately unsupported; ordinary admin tabs do not consume remote k
 ## Guides
 
 - [Complete installation walkthrough, including optional Onkyo routing](docs/installation-guide.md)
+- [Optional UCA222 native Sendspin source and FLAC/WAV recording](docs/uca222-source.md)
+- [Move Music Assistant from Home Assistant to Docker/Dockge](docs/music-assistant-migration.md)
 - [Upgrade from main, private backup and recovery](docs/upgrading.md)
 - [Local LRC lyrics through Music Assistant](docs/local-lyrics.md)
 - [Architecture and timing/failure states](docs/architecture.md)
@@ -166,6 +178,12 @@ exchange against a synthetic MA server, reconnect/track changes, rendering,
 HTTP control security and injected CEC failures. CI runs on Linux and Windows
 with Node 22/24. Song fixtures use original synthetic lyrics.
 
+The independent source package has Linux CI on Python 3.12/3.13, covering
+capture lifecycle, paired Sendspin protocol exchange, local recording and
+private Unix-socket controls. See its [setup guide](docs/uca222-source.md).
+One user reports live multiroom input and local recording working on their
+Pi/UCA222 setup; this is not a latency measurement or broad hardware guarantee.
+
 **Limited hardware confirmation:** one user has reported the current Pi setup
 working as desired after the stock merged-config cursor correction. This is
 not a hardware compatibility matrix or a measurement of lyric timing. Qualify
@@ -178,6 +196,9 @@ The public project is [JamesDun2866/music-assistant-display](https://github.com/
 Installed service/account names, `/opt`, `/etc`, `/var/lib` paths and the kiosk
 profile deliberately retain **`sendspin-karaoke`** to preserve existing
 deployments. This is one application, not a second side-by-side service.
+The optional capture component similarly retains **`sendspin-karaoke-source`**
+for its Python package, CLI, service and paths. It is a separate opt-in service,
+not a replacement for the display.
 The public repository starts with fresh history; an older checkout with
 unrelated history must not be pointed at it and force-updated. See
 [migration and updates](docs/upgrading.md).
