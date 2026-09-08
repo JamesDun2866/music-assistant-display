@@ -43,7 +43,9 @@ async function main(): Promise<void> {
   const demo = config.DEMO_MODE ? new DemoPlayer(bridge) : undefined;
   const monitor = client && artwork ? new MaMonitor(client, bridge, config.MA_PLAYER_ID!, config.MA_QUEUE_ID!, artwork) : null;
   const lineInAlbum = config.LINE_IN_ALBUM_SOURCE_ID && !config.DEMO_MODE
-    ? new LineInAlbum(config.LINE_IN_ALBUM_SOURCE_ID, config.LINE_IN_ALBUM_SOURCE_UID!) : undefined;
+    ? new LineInAlbum(config.LINE_IN_ALBUM_SOURCE_ID, config.LINE_IN_ALBUM_SOURCE_UID!,
+      undefined, undefined, undefined, config.STATE_DIR) : undefined;
+  await lineInAlbum?.init();
   const server = createServer(createApp({
     bridge, settings, ambient, cec, demo, remote: nativeCec, lineInAlbum,
     ...(demo ? { artwork: (identity: string, signal: AbortSignal) => demo.artwork.get(identity, signal) } :
@@ -73,12 +75,13 @@ async function main(): Promise<void> {
     await Promise.all([
       new Promise<void>((resolve) => server.close(() => resolve())),
       cec.close(),
+      lineInAlbum?.flush(),
     ]);
     log("service_stopped");
   };
   const stop = () => {
     void close().catch(() => {
-      log("shutdown_failed", "cec_shutdown_failed");
+      log("shutdown_failed", "component_shutdown_failed");
       process.exitCode = 1;
     });
   };

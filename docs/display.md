@@ -32,15 +32,22 @@ to view the album inferred from the Pi's source input; the view is independent
 of the configured MA player's queue and can also be used during local recording.
 It is not proof that a particular speaker is currently playing that input.
 
-Identification makes one attempt per audible session, retains the album rather
-than following each song, and resets after five continuous seconds of silence.
+Identification makes one automatic attempt per audible session and rearms after
+five continuous seconds of silence. The last identified album stays visible
+during a side flip, a failed match or a service/Pi restart, until a new album is
+identified. The live status remains separate from this cached album: a displayed
+cover is not evidence that recognition is currently active or that the same
+record is still playing.
 A wide-screen layout places the cover on the left and the catalog tracklist
 on the right, with scrolling for albums that do not fit on screen. Narrow
 screens stack the sections. Disc and track numbers describe the matched
 catalog edition, not the physical vinyl sides or the current playback position.
 If a complete catalog tracklist cannot be resolved, the view reports that
 instead of substituting a different album or silently truncating the list.
-A failed/unmatched attempt stays unavailable for that session. Album metadata
+An unsuccessful attempt leaves the cached album unchanged. **Retry identification**
+requests a fresh sample while recognition is enabled and line-in capture is
+active; it does not enable recognition, start capture or start recording.
+There are no automatic retries within the same session. Album metadata
 is inferred and can refer to a single, compilation or reissue instead of the
 physical record. No recognized song lyrics, progress bar or synchronized lyrics
 are supplied by this view. Return to the normal views for MA track metadata and
@@ -48,7 +55,7 @@ lyrics; selecting this view does not start capture, streaming or recording.
 The source supplies the detected track's artist as context, not a separately
 verified album-artist credit. Identification needs a 12-second sample and
 network processing time. The view reports sampling, identification, unavailable
-and offline states rather than displaying a previous session's album forever.
+and offline states alongside the last identified album, if one is cached.
 
 ## Low-cost lyric follow at 4K
 

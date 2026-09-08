@@ -76,8 +76,11 @@ The recognition request is not a raw PCM/WAV or full recording upload, but it
 still discloses recognizable information about the audio and the network's
 public IP to an external service. It is not offline or anonymous recognition.
 
-The provider transport allows one recognition POST to `amp.shazam.com` per
-session and refuses redirects and automatic retries. Five seconds of silence
+The provider transport allows one automatic recognition POST to `amp.shazam.com`
+per session and refuses redirects and transport retries. A deliberate
+**Retry identification** action permits one additional fresh-sample attempt;
+accepted retries are at least 15 seconds apart and cannot overlap an attempt.
+Five seconds of silence
 or a new capture context can permit a new session; this is not a monthly quota
 or a guarantee of one request per vinyl. ShazamIO is unofficial; open-source
 licensing does not establish authorization under the service's terms or
@@ -87,26 +90,46 @@ Only bounded album title, detected artist and approved artwork metadata leave
 the worker. Lyrics and other provider fields are discarded. A private-group,
 read-only snapshot at `/run/sendspin-karaoke-album/album.json` lets the display
 read this minimal context without access to the source's identity, recordings
-or control socket. The display binds to the configured source public-identity
+or general recording/control socket. The display binds to the configured source public-identity
 hash and numeric service UID, validates file ownership/schema, and expires old
 snapshots. Do not relax the source state directory's permissions to enable it.
+
+The separate `/run/sendspin-karaoke-album/retry.sock` accepts only a retry
+request, not enable/disable, recording or pairing commands. Its mode is 0660
+inside the source-owned 2750 directory. Linux peer credentials restrict callers
+to root, the source account or the installed display account. The request must
+match the source identity and live boot/generation; disabled, inactive, stale
+or busy requests are rejected. The browser reaches this through a loopback-only,
+session/CSRF-protected POST. Retry does not grant consent or open audio capture.
 
 When the Line-in album view requests current artwork, the display server may
 fetch an approved HTTPS thumbnail from `is1-ssl.mzstatic.com` through
 `is5-ssl.mzstatic.com`. This discloses the requested artwork and public IP to
 Apple's CDN. URLs, DNS destinations, response sizes, image decoding and
-generation are checked; redirects are refused, and the browser receives only
+album identity are checked; redirects are refused, and the browser receives only
 a local image route. This opt-in is separate from Spotify Connect artwork.
-Disabling recognition clears the result on the next local status refresh or
-snapshot expiry; it does not stop listening or recording.
+Disabling recognition stops new identification but retains the cached album;
+it does not stop listening or recording. Expiring live status never presents
+the cached album as a fresh recognition result.
 The album view can also request the exact matched album's public catalog
 tracklist from `https://itunes.apple.com/lookup`. A validated collection
 reference needs one GET; a track reference needs up to two GETs to resolve
 its collection first. This is a metadata lookup, not another audio-recognition
 request or an upload of audio. It discloses the catalog identifier, storefront
 and public IP to Apple; no credentials, private recordings, previews or lyrics
-are sent. Bounded results, including failures, are cached per album generation
-so display polling does not repeatedly request the catalog.
+are sent. Complete bounded results are reused per album identity; failed or
+interrupted lookups can recover on a new session or successful explicit
+recognition retry, not repeated display polling.
+
+The source stores the last identified album in private `last-album.json`
+(at most 4 KiB). The display stores the bound source ID/UID, album metadata,
+processed JPEG and resolved tracklist in `STATE_DIR/line-in-album/last-album.json`
+(at most 1 MiB, including a JPEG up to 256 KiB and at most 200 tracks).
+Files are owner-only (0600), atomically replaced, and validated on restore.
+Already cached artwork and complete tracklists can be displayed after reboot
+without downloading them again. This retains a record of the last identified
+album, not audio, raw provider responses, lyrics or an album history. Include
+this metadata when considering the privacy of service-state backups.
 
 ## Display data and controls
 
@@ -120,8 +143,8 @@ receives only a local image route. Downloads retain the bounded raster handling
 and in-memory cache used for MA artwork. This flag does not change library
 refresh permissions or resolve missing lyric identities.
 
-Persistent state contains display/Ambient preferences, uploaded image copies
-and a bounded local lyrics cache.
+Persistent state contains display/Ambient preferences, uploaded image copies,
+a bounded local lyrics cache and, when configured, the last identified line-in album.
 Lyrics may be copyrighted; this project ships only original synthetic examples.
 Enable only providers you are entitled to use, follow provider terms, do not
 redistribute the cache, and protect backups like personal media metadata. Cache

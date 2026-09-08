@@ -1,1 +1,2 @@
 d /run/sendspin-karaoke-album 2750 sendspin-karaoke-source sendspin-karaoke-album -
+# Source publishes album.json (0640) and retry.sock (0660); group cannot replace either.

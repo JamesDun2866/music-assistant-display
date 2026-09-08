@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  catalogReferenceSchema, unavailableTracklist, type AlbumSnapshot, type CatalogReference, type Tracklist,
+  albumEligibility, catalogReferenceSchema, unavailableTracklist, type AlbumSnapshot, type CatalogReference, type Tracklist,
 } from "../shared/line-in-album.js";
 import { trustedGet } from "./line-in-network.js";
 import { log } from "./log.js";
@@ -69,10 +69,10 @@ export function collectionTracks(raw: unknown, collectionId: string): Tracklist 
   };
 }
 
-type Entry = { key: string; reference: CatalogReference; result: Tracklist; started: boolean };
-const keyOf = (value: AlbumSnapshot) => `${value.boot_id}-${value.generation}`;
+type Entry = { key: string; eligibility: string; reference: CatalogReference; result: Tracklist; started: boolean };
+const keyOf = (value: AlbumSnapshot) => value.album_key!;
 function active(value: AlbumSnapshot | null): value is AlbumSnapshot & { album: NonNullable<AlbumSnapshot["album"]> } {
-  return value !== null && value.enabled && value.active && value.state === "identified" && value.album !== null
+  return value !== null && value.enabled && value.active && value.album !== null
     && value.expires_at_ms > Date.now() && value.updated_at_ms <= Date.now();
 }
 
@@ -83,11 +83,13 @@ export class AlbumCatalog {
   private latest: AlbumSnapshot | null = null;
   private pending: { entry: Entry; controller: AbortController } | null = null;
   private closed = false;
-  constructor(private readonly read: () => Promise<AlbumSnapshot | null>, private readonly fetch = fetchCatalog) {}
+  constructor(private readonly read: () => Promise<AlbumSnapshot | null>, private readonly fetch = fetchCatalog,
+    private readonly completed: (key: string, result: Tracklist) => void = () => {}) {}
 
-  view(value: AlbumSnapshot | null): Tracklist {
+  view(value: AlbumSnapshot | null, restored?: Tracklist): Tracklist {
     if (value && this.latest && (value.boot_id === this.latest.boot_id
-      ? value.generation < this.latest.generation : value.updated_at_ms < this.latest.updated_at_ms)) {
+      ? value.generation < this.latest.generation
+      : value.updated_at_ms < this.latest.updated_at_ms && this.latest.updated_at_ms <= Date.now())) {
       return unavailableTracklist();
     }
     if (value) this.latest = value;
@@ -97,11 +99,15 @@ export class AlbumCatalog {
       return unavailableTracklist(active(value) ? "Tracklist unavailable: no exact Apple catalog reference." : undefined);
     }
     const key = keyOf(value);
+    const eligibility = albumEligibility(value);
     let entry = this.entries.get(key);
-    if (!entry) {
+    const retiring = this.pending !== null && this.pending.entry === entry && this.pending.controller.signal.aborted;
+    if (!entry || (entry.result.status !== "complete" && entry.eligibility !== eligibility
+      && (this.pending?.entry !== entry || retiring))) {
       entry = {
-        key, reference: value.album.catalog, started: false,
-        result: { ...unavailableTracklist(), status: "loading", message: "Loading catalog tracklist…" },
+        key, eligibility, reference: value.album.catalog, started: restored?.status === "complete",
+        result: restored?.status === "complete" ? restored
+          : { ...unavailableTracklist(), status: "loading", message: "Loading catalog tracklist…" },
       };
       this.entries.set(key, entry);
       while (this.entries.size > 4) this.entries.delete(this.entries.keys().next().value!);
@@ -118,7 +124,10 @@ export class AlbumCatalog {
     entry.started = true;
     const controller = new AbortController();
     this.pending = { entry, controller };
-    void this.load(entry, controller).then((result) => { entry.result = result; }, (error: unknown) => {
+    void this.load(entry, controller).then((result) => {
+      entry.result = result;
+      if (result.status === "complete" && !controller.signal.aborted) this.completed(entry.key, result);
+    }, (error: unknown) => {
       entry.result = unavailableTracklist("Tracklist unavailable from the catalog. No automatic retry this session.");
       if (!controller.signal.aborted) log("album_catalog_unavailable", error instanceof Error ? error.name : "unexpected");
     }).finally(() => {

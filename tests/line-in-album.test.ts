@@ -12,7 +12,9 @@ const art = "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/ab/cd/ef/album
 function snapshot(patch: Partial<AlbumSnapshot> = {}): AlbumSnapshot {
   const now = Date.now();
   return {
-    version: 2, source_id: source, boot_id: boot, generation: 1,
+    version: 3, source_id: source, boot_id: boot, generation: 1,
+    album_key: `${boot}-${patch.generation ?? 1}`, cache_error: null,
+    album_success: { boot_id: boot, generation: patch.generation ?? 1, at_ms: now },
     updated_at_ms: now, expires_at_ms: now + 4000, enabled: true, active: true, silence_dbfs: -45,
     remembered_enabled: true, settings_error: null,
     state: "identified", album: { title: "Real album", artist: "Artist", artwork: art, catalog: null }, ...patch,
@@ -64,29 +66,29 @@ it("exposes album-only UI metadata with guarded local artwork, not raw source or
     state: "identified", key: `${boot}-1`, expiresAt: expect.any(Number),
     album: { title: "Real album", artist: "Artist", artworkUrl: `/api/line-in-album/artwork/${boot}-1` },
     tracklist: expect.objectContaining({ status: "unavailable", tracks: [] }),
+    retry: { source_id: source, boot_id: boot, generation: 1 }, cacheError: null,
   });
   expect(fetcher).not.toHaveBeenCalled();
 });
 
-it("clears stale metadata and never fetches disabled, idle, absent or old-generation artwork", async () => {
+it("retains last album while live status changes without fetching disabled, idle or absent artwork", async () => {
   const fetcher = vi.fn();
   let value: AlbumSnapshot | null = snapshot();
   const service = new LineInAlbum(source, 123, async () => value, fetcher);
   expect((await service.view()).album?.title).toBe("Real album");
   for (const patch of [
-    { state: "disabled" as const, enabled: false, active: false, album: null },
-    { state: "idle" as const, active: false, album: null },
-    { state: "armed" as const, album: null },
+    { state: "disabled" as const, enabled: false, active: false },
+    { state: "idle" as const, active: false },
   ]) {
     value = snapshot(patch);
-    expect((await service.view()).album).toBeNull();
+    expect((await service.view()).album?.title).toBe("Real album");
     expect(await service.artwork(`${boot}-1`, AbortSignal.timeout(1000))).toBeNull();
   }
-  value = snapshot({ generation: 2 });
+  value = snapshot({ generation: 2, album: { title: "New album", artist: "Other", artwork: null, catalog: null } });
   expect(await service.artwork(`${boot}-1`, AbortSignal.timeout(1000))).toBeNull();
   value = null;
   expect((await service.view()).state).toBe("offline");
-  expect((await service.view()).album).toBeNull();
+  expect((await service.view()).album?.title).toBe("New album");
   expect(fetcher).not.toHaveBeenCalled();
 });
 
@@ -222,7 +224,7 @@ it("aborts shared work on lost metadata and settles all clients before the deadl
   const settled = await results;
   expect(sharedSignal.aborted).toBe(true);
   expect(settled.every((result) => result.status === "rejected")).toBe(true);
-  expect((await service.view()).album).toBeNull();
+  expect((await service.view()).album?.title).toBe("Real album");
   service.close();
 });
 

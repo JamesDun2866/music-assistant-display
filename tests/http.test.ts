@@ -42,6 +42,7 @@ async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptio
 it("keeps album endpoints read-only and behind existing local Host/Origin guards", async () => {
   const view = vi.fn(async () => ({
     state: "disabled" as const, expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist(),
+    retry: null, cacheError: null,
   }));
   const image = vi.fn(async () => null);
   const { base, headers } = await fixture(undefined, { view, artwork: image });
@@ -61,6 +62,30 @@ it("keeps album endpoints read-only and behind existing local Host/Origin guards
   })).status).toBe(403);
   expect(image).not.toHaveBeenCalled();
 });
+it("allows only CSRF-protected source-bound album retries and preserves useful source errors", async () => {
+    const retry = vi.fn(async () => {});
+    const { base, headers } = await fixture(undefined, {
+      view: async () => ({ state: "offline", expiresAt: Date.now(), key: null, album: null,
+        tracklist: unavailableTracklist(), retry: null, cacheError: null }),
+      artwork: async () => null, retry,
+    });
+    const body = { source_id: "a".repeat(64), boot_id: "b".repeat(32), generation: 1 };
+    const url = `${base}/api/line-in-album/retry`;
+    expect((await fetch(url, { method: "POST", body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" } })).status).toBe(403);
+    expect((await fetch(url, { method: "POST", body: JSON.stringify(body),
+      headers: { ...headers, Origin: "https://evil.example" } })).status).toBe(403);
+    for (const bad of [{}, { ...body, enabled: true }, { ...body, command: "record-start" }, { ...body, generation: -1 }]) {
+      expect((await fetch(url, { method: "POST", headers, body: JSON.stringify(bad) })).status).toBe(400);
+    }
+    expect(retry).not.toHaveBeenCalled();
+    expect((await fetch(url, { method: "POST", headers, body: JSON.stringify(body) })).status).toBe(200);
+    expect(retry).toHaveBeenCalledExactlyOnceWith(body);
+    retry.mockRejectedValue(new Error("Recognition is off. Enable it explicitly before retrying."));
+    const rejected = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+    expect(rejected.status).toBe(409);
+    expect(await rejected.json()).toMatchObject({ error: expect.stringContaining("Recognition is off") });
+  });
 it("protects local TV controls against cross-origin, DNS rebinding, missing CSRF and arbitrary commands", async () => {
   const { base, headers, cec } = await fixture();
   const reboundStatus = await new Promise<number | undefined>((resolve, reject) => {

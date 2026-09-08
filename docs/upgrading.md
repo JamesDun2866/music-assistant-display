@@ -17,8 +17,11 @@ scripts below. Use its [source-only update procedure](uca222-source.md#operation
 to preserve pairing and configuration; stop any recording before its restart.
 
 **Using optional Line-in album identification?** Update both the display and
-source together for source 0.4.0's version-2 handoff and complete catalog
-tracklists. Add `--with-recognition` on every source install/upgrade; the display
+source together for source 0.5.0's version-3 handoff, persistent last-album cache
+and retry-only control. Older/newer mismatches report live album status offline;
+an existing display cache can remain visible. Cached album content survives
+silence, unsuccessful attempts, disabled recognition and reboots until another
+album is identified. Add `--with-recognition` on every source install/upgrade; the display
 installer does not accept that flag. Keep existing `LINE_IN_ALBUM_SOURCE_ID`
 and `LINE_IN_ALBUM_SOURCE_UID` values. Source 0.3.0 users must enable recognition
 once with the new version to save their choice across restarts. Fresh installs

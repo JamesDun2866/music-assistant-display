@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { albumViewSchema, type AlbumView } from "../shared/line-in-album.js";
+import { useLocalCommand } from "./useLocalCommand.js";
 
 const labels: Record<AlbumView["state"], string> = {
   "not-configured": "Line-in album display is not configured",
@@ -9,13 +10,15 @@ const labels: Record<AlbumView["state"], string> = {
   armed: "Waiting for audible input",
   sampling: "Listening for an album",
   recognizing: "Identifying album",
-  identified: "Identified album",
+  identified: "Recognition succeeded",
   unavailable: "Album not identified",
 };
 
 export function LineInAlbumView() {
   const [view, setView] = useState<AlbumView | null>(null);
   const [failedImage, setFailedImage] = useState<string | null>(null);
+  const command = useLocalCommand();
+  useEffect(() => { setFailedImage(null); }, [view?.album?.artworkUrl]);
   useEffect(() => {
     let alive = true;
     let expiry: ReturnType<typeof setTimeout> | undefined;
@@ -30,15 +33,16 @@ export function LineInAlbumView() {
         const result = albumViewSchema.parse(await response.json());
         if (!alive) return;
         clearTimeout(expiry);
-        if (result.album && result.expiresAt <= Date.now()) {
-          setView(null);
+        if (result.expiresAt <= Date.now()) {
+          setView({ ...result, state: "offline", retry: null });
         } else {
           setView(result);
-          if (result.album) expiry = setTimeout(() => setView(null),
+          expiry = setTimeout(() => setView((previous) => previous
+            ? { ...previous, state: "offline", retry: null } : null),
             Math.max(0, Math.min(4000, result.expiresAt - Date.now())));
         }
       } catch {
-        if (alive) setView(null);
+        if (alive) setView((previous) => previous ? { ...previous, state: "offline", retry: null } : null);
       } finally {
         if (alive) timer = setTimeout(() => { void poll(); }, 750);
       }
@@ -53,9 +57,22 @@ export function LineInAlbumView() {
   const artist = complete ? tracks.artist : album?.artist;
   return <section className="line-in-album" aria-label="Line-in album">
     <header className="album-header">
-      <p className="stage-caption" role="status">{view ? labels[view.state] : "Line-in source unavailable"}</p>
-      <h1>{title || (view ? labels[view.state] : "Line-in source unavailable")}</h1>
-      {artist && <p className="track-artist">{artist}</p>}
+      <div className="album-title-block">
+        <p className="stage-caption" role="status">
+          {album && <><span>Last identified album</span><span aria-hidden="true"> · </span></>}
+          <span>{view ? labels[view.state] : "Line-in source unavailable"}</span>
+        </p>
+        <h1>{title || (view ? labels[view.state] : "Line-in source unavailable")}</h1>
+        {artist && <p className="track-artist">{artist}</p>}
+      </div>
+      <button type="button" disabled={!view?.retry || command.pending}
+        onClick={() => { if (view?.retry) void command.execute("/api/line-in-album/retry", view.retry,
+          "Retry requested. Listening for a fresh 12-second sample."); }}>
+        Retry identification
+      </button>
+      {command.error && <p className="album-command-message" role="alert">{command.error}</p>}
+      {command.notice && <p className="album-command-message" role="status">{command.notice}</p>}
+      {view?.cacheError && <p className="album-command-message" role="alert">{view.cacheError}</p>}
     </header>
     {album ? <>
       <div className="album-cover">
@@ -86,7 +103,9 @@ export function LineInAlbumView() {
       <p>Independent local line-in view, not your selected Music Assistant player.</p>
       <p>Catalog release only: physical edition is not verified. No current-track highlighting, lyrics or playback timing.</p>
       {view?.state === "disabled" && <p>Enable explicitly with recognition-enable; your choice is remembered across restarts.</p>}
-      {view?.state === "unavailable" && <p>No retry until five continuous seconds of silence, then new audible input.</p>}
+      <p>The last identified album stays until another album is identified, including across reboots.</p>
+      <p>Retry needs recognition enabled and active line-in audio; it never starts playback or recording.</p>
+      {view?.state === "unavailable" && <p>Retry explicitly, or wait for five continuous seconds of silence and new audible input.</p>}
     </div>
   </section>;
 }

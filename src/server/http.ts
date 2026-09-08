@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { CecCommand, CecStatus } from "../shared/protocol.js";
 import type { Bridge } from "./bridge.js";
 import type { LineInAlbum } from "./line-in-album.js";
-import { unavailableTracklist } from "../shared/line-in-album.js";
+import { retryBindingSchema, unavailableTracklist } from "../shared/line-in-album.js";
 import type { DemoPlayer } from "./demo.js";
 import type { SettingsStore } from "./settings.js";
 import { settingsPatchSchema } from "./settings.js";
@@ -37,7 +37,7 @@ export interface HttpOptions {
   demo?: DemoPlayer;
   webDirectory?: string;
   artwork?: (identity: string, signal: AbortSignal) => Promise<Artwork | null>;
-  lineInAlbum?: Pick<LineInAlbum, "view" | "artwork">;
+  lineInAlbum?: Pick<LineInAlbum, "view" | "artwork"> & Partial<Pick<LineInAlbum, "retry">>;
 }
 const demoSchema = z.object({
   action: z.enum(["play", "pause", "stop", "next", "seek"]),
@@ -134,6 +134,17 @@ export function createApp(options: HttpOptions) {
   app.get("/api/line-in-album", async (_req, res) => {
     res.json(options.lineInAlbum ? await options.lineInAlbum.view()
       : { state: "not-configured", expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist() });
+  });
+  app.post("/api/line-in-album/retry", express.json({ limit: "1kb" }), async (req, res) => {
+    if (!options.lineInAlbum?.retry) { res.status(503).json({ error: "Album retry is not configured." }); return; }
+    const binding = retryBindingSchema.safeParse(req.body);
+    if (!binding.success) { res.status(400).json({ error: "A fresh source status is required for retry." }); return; }
+    try {
+      await options.lineInAlbum.retry(binding.data);
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(409).json({ error: error instanceof Error ? error.message : "Album retry failed." });
+    }
   });
   app.get("/api/line-in-album/artwork/:key", async (req, res) => {
     if (!options.lineInAlbum) { res.sendStatus(404); return; }

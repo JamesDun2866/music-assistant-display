@@ -126,5 +126,7 @@ echo "After an upgrade, explicitly restart the source service to use the new rel
 echo "--with-recognition installs optional dependencies; new installations remain OFF until explicitly enabled."
 echo "Recognition remembers explicit enable/disable choices and thresholds across service restarts."
 echo "Repeat --with-recognition on upgrades to retain the optional dependencies."
-echo "For read-only album display, configure LINE_IN_ALBUM_SOURCE_UID=$(id -u sendspin-karaoke-source)"
+echo "For cached album display and retry-only control, configure LINE_IN_ALBUM_SOURCE_UID=$(id -u sendspin-karaoke-source)"
 echo "and LINE_IN_ALBUM_SOURCE_ID from recognition-status in the DISPLAY environment; restart display."
+echo "Album handoff v3 requires updating both source and display. Last album metadata survives reboot."
+echo "The display album group can request recognition-retry only; source identity and recording remain private."

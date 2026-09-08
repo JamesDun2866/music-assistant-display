@@ -46,8 +46,10 @@ Recognition is disabled on fresh installations and requires separate optional
 dependencies and explicit enablement. It remembers the owner's enable/disable
 choice across service restarts. Select the independent **Line-in album** view
 for cover art on the left and the matched catalog album's tracklist on the right,
-without replacing Now Playing, Lyrics or Ambient. Five seconds
-of silence clears the result and rearms recognition; it does not restart a
+without replacing Now Playing, Lyrics or Ambient. Five seconds of silence
+rearms recognition without clearing the last identified album. The cached album
+survives failed matches and reboots until another album is identified.
+**Retry identification** requests a fresh attempt without starting capture or
 recording. This unofficial online integration has no availability guarantee,
 may identify a different album edition, and does not provide track-following
 or synchronized lyrics. Upgrade both source and display from public `main`;

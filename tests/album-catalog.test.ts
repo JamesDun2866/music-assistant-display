@@ -6,7 +6,9 @@ const reference: CatalogReference = { kind: "collection", id: "123", country: "g
 function source(generation = 1): AlbumSnapshot {
   const now = Date.now();
   return {
-    version: 2, source_id: "a".repeat(64), boot_id: "b".repeat(32), generation,
+    version: 3, source_id: "a".repeat(64), boot_id: "b".repeat(32), generation,
+    album_key: `${"b".repeat(32)}-${generation}`, cache_error: null,
+    album_success: { boot_id: "b".repeat(32), generation, at_ms: now },
     updated_at_ms: now, expires_at_ms: now + 4000, enabled: true, remembered_enabled: true,
     settings_error: null, active: true, state: "identified", silence_dbfs: -45,
     album: { title: "Recognized album", artist: "Performer", artwork: null, catalog: reference },
@@ -211,4 +213,60 @@ it("shutdown aborts the shared request and never exposes a late response or star
   await Promise.resolve();
   expect(catalog.view(source(2)).status).toBe("unavailable");
   expect(fetcher).toHaveBeenCalledOnce();
+});
+
+it("retries an incomplete durable album once in a new live generation, not on status polling", async () => {
+  let value = source();
+  const key = value.album_key;
+  const fetcher = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(collection());
+  const catalog = service(async () => value, fetcher);
+  catalog.view(value);
+  await vi.waitFor(() => expect(catalog.view(value).status).toBe("unavailable"));
+  for (let i = 0; i < 50; i++) catalog.view(value);
+  expect(fetcher).toHaveBeenCalledOnce();
+  value = { ...source(2), album_key: key, state: "armed" };
+  catalog.view(value);
+  await vi.waitFor(() => expect(catalog.view(value).status).toBe("complete"));
+  value = { ...source(3), album_key: key };
+  expect(catalog.view(value).status).toBe("complete");
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
+
+it("retires cancelled same-album lookup before a later active generation retries it", async () => {
+  let value = source();
+  const key = value.album_key;
+  let finish!: (result: unknown) => void;
+  const fetcher = vi.fn().mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }))
+    .mockResolvedValue(collection());
+  const catalog = service(async () => value, fetcher);
+  catalog.view(value);
+  await vi.waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
+  value = { ...value, state: "disabled", enabled: false, active: false };
+  catalog.view(value);
+  value = { ...source(2), album_key: key };
+  expect(catalog.view(value).status).toBe("loading");
+  expect(fetcher).toHaveBeenCalledOnce();
+  finish(collection(2));
+  await vi.waitFor(() => expect(catalog.view(value).status).toBe("complete"));
+  expect(catalog.view(value).tracks).toHaveLength(2);
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
+
+it("allows recovery on a distinct successful same-album recognition without losing completed lists", async () => {
+  let value = source();
+  value.state = "sampling";
+  value.album_success = { boot_id: value.boot_id, generation: 0, at_ms: 100 };
+  const fetcher = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(collection());
+  const catalog = service(async () => value, fetcher);
+  catalog.view(value);
+  await vi.waitFor(() => expect(catalog.view(value).status).toBe("unavailable"));
+  for (let i = 0; i < 50; i++) catalog.view(value);
+  expect(fetcher).toHaveBeenCalledOnce();
+  value = { ...value, state: "identified",
+    album_success: { boot_id: value.boot_id, generation: 1, at_ms: 101 } };
+  catalog.view(value);
+  await vi.waitFor(() => expect(catalog.view(value).status).toBe("complete"));
+  value = { ...value, generation: 2, album_success: { boot_id: value.boot_id, generation: 2, at_ms: 102 } };
+  expect(catalog.view(value).status).toBe("complete");
+  expect(fetcher).toHaveBeenCalledTimes(2);
 });

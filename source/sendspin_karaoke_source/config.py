@@ -39,7 +39,7 @@ def parse_args(argv=None) -> Config:
     parser = argparse.ArgumentParser(prog="sendspin-karaoke-source")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("devices", "check-device", "pair", "run", "record-start", "record-stop", "record-status",
-                 "recognition-enable", "recognition-disable", "recognition-status"):
+                 "recognition-enable", "recognition-disable", "recognition-status", "recognition-retry"):
         sub = commands.add_parser(name)
         sub.add_argument("--server-url", default=os.getenv("SOURCE_SERVER_URL", ""))
         sub.add_argument("--device", default=os.getenv("SOURCE_DEVICE", ""))
@@ -69,7 +69,7 @@ def parse_args(argv=None) -> Config:
         if not args.name.strip() or len(args.name) > 128 or any(ord(c) < 32 for c in args.name):
             parser.error("--name must contain 1-128 printable characters")
     if args.command in ("pair", "run", "record-start", "record-stop", "record-status",
-                        "recognition-enable", "recognition-disable", "recognition-status"):
+                        "recognition-enable", "recognition-disable", "recognition-status", "recognition-retry"):
         if not args.state_dir.is_absolute():
             parser.error("--state-dir must be absolute and match the service identity's state")
     threshold = getattr(args, "silence_dbfs", -45.0)

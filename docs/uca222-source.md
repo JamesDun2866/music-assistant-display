@@ -484,11 +484,17 @@ only to identify album metadata. The display shows album context, not a claim
 that the first matched song is still playing. It does not request recognition
 again as each track changes.
 
-Five continuous seconds below the silence threshold clears that album and
-rearms identification for the next audible session. Initial silence does not
+Five continuous seconds below the silence threshold rearms identification for
+the next audible session without clearing the last identified album. Initial silence does not
 trigger recognition. An unmatched sample or failed request does not
 automatically retry within the same session. A side flip or long inter-track
 gap can create another session; surface noise can prevent a session ending.
+The last identified album is cached across gaps, failed matches and reboots
+until a new album is identified. The live recognition status remains visible
+separately, so cached album context is not a claim about the current input.
+**Retry identification** requests one fresh sample when recognition is enabled
+and capture is active. It does not enable recognition or start capture/recording,
+and it does not introduce automatic retries.
 The result can identify a compilation, single or reissue rather than the
 physical pressing being played. Album title is taken from Shazam's explicit
 album metadata, and artist context from the detected track's artist. An exact
@@ -515,7 +521,7 @@ Normal Music Assistant track lyrics remain a separate display feature.
 
 #### Install and bind the optional feature
 
-Remembered recognition and catalog tracklists require source **0.4.0**,
+Persistent album caching and manual retry require source **0.5.0**,
 **Python 3.12 or 3.13**, and the matching updated
 display on the same Pi. The normal source installer still works without this
 feature; Python 3.14 is not supported for the optional recognition dependency
@@ -540,9 +546,10 @@ dependencies. No separate ffmpeg install is needed for the in-memory PCM/WAV
 path. The native recognition runs in a separate, time/memory-limited process.
 No live Shazam request occurs just from installation.
 
-**Upgrade both the source and display together.** Version 0.4.0 changes the
-read-only album handoff to version 2; a mismatched older display/source reports
-the album source offline rather than interpreting incompatible data. Keep your
+**Upgrade both the source and display together.** Version 0.5.0 changes the
+album handoff to version 3 and adds a retry-only socket; a mismatched older
+display/source reports live album status offline rather than interpreting
+incompatible data. An existing display cache can remain visible. Keep your
 existing `LINE_IN_ALBUM_SOURCE_ID` and `LINE_IN_ALBUM_SOURCE_UID` settings.
 
 **Repeat `--with-recognition` on future source upgrades.** Each install creates
@@ -564,8 +571,9 @@ sudo bash scripts/install.sh
 
 Run this from the same updated public `main` checkout, or update the separate
 display checkout using the [repeatable main-based guide](upgrading.md).
-The display installer restarts the display and adds its read-only album-group
-membership. Do not pass `--with-recognition` to the display installer, rerun
+The display installer restarts the display and adds its album-group
+membership for reading status and requesting retries. Do not pass
+`--with-recognition` to the display installer, rerun
 kiosk configuration, or change MA credentials. Both installers preserve
 existing configuration and state.
 
@@ -595,8 +603,10 @@ sudo systemctl restart sendspin-karaoke.service
 
 The source installer provisions `/run/sendspin-karaoke-album` through
 systemd-tmpfiles. Only the source can write the short-lived `album.json`;
-the display's `sendspin-karaoke-album` group can read it. The existing private
-source state remains inaccessible to the display. No file-path setting,
+the display's `sendspin-karaoke-album` group can read it. A separate
+`retry.sock` in that directory permits only identity-bound retry requests
+from the installed display account, source account or root. The existing private
+source state and general recording/control socket remain inaccessible to the display. No file-path setting,
 LAN recognition endpoint or extra audio-device access is introduced.
 
 #### Enable for a listening session
@@ -630,12 +640,25 @@ Catalog lookup uses an exact Apple Music reference and its two-letter
 storefront. An album reference needs one iTunes lookup GET; a track reference
 can need two to resolve the album first. No storefront fallback or fuzzy
 album search is performed. Requests have a 15-second overall budget and
-bounded responses. The per-generation cache includes failures, so repeatedly
-polling or reopening the view does not retry a failed catalog lookup for that
-generation. Missing or incomplete tracklists do not remove identified album
+bounded responses. Completed catalog results are reused for the same album.
+Failed or interrupted lookups can recover on a new session or successful
+explicit recognition retry, not on each status poll or reopening of the view.
+Missing or incomplete tracklists do not remove identified album
 text or artwork.
 Its selection is temporary: a browser reload returns to the saved normal view.
 Local status polling in this view is not additional Shazam recognition.
+
+Use **Retry identification** for one fresh attempt without waiting for another
+silence interval. It is unavailable while recognition is disabled, the source
+is offline or inactive, or another sample/recognition is in progress.
+Accepted retries are at least 15 seconds apart. Each accepted retry starts
+from fresh audio; the cached album stays visible until recognition succeeds.
+The equivalent private CLI command is:
+
+```sh
+sudo -u sendspin-karaoke-source \
+  /usr/local/bin/sendspin-karaoke-source recognition-retry
+```
 
 ```sh
 sudo -u sendspin-karaoke-source \
@@ -649,8 +672,16 @@ Status shows `enabled`, `active`, `state`, `source_id` and either minimal
 `album` metadata or `null`. States include `disabled`, `idle`, `armed`,
 `sampling`, `recognizing`, `identified` and `unavailable`. Here `active`
 means an existing input consumer owns capture, not necessarily audible sound.
-The display reports missing/expired/unreadable handoffs as offline rather
-than indefinitely retaining an old album. Snapshots expire after four seconds.
+The display reports missing/expired/unreadable handoffs as offline while
+retaining the cached album. Live snapshots expire after four seconds; the
+cached album is not treated as a fresh recognition result.
+The stable `album_key` identifies the retained album separately from the live
+`boot_id` and `generation`. `album_success` records the historical success
+separately from live snapshot freshness, preventing older restored source
+metadata from replacing a newer display cache.
+`cache_error` reports source cache read/write errors;
+the display also reports its own cache failures rather than claiming that a
+failed write will survive reboot.
 
 The default silence threshold is -45 dBFS, measured by peak absolute sample
 across both channels, like recording. Any above-threshold sample resets the
@@ -658,11 +689,13 @@ silence interval. Disable before changing the recognition threshold; its
 threshold does not change the recorder's independently selected threshold.
 Five seconds of silence during sample collection discards the sample without
 a request; during recognition it cancels the pending result. Losing the last
-capture owner clears the album. Late results from old sessions are discarded.
+capture owner retires the attempt without clearing the cached album. Late
+results from old sessions are discarded.
 
-Disabling clears the album and saves the disabled choice. Restarting clears
-the previous album/session but restores the saved recognition choice and
-threshold; it never restores a running recording. If recognition fails, inspect its status and source
+Disabling saves the disabled choice and stops recognition, but leaves the last
+identified album cached. Restarting restores the cached album and saved
+recognition choice and threshold, not an in-progress attempt or recording.
+If recognition fails, inspect its status and source
 journal while leaving ordinary line-in and recording configuration unchanged.
 No API token, audio file or provider response needs to be posted in support logs.
 
@@ -675,6 +708,16 @@ Status includes `remembered_enabled` and `settings_error` (`null`,
 `restore_failed` or `save_failed`). A failed settings write is not a successful
 persistent change: the previous on-disk choice may remain. Resolve the reported
 storage problem and repeat the command before relying on the next reboot.
+
+The source's private `last-album.json` retains only bounded album metadata and
+references. The display's private `STATE_DIR/line-in-album/last-album.json`
+retains the bound album, processed cover and resolved tracklist, so available
+cached content survives reboot without another download. Neither file contains
+audio or grants recognition consent. A fresh installation with no successful
+identification has no album to retain.
+Failed display-cache writes remain pending and use a bounded 5-60-second retry
+backoff; a visible persistence error means the latest content is not yet
+guaranteed to survive reboot.
 
 ## Operation, updates and recovery
 
@@ -730,8 +773,8 @@ and pairings; no new pairing is normally needed. The restart briefly
 interrupts line-in audio, so schedule it between listening sessions.
 
 For album identification, also [update the display from public main](upgrading.md)
-and reload the browser. Source 0.4.0 and the updated display must move together
-for handoff v2 and full catalog tracklists. Keep the display's existing source
+and reload the browser. Source 0.5.0 and the updated display must move together
+for handoff v3, persistent album caching and retry control. Keep the display's existing source
 binding values. Users of source 0.3.0 must run `recognition-enable` once with the
 new version to save their choice; later restarts restore that choice, never a
 recording. See [installation and binding](#install-and-bind-the-optional-feature).
