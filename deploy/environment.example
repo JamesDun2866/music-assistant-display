@@ -25,3 +25,9 @@ CEC_ALLOW_STANDBY=false
 # Obtain source_id from the source user's recognition-status; UID from id -u sendspin-karaoke-source.
 # LINE_IN_ALBUM_SOURCE_ID=64-lowercase-hex-SHA256-of-source-public-identity
 # LINE_IN_ALBUM_SOURCE_UID=source-service-numeric-uid
+# Source 0.6+ tools reuse the complete album ID/UID pair by default. To configure
+# passive meters, completed-recording tools and health without recognition, set BOTH:
+# SOURCE_TOOLS_SOURCE_ID=64-lowercase-hex-SHA256-of-source-public-identity
+# SOURCE_TOOLS_SOURCE_UID=source-service-numeric-uid
+# Partial/invalid pairs reject startup. Explicit tools identity overrides album identity,
+# but attaching an album from a different source is rejected. Original audio is unchanged.

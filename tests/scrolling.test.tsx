@@ -3,6 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_AMBIENT } from "../src/shared/ambient.js";
+import { DEFAULT_VINYL } from "../src/shared/vinyl.js";
 import type { Snapshot, TimedLine } from "../src/shared/protocol.js";
 import { App } from "../src/web/App.js";
 import { CLEAR_AFTER_MS, usePlayback } from "../src/web/usePlayback.js";
@@ -11,7 +12,7 @@ function snapshot(overrides: Partial<Snapshot> = {}): Snapshot {
   return {
     sequence: 1, generation: 1, demo: false, connection: "connected",
     playback: "playing", positionMs: 250, speed: 1, visualOffsetMs: 0,
-    viewMode: "split", lyricFollowMode: "smooth", ambient: DEFAULT_AMBIENT, precision: "ma-queue", message: null,
+    viewMode: "split", lyricFollowMode: "smooth", ambient: DEFAULT_AMBIENT, vinyl: DEFAULT_VINYL, precision: "ma-queue", message: null,
     track: {
       identity: "synthetic-track-1", title: "Synthetic track one", artist: "Test artist",
       album: "Test album", durationMs: 120_000, artworkUrl: null,

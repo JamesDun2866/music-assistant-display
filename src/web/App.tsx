@@ -13,6 +13,11 @@ import type { NavigationAction } from "./remoteEvents.js";
 import { CecDiagnostics } from "./CecDiagnostics.js";
 import { KioskDiagnosticsPanel, useKioskDiagnostics } from "./KioskDiagnostics.js";
 import { LineInAlbumView } from "./LineInAlbum.js";
+import { VinylView } from "./VinylView.js";
+import { DEFAULT_VINYL } from "../shared/vinyl.js";
+import { ToolsPanel } from "./ToolsPanel.js";
+import { ListeningJournal } from "./ListeningJournal.js";
+import { AlbumEditionCorrection } from "./AlbumEditionCorrection.js";
 
 function timeLabel(ms: number): string {
   const seconds = Math.max(0, Math.floor(ms / 1_000));
@@ -154,6 +159,7 @@ const viewModes: { value: ViewMode; label: string }[] = [
   { value: "lyrics", label: "Lyrics" },
   { value: "split", label: "Split" },
   { value: "ambient", label: "Ambient" },
+  { value: "vinyl", label: "Vinyl" },
 ];
 
 export function App() {
@@ -174,27 +180,32 @@ export function App() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [lineInOpen, setLineInOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const track = snapshot?.track;
   const longMetadata = track && [track.title, track.artist, track.album].some((value) => value.length > 65);
   const offset = snapshot?.visualOffsetMs ?? 0;
   const viewMode = snapshot?.viewMode ?? "split";
   const lyricFollowMode = snapshot?.lyricFollowMode ?? "smooth";
   const ambientMode = viewMode === "ambient" && !lineInOpen;
+  const vinylMode = viewMode === "vinyl" && !lineInOpen;
+  const quietMode = ambientMode || vinylMode;
+  const independentMode = lineInOpen || vinylMode;
+  const vinyl = snapshot?.vinyl ?? DEFAULT_VINYL;
   const ambient = snapshot?.ambient ?? DEFAULT_AMBIENT;
   const library = useAmbientLibrary(ambientMode, libraryOpen);
-  const controls = useAmbientControls(ambientMode, pending || libraryOpen || settingsOpen);
+  const controls = useAmbientControls(quietMode, pending || libraryOpen || settingsOpen || toolsOpen);
   const localDisabled = !snapshot || transportError !== null || pending;
   const disabled = localDisabled || stale;
   const offsetText = `${offset > 0 ? "+" : ""}${offset} ms`;
   const navigation = useCallback((action: NavigationAction, target?: HTMLElement | null, remote = false) => {
     if (action.repeat && (action.key === "select" || action.key === "back")) return true;
-    if (ambientMode && !controls.visible) {
+    if (quietMode && !controls.visible) {
       controls.reveal(true);
       return true;
     }
-    if (ambientMode) controls.reveal();
+    if (quietMode) controls.reveal();
     return display.current ? navigate(display.current, action, target, { allowExternalLinks: !remote }) : false;
-  }, [ambientMode, controls.visible, controls.reveal]);
+  }, [quietMode, controls.visible, controls.reveal]);
   const remoteConnection = useRemoteNavigation(kiosk, (action) => {
     // Commit each real action before the next event in a coalesced stream chunk.
     flushSync(() => navigation(action, undefined, true));
@@ -225,9 +236,9 @@ export function App() {
   }, [kiosk]);
 
   const changeOffset = useCallback((value: number) => {
-    if (localDisabled || lineInOpen) return;
+    if (localDisabled || independentMode) return;
     void execute("/api/settings", { visualOffsetMs: Math.max(-30_000, Math.min(30_000, value)) }, "Timing offset saved.");
-  }, [localDisabled, execute, lineInOpen]);
+  }, [localDisabled, execute, independentMode]);
 
   const changeView = useCallback((value: ViewMode) => {
     setLineInOpen(false);
@@ -251,27 +262,27 @@ export function App() {
         return;
       }
       if (event.repeat) return;
-      if (ambientMode && !controls.visible) {
+      if (quietMode && !controls.visible) {
         controls.reveal(true);
         if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter", " "].includes(event.key)) {
           event.preventDefault();
         }
         return;
       }
-      if (ambientMode) controls.reveal();
+      if (quietMode) controls.reveal();
       const target = event.target;
       if (target instanceof HTMLElement && (target.isContentEditable || target.closest(".plain-lyrics, .timed-viewport, .now-playing, [contenteditable]")
         || /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY|A)$/.test(target.tagName))) return;
       if (event.key.toLowerCase() === "f") {
         event.preventDefault();
         void toggleFullscreen();
-      } else if (event.key === "[" && !ambientMode) {
+      } else if (event.key === "[" && !quietMode) {
         event.preventDefault();
         changeOffset(offset - 100);
-      } else if (event.key === "]" && !ambientMode) {
+      } else if (event.key === "]" && !quietMode) {
         event.preventDefault();
         changeOffset(offset + 100);
-      } else if (/^[1234]$/.test(event.key)) {
+      } else if (/^[12345]$/.test(event.key)) {
         event.preventDefault();
         changeView(viewModes[Number(event.key) - 1]!.value);
       }
@@ -282,7 +293,7 @@ export function App() {
       document.removeEventListener("fullscreenchange", changed);
       window.removeEventListener("keydown", keydown);
     };
-  }, [toggleFullscreen, changeOffset, changeView, offset, ambientMode, controls.visible, controls.reveal, navigation]);
+  }, [toggleFullscreen, changeOffset, changeView, offset, quietMode, controls.visible, controls.reveal, navigation]);
 
   const demo = (action: "play" | "pause" | "stop" | "next" | "seek", seekTo?: number) => {
     void execute("/api/demo", { action, ...(seekTo === undefined ? {} : { positionMs: seekTo }) }, "Demo updated.");
@@ -300,9 +311,10 @@ export function App() {
     : snapshot.playback === "playing" ? "Playing" : snapshot.playback === "paused" ? "Paused" : "Ready";
   const progressPosition = track?.durationMs ? Math.min(positionMs, track.durationMs) : 0;
 
-  return <div ref={display} className={`display view-${lineInOpen ? "line-in" : viewMode} ${stale && !lineInOpen ? "is-stale" : ""} ${ambientMode && !controls.visible ? "ambient-quiet" : ""}`}>
-    <header className="display-header" hidden={ambientMode && !controls.visible}>
-      <a className="skip-link" href="#display-content">Skip to {lineInOpen ? "line-in album" : ambientMode ? "scene" : viewMode === "now-playing" ? "now playing" : "lyrics"}</a>
+  return <div ref={display} className={`display view-${lineInOpen ? "line-in" : viewMode} ${stale && !independentMode ? "is-stale" : ""} ${ambientMode && !controls.visible ? "ambient-quiet" : ""} ${vinylMode && !controls.visible ? "vinyl-quiet" : ""}`}>
+    <header className="display-header" hidden={ambientMode && !controls.visible}
+      inert={toolsOpen || (vinylMode && !controls.visible)} aria-hidden={toolsOpen || (vinylMode && !controls.visible)}>
+      <a className="skip-link" href="#display-content">Skip to {independentMode ? "line-in album" : ambientMode ? "scene" : viewMode === "now-playing" ? "now playing" : "lyrics"}</a>
       <div className="view-switcher" role="tablist" aria-label="Display view" aria-busy={pending}>
         {viewModes.map(({ value, label }) => <button key={value} id={`tab-${value}`} role="tab"
           aria-selected={!lineInOpen && viewMode === value} aria-controls="display-content" tabIndex={!lineInOpen && viewMode === value ? 0 : -1}
@@ -313,7 +325,7 @@ export function App() {
           onClick={() => setLineInOpen(true)}>Line-in album</button>
       </div>
       <div className="header-status">
-        {lineInOpen ? <span className="connection-status">Independent line-in view</span>
+        {independentMode ? <span className="connection-status">Independent line-in view</span>
           : ambientMode ? <span className="connection-status">Ambient · No audio</span> : <>
           {snapshot?.demo && <span className="demo-badge">Demo mode · no audio</span>}
           <span className={`connection-status ${stale ? "warning" : ""}`} role="status">
@@ -323,10 +335,18 @@ export function App() {
       </div>
     </header>
 
-    <main id="display-content" className={ambientMode ? "ambient-stage" : "listening-stage"} role="tabpanel"
+    <main id="display-content" className={ambientMode ? "ambient-stage" : "listening-stage"} role="tabpanel" inert={toolsOpen}
       aria-labelledby={`tab-${lineInOpen ? "line-in" : viewMode}`} tabIndex={-1}
-      onPointerDown={ambientMode ? (event) => event.currentTarget.focus() : undefined}>
-      {lineInOpen ? <LineInAlbumView /> : ambientMode ? <AmbientScene settings={ambient} images={library.images} onIssue={library.setSceneIssue} /> : <>
+      onPointerDown={quietMode ? (event) => {
+        if (!(event.target instanceof HTMLElement) || !event.target.closest("button, summary, input, textarea, select, a, [data-navigation-scroll]")) event.currentTarget.focus();
+      } : undefined}>
+      {lineInOpen ? <LineInAlbumView /> : vinylMode ? <VinylView settings={vinyl}
+        controlsVisible={controls.visible} disabled={localDisabled}
+        onSettings={(patch) => { if (!localDisabled) void execute("/api/settings", { vinyl: patch }, "Vinyl settings saved."); }}
+        renderCorrection={(view, refresh) => <AlbumEditionCorrection binding={view.edition?.binding ?? null}
+          original={view.edition?.original ?? null} corrected={view.edition?.corrected ?? false}
+          provenance={view.edition?.provenance} fallback={view.edition?.fallback} onChanged={refresh} />} />
+        : ambientMode ? <AmbientScene settings={ambient} images={library.images} onIssue={library.setSceneIssue} /> : <>
       <section className={`now-playing${longMetadata ? " has-long-metadata" : ""}`} aria-label="Current song"
         tabIndex={track ? 0 : undefined} data-navigation-scroll>
         <Artwork key={JSON.stringify([snapshot?.generation, track?.identity, track?.artworkUrl])}
@@ -356,7 +376,7 @@ export function App() {
       </section>}
       </>}
     </main>
-    {!ambientMode && !lineInOpen && <div className="service-messages">
+    {!ambientMode && !independentMode && <div className="service-messages">
       {stale && <div className="stale-banner" role="status">
         <strong>{cleared ? "Still reconnecting" : viewMode === "now-playing" ? "Display frozen" : "Lyrics frozen"}</strong>
         <span>{transportError || snapshot?.message || "The player connection is stale. Reconnecting automatically…"}</span>
@@ -364,8 +384,9 @@ export function App() {
       {!stale && snapshot?.message && <p className="source-message">{snapshot.message}</p>}
     </div>}
 
-    <footer className="display-footer" hidden={ambientMode && !controls.visible}>
-      {!ambientMode && !lineInOpen && <div className="playback-timeline" aria-label="Playback progress">
+    <footer className="display-footer" hidden={ambientMode && !controls.visible}
+      inert={toolsOpen || (vinylMode && !controls.visible)} aria-hidden={toolsOpen || (vinylMode && !controls.visible)}>
+      {!ambientMode && !independentMode && <div className="playback-timeline" aria-label="Playback progress">
         <span className="time">{track ? timeLabel(positionMs) : "0:00"}</span>
         <progress className="progress-track" aria-label="Song position"
           max={track?.durationMs || 100} value={progressPosition}
@@ -376,7 +397,7 @@ export function App() {
           {track?.durationMs ? `−${timeLabel(track.durationMs - progressPosition)}` : "–:––"}</span>
       </div>}
 
-      {!ambientMode && !lineInOpen && snapshot?.demo && <div className="demo-controls" aria-label="Demo playback controls">
+      {!ambientMode && !independentMode && snapshot?.demo && <div className="demo-controls" aria-label="Demo playback controls">
         <span className="demo-description">Synthetic demo</span>
         <button disabled={disabled} onClick={() => demo(snapshot.playback === "playing" ? "pause" : "play")}>
           {snapshot.playback === "playing" ? "Pause demo" : "Play demo"}
@@ -390,10 +411,18 @@ export function App() {
       </div>}
 
       <div className="display-tools">
-        <span className="local-note">{lineInOpen ? "Album identification only · No playback controls" : ambientMode ? "Your room. A little quieter." : track && snapshot?.precision === "ma-queue"
+        <span className="local-note">{independentMode ? "Album identification only · No playback controls" : ambientMode ? "Your room. A little quieter." : track && snapshot?.precision === "ma-queue"
           ? "Approximate queue-event sync" : track && snapshot?.precision === "ma-player"
             ? "External source · Approximate player timing" : "Local display · No audio output"}</span>
         <div className="tool-actions">
+          <button type="button" aria-haspopup="dialog" aria-expanded={toolsOpen} onClick={() => {
+            setConfirmStandby(false);
+            if (settings.current) settings.current.open = false;
+            if (libraryDetails.current) libraryDetails.current.open = false;
+            setSettingsOpen(false);
+            setLibraryOpen(false);
+            setToolsOpen(true);
+          }}>Tools</button>
           {ambientMode && <details ref={libraryDetails} className="ambient-library" onToggle={(event) => {
             setLibraryOpen(event.currentTarget.open);
             if (event.currentTarget.open && settings.current) {
@@ -413,9 +442,9 @@ export function App() {
             }
             if (!event.currentTarget.open) setConfirmStandby(false);
           }}>
-            <summary>Display settings {!ambientMode && !lineInOpen && <span className="offset-summary">{offsetText}</span>}</summary>
+            <summary>Display settings {!ambientMode && !independentMode && <span className="offset-summary">{offsetText}</span>}</summary>
             <div className="settings-panel" tabIndex={0} data-navigation-scroll aria-label="Display settings help">
-              {!lineInOpen && <section aria-labelledby="follow-heading">
+              {!independentMode && <section aria-labelledby="follow-heading">
                 <h2 id="follow-heading">Lyric follow</h2>
                 <p>Instant centers each cue without animation, fades or changing font weight. Try it for jerky scrolling on a 4K TV. Photos and lyric timing stay unchanged.</p>
                 <div className="follow-mode-controls" role="group" aria-label="Lyric follow mode">
@@ -426,7 +455,7 @@ export function App() {
                 </div>
                 <p>Saved on the local service for every display. Reduced motion always uses instant follow. Focus, touch or scroll timed lyrics to pause following; select Resume lyric follow to rejoin.</p>
               </section>}
-              {!ambientMode && !lineInOpen && <section aria-labelledby="timing-heading">
+              {!ambientMode && !independentMode && <section aria-labelledby="timing-heading">
                 <h2 id="timing-heading">Make the words meet the music</h2>
                 <p>Adjust this screen, not playback. A positive offset shows lyrics earlier. Saved on the local service.</p>
                 {snapshot?.precision === "ma-queue" && <p>Timing follows approximate Music Assistant queue events, not the Sendspin audio clock.</p>}
@@ -466,21 +495,22 @@ export function App() {
                       : remoteConnection === "paused" ? "Remote paused while this page is hidden."
                         : "Connecting the kiosk remote. Retrying automatically; keyboard controls still work."}</p>
                 <p>Arrows move focus. OK selects. Back closes the innermost panel and returns focus. Up / down scroll a focused reading pane; left / right leave it.
-                  In Scene library, left / right adjust seconds; up / down leave the field. The first key reveals hidden Ambient controls without selecting anything.</p>
+                  In Scene library, left / right adjust seconds; up / down leave the field. The first key reveals hidden Ambient or Vinyl controls without selecting anything.</p>
               </section>
               <p className="keyboard-help"><kbd>← ↑ ↓ →</kbd> move focus <span>·</span> <kbd>Enter / Space</kbd> select<br />
-                <kbd>1 / 2 / 3 / 4</kbd> Now Playing / Lyrics / Split / Ambient<br />
-                <kbd>F</kbd> fullscreen <span>·</span> {!ambientMode && <><kbd>[</kbd> later <span>·</span> <kbd>]</kbd> earlier <span>·</span></>} <kbd>Esc</kbd> close panel / show controls</p>
+                <kbd>1 / 2 / 3 / 4 / 5</kbd> Now Playing / Lyrics / Split / Ambient / Vinyl<br />
+                <kbd>F</kbd> fullscreen <span>·</span> {!quietMode && !independentMode && <><kbd>[</kbd> later <span>·</span> <kbd>]</kbd> earlier <span>·</span></>} <kbd>Esc</kbd> close panel / show controls</p>
             </div>
           </details>
           <button onClick={() => void toggleFullscreen()}>{fullscreen ? "Exit fullscreen" : "Fullscreen"} <span aria-hidden="true">⛶</span></button>
-          {ambientMode && !libraryOpen && !settingsOpen && <button onClick={() => {
+          {quietMode && !libraryOpen && !settingsOpen && !toolsOpen && <button onClick={() => {
             document.getElementById("display-content")?.focus();
             controls.hide();
-          }} disabled={pending || libraryOpen || settingsOpen}>Hide controls</button>}
+          }} disabled={pending || libraryOpen || settingsOpen || toolsOpen}>Hide controls</button>}
         </div>
       </div>
       <div className="command-feedback">
+        {vinylMode && <p className="ambient-help">Move, tap, or press a key for controls. {transportError ? "Display service unavailable; saved album and line-in status remain independent." : "Controls fade after a quiet moment."}</p>}
         {ambientMode && <>
           <p className="ambient-help">Move, tap, or press a key for controls. They hide after a quiet moment.</p>
           {!ambient.selectedIds.some((id) => library.images.some((image) => image.id === id)) &&
@@ -493,5 +523,7 @@ export function App() {
         {!libraryOpen && <p role="status">{pending ? "Sending to local service…" : notice}</p>}
       </div>
     </footer>
+    {toolsOpen && <ToolsPanel onClose={() => setToolsOpen(false)}
+      extraSections={[{ id: "journal", title: "Journal", content: <ListeningJournal /> }]} />}
   </div>;
 }

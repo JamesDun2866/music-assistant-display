@@ -50,6 +50,31 @@ function check(dir: string, version: string, node = "./node", npm = "./npm") {
 }
 
 describe("native system runtime preflight", () => {
+  it("installs a dedicated narrow tools group without sharing private source state", async () => {
+    const [sourceInstaller, displayInstaller, sourceUnit, displayUnit, tmpfiles, project] = await Promise.all([
+      readFile("scripts/install-source.sh", "utf8"),
+      readFile("scripts/install.sh", "utf8"),
+      readFile("deploy/sendspin-karaoke-source.service", "utf8"),
+      readFile("deploy/sendspin-karaoke.service", "utf8"),
+      readFile("deploy/sendspin-karaoke-tools.tmpfiles", "utf8"),
+      readFile("source/pyproject.toml", "utf8"),
+    ]);
+    expect(project).toContain('version = "0.6.0"');
+    for (const installer of [sourceInstaller, displayInstaller]) {
+      expect(installer).toContain("getent group sendspin-karaoke-tools");
+      expect(installer).toContain("groupadd --system sendspin-karaoke-tools");
+    }
+    expect(sourceInstaller).toContain("systemd-tmpfiles --create /etc/tmpfiles.d/sendspin-karaoke-tools.conf");
+    expect(sourceInstaller).toContain('install -d -o sendspin-karaoke-source -g sendspin-karaoke-source -m 0700 "$state"');
+    expect(tmpfiles).toContain("d /run/sendspin-karaoke-tools 2750 sendspin-karaoke-source sendspin-karaoke-tools -");
+    expect(sourceUnit).toContain("StateDirectoryMode=0700");
+    expect(sourceUnit).toContain("/run/sendspin-karaoke-tools");
+    expect(displayUnit).toContain("SupplementaryGroups=sendspin-karaoke-album sendspin-karaoke-tools");
+    expect(displayUnit).not.toContain("/var/lib/sendspin-karaoke-source");
+    expect(displayInstaller).not.toContain("usermod -a -G sendspin-karaoke-source");
+    expect(sourceInstaller).not.toMatch(/systemctl (enable|start|restart|stop|disable)/);
+  });
+
   it.each(["20.19.2", "22.11.0", "27.0.0"])("rejects unsupported system Node %s", async (version) => {
     const result = check(await fixture(), version);
     expect(result.error).toBeUndefined();

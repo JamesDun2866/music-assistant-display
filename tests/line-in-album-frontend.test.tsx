@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { App } from "../src/web/App.js";
 import { LineInAlbumView } from "../src/web/LineInAlbum.js";
+import { useLineInAlbum } from "../src/web/useLineInAlbum.js";
 import { DEFAULT_AMBIENT } from "../src/shared/ambient.js";
 
 const playback = {
@@ -90,6 +91,20 @@ it("expires live status but keeps cached album if the next status request never 
   expect(screen.getByRole("button", { name: "Retry identification" })).toBeDisabled();
 });
 
+it("preserves the live expiry deadline while an explicit refresh hangs", async () => {
+  const fetcher = service();
+  function Probe() {
+    const { view, refresh } = useLineInAlbum();
+    return <><p>{view?.state}</p><button onClick={refresh}>Refresh album</button></>;
+  }
+  await act(async () => { render(<Probe />); });
+  fetcher.mockImplementation(() => new Promise(() => {}));
+  await act(async () => vi.advanceTimersByTimeAsync(3000));
+  await act(async () => fireEvent.click(screen.getByRole("button", { name: "Refresh album" })));
+  await act(async () => vi.advanceTimersByTimeAsync(1100));
+  expect(screen.getByText("offline")).toBeInTheDocument();
+});
+
 it("rejects remote browser artwork and unrecognized fields rather than rendering provider data", async () => {
   service({ ...album(), album: { title: "Untrusted", artist: "Artist", artworkUrl: "https://evil/image" }, lyrics: "Secret" });
   await act(async () => { render(<LineInAlbumView />); });
@@ -168,7 +183,10 @@ it("keeps one compact label/status caption and positions retry beside the title 
   const block = title.closest(".album-title-block")!;
   const header = block.parentElement!;
   const button = screen.getByRole("button", { name: "Retry identification" });
-  expect(button.parentElement).toBe(header);
+  expect(button.parentElement).toBe(screen.getByRole("group", { name: "Album actions" }));
+  expect(button.parentElement?.parentElement).toBe(header);
+  expect(header.querySelector(".album-catalog-status")).toBeNull();
+  expect(document.querySelector(".album-catalog-status")?.parentElement).toBe(header.parentElement);
   expect(block.contains(button)).toBe(false);
   expect(header.querySelectorAll(".stage-caption")).toHaveLength(1);
   expect(within(block as HTMLElement).getByRole("status")).toHaveTextContent("Last identified album · Recognition succeeded");

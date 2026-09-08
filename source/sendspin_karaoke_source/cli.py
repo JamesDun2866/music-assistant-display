@@ -23,6 +23,9 @@ from .control import ControlServer, request
 from .recording import Recorder
 from .shared import SharedCapture
 from .recognition import Recognition
+from .meters import Meters
+from .source_health import SourceHealth
+from .tools import ToolsServer
 
 LOG = logging.getLogger(__name__)
 PAIR_TIMEOUT = 120
@@ -94,7 +97,7 @@ async def wait_events(*events):
 
 async def run(
     config, identity, store, *,
-    client_factory=make_client, bridge_factory=SourceBridge, sleep=asyncio.sleep,
+    client_factory=make_client, bridge_factory=SourceBridge, sleep=asyncio.sleep, health=None,
 ):
     await pairing_policy(store)
     if not any(record.server_id or record.used for record in await store.list_records()):
@@ -108,7 +111,13 @@ async def run(
         try:
             try:
                 bridge = bridge_factory(client, config.device)
-                client.add_disconnect_listener(disconnected.set)
+                if health is not None:
+                    health.connecting(bridge)
+                def transport_disconnected():
+                    disconnected.set()
+                    if health is not None:
+                        health.disconnected()
+                client.add_disconnect_listener(transport_disconnected)
                 async with asyncio.timeout(20):
                     await sdk_call(client.connect, config.server_url)
                 if not paired(client):
@@ -117,10 +126,14 @@ async def run(
                         "again as the service user (check the configured server and state directory)."
                     )
                 LOG.info("Paired source connected; idle until Music Assistant requests START.")
+                if health is not None:
+                    health.connected(bridge)
                 await wait_events(disconnected, bridge.failed)
                 if bridge.failure is not None:
                     raise bridge.failure
             finally:
+                if health is not None:
+                    health.disconnected()
                 primary = sys.exception()
                 try:
                     if bridge is not None:
@@ -135,8 +148,12 @@ async def run(
         except PairingRequired:
             raise
         except CaptureError as error:
+            if health is not None:
+                health.error("unavailable")
             LOG.warning("%s", error)
         except TRANSPORT_ERRORS as error:
+            if health is not None:
+                health.error("offline")
             LOG.warning(
                 "Source transport failed (%s). Check server reachability; "
                 "if server trust was reset, stop this service and explicitly re-pair.",
@@ -184,15 +201,22 @@ async def service(config, identity, store, *, owner=None, control_factory=Contro
     recognition = Recognition(owner, identity, state_dir=config.state_dir)
     control = control_factory(config.state_dir, recorder)
     control.recognition = recognition
+    meters = Meters()
+    owner.observers.add(meters)
+    health = SourceHealth(meters, owner, recorder, config.state_dir)
+    tools = ToolsServer(config.state_dir, identity, meters, health)
     running = None
     failed = None
     try:
         await recognition.start()
         await control.start()
+        await health.start()
+        await tools.start()
         running = asyncio.create_task(run(
             config, identity, store,
             client_factory=lambda *args: make_client(*args, clock=owner.clock),
             bridge_factory=lambda client, device: SourceBridge(client, device, owner=owner),
+            health=health,
         ))
         failed = asyncio.create_task(wait_events(owner.failed, recorder.failed, control.failed))
         await asyncio.wait((running, failed), return_when=asyncio.FIRST_COMPLETED)
@@ -213,12 +237,15 @@ async def service(config, identity, store, *, owner=None, control_factory=Contro
 
         primary = sys.exception()
         await cleanup_async([
+            ("source tools shutdown", tools.close),
+            ("source health shutdown", health.close),
             ("recording control close", control.close),
             ("recognition shutdown", recognition.close),
             ("recording shutdown", recorder.close),
             ("network shutdown", stop_network),
             ("shared input shutdown", owner.close),
         ], primary=primary)
+        owner.observers.discard(meters)
 
 
 def main(argv=None):

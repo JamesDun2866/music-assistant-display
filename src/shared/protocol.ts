@@ -1,7 +1,7 @@
 export type PlaybackState = "playing" | "paused" | "idle";
 export type ConnectionState = "connecting" | "connected" | "stale" | "disconnected";
 export type LyricsStatus = "loading" | "timed" | "plain" | "missing" | "error" | "unsupported";
-export type ViewMode = "now-playing" | "lyrics" | "split" | "ambient";
+export type ViewMode = "now-playing" | "lyrics" | "split" | "ambient" | "vinyl";
 export type LyricFollowMode = "smooth" | "instant";
 
 export interface TimedLine {
@@ -44,6 +44,7 @@ export interface Snapshot {
   viewMode: ViewMode;
   lyricFollowMode: LyricFollowMode;
   ambient: AmbientSettings;
+  vinyl?: import("./vinyl.js").VinylSettings;
   precision: "ma-queue" | "ma-player" | "demo";
   message: string | null;
   cec: CecStatus;

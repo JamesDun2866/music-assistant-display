@@ -1,0 +1,33 @@
+.edition-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000b;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.edition-dialog {
+  background: #171b21;
+  color: #f4f4f4;
+  border: 1px solid #73808e;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  width: min(52rem, 100%);
+  max-height: 94dvh;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.edition-dialog h2, .edition-dialog p { margin: 0; }
+.edition-scroll { overflow-y: auto; min-height: 0; padding: .4rem; }
+.edition-dialog form { display: grid; gap: .5rem; margin-bottom: 1rem; }
+.edition-dialog input, .edition-dialog select { font: inherit; padding: .5rem; min-width: 0; }
+.edition-dialog a, .album-catalog-status a { color: #9ed7ff; }
+.edition-dialog li { overflow-wrap: anywhere; }
+.edition-dialog button { padding: .55rem .8rem; min-height: 2.75rem; }
+.edition-dialog li { padding: .35rem 0; }
+.edition-dialog li button { margin-left: .6rem; }
+.edition-dialog section { margin-block: 1rem; }
+.edition-cover { display: block; width: min(15rem, 100%); height: auto; margin-block: .6rem; }
+.edition-dialog :focus-visible { outline: 3px solid #ffca69; outline-offset: 3px; }

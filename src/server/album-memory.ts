@@ -5,14 +5,16 @@ import path from "node:path";
 import { z } from "zod";
 import { albumKeySchema, albumMetadataSchema, albumSuccessSchema, tracklistSchema } from "../shared/line-in-album.js";
 import { isFsError } from "./cache.js";
+import { ALBUM_COVER_VERSION, albumCoverJpegSchema, MAX_ALBUM_COVER_RECORD_BYTES } from "./album-cover.js";
 
-const MAX_BYTES = 1024 * 1024;
+const MAX_BYTES = MAX_ALBUM_COVER_RECORD_BYTES;
 const memorySchema = z.object({
   version: z.literal(2), sourceId: z.string().regex(/^[a-f0-9]{64}$/), uid: z.number().int().nonnegative(),
   key: albumKeySchema, album: albumMetadataSchema,
   success: albumSuccessSchema.nullable(),
   tracklist: tracklistSchema.refine((value) => value.status !== "loading"),
-  jpeg: z.string().max(350_000).regex(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/).nullable(),
+  jpeg: albumCoverJpegSchema,
+  coverVersion: z.literal(ALBUM_COVER_VERSION).optional(),
 }).strict();
 const storedMemorySchema = z.union([
   memorySchema,
@@ -66,11 +68,6 @@ export class AlbumMemoryStore {
       const { bytesRead } = await handle.read(bytes, 0, bytes.length, 0);
       if (bytesRead > MAX_BYTES) throw new Error("Album cache is too large");
       const value = storedMemorySchema.parse(JSON.parse(bytes.subarray(0, bytesRead).toString("utf8")));
-      if (value.jpeg) {
-        const jpeg = Buffer.from(value.jpeg, "base64");
-        if (jpeg.length > 256 * 1024 || jpeg[0] !== 0xff || jpeg[1] !== 0xd8
-          || jpeg.at(-2) !== 0xff || jpeg.at(-1) !== 0xd9) throw new Error("Invalid cached cover");
-      }
       const after = await this.checkDirectory();
       if (directory.ino !== after.ino || directory.dev !== after.dev) throw new Error("Album cache directory changed");
       return value.sourceId === sourceId && value.uid === uid ? value : null;

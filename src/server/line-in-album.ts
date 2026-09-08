@@ -1,13 +1,16 @@
 import { constants } from "node:fs";
+import { createHash } from "node:crypto";
+import { performance } from "node:perf_hooks";
 import { lstat, open } from "node:fs/promises";
 import { albumEligibility, albumSnapshotSchema, unavailableTracklist, type AlbumSnapshot, type AlbumView, type RetryBinding } from "../shared/line-in-album.js";
-import { decodeAmbientImage } from "./ambient-decoder.js";
+import { ALBUM_COVER_VERSION, ALBUM_COVER_RETRY_MS, albumCoverUrl, decodeAlbumCover, fetchAlbumCover } from "./album-cover.js";
 import type { Artwork } from "./http.js";
 import { log } from "./log.js";
-import { trustedGet } from "./line-in-network.js";
 import { AlbumCatalog, fetchCatalog } from "./album-catalog.js";
 import { AlbumMemoryStore, type AlbumMemory } from "./album-memory.js";
 import { retryAlbum } from "./album-retry.js";
+import { currentAlbumContextSchema, type CurrentAlbumContext } from "../shared/current-album-context.js";
+import type { AlbumEditions } from "./album-editions.js";
 export { publicAddress } from "./line-in-network.js";
 
 export const ALBUM_DIRECTORY = "/run/sendspin-karaoke-album";
@@ -43,10 +46,6 @@ export async function readAlbum(sourceId: string, uid: number, now = Date.now(),
   } finally { await handle.close(); }
 }
 
-function fetchCover(url: string, signal: AbortSignal): Promise<{ bytes: Buffer; type: string }> {
-  return trustedGet(url, signal, ["image/jpeg", "image/png"], 2 * 1024 * 1024);
-}
-
 export class LineInAlbum {
   private cached: { key: string; artwork: Artwork } | null = null;
   private pending: PendingArtwork | null = null;
@@ -69,8 +68,13 @@ export class LineInAlbum {
   private appliedRead = 0;
   private observation: AlbumSnapshot | null = null;
   private retiredBoots = new Set<string>();
+  private editions: AlbumEditions | null = null;
+  private displayedEditionRevision = 0;
+  private editionUnavailable = false;
+  private coverRetries = new Map<string, { after: number; backoff: number }>();
+  private coverFailures = new Set<string>();
   constructor(private readonly sourceId: string, private readonly uid: number,
-    private readonly read = readAlbum, private readonly fetch = fetchCover, catalogFetch = fetchCatalog,
+    private readonly read = readAlbum, private readonly fetch = fetchAlbumCover, catalogFetch = fetchCatalog,
     directory?: string, private readonly requestRetry = retryAlbum) {
     this.store = directory ? new AlbumMemoryStore(directory) : null;
     this.catalog = new AlbumCatalog(async () => this.forRemembered(await this.snapshot()), catalogFetch, (key, result) => {
@@ -79,6 +83,28 @@ export class LineInAlbum {
         this.persist();
       }
     });
+  }
+
+  setEditions(editions: AlbumEditions): void { this.editions = editions; }
+
+  private async edition(memory: AlbumMemory | null) {
+    if (!memory || !this.editions) return { binding: null, effective: null, error: null };
+    const original = { sourceId: this.sourceId, albumKey: memory.key, success: memory.success, album: memory.album };
+    try {
+      const live = this.forRemembered(this.observation);
+      this.editions.observe(original, Boolean(live?.enabled && live.active
+        && live.expires_at_ms > Date.now() && live.updated_at_ms <= Date.now()));
+      const binding = await this.editions.binding(original);
+      const effective = await this.editions.effective(original);
+      const after = await this.editions.binding(original);
+      if (JSON.stringify(binding) !== JSON.stringify(after)) throw new Error("Edition changed");
+      this.editionUnavailable = false;
+      return { binding, effective, error: null };
+    } catch {
+      if (!this.editionUnavailable) log("line_in_edition_unavailable");
+      this.editionUnavailable = true;
+      return { binding: null, effective: null, error: "Edition correction unavailable; showing original recognized context." };
+    }
   }
 
   async init(): Promise<void> {
@@ -100,8 +126,11 @@ export class LineInAlbum {
       void this.view().then(async (value) => {
         const current = this.forRemembered(this.latest);
         const eligibility = current ? `${current.album_key}:${albumEligibility(current)}` : null;
-        if (this.remembered?.album.artwork && value.key && this.cached?.key !== value.key
-          && this.prefetchedKey !== eligibility && current?.enabled && current.active
+        const needsUpgrade = this.cached?.key === value.key && this.remembered?.coverVersion !== ALBUM_COVER_VERSION
+          && performance.now() >= (this.coverRetries.get(value.key ?? "")?.after ?? 0);
+        if (!value.edition?.provenance && !value.edition?.corrected && this.remembered?.album.artwork && value.key
+          && (needsUpgrade || this.cached?.key !== value.key && this.prefetchedKey !== eligibility)
+          && current?.enabled && current.active
           && current.expires_at_ms > Date.now()) {
           this.prefetchedKey = eligibility;
           await this.artwork(value.key, AbortSignal.timeout(15_000));
@@ -231,6 +260,7 @@ export class LineInAlbum {
             version: 2, sourceId: this.sourceId, uid: this.uid, key: value.album_key,
             success: value.album_success, album: value.album,
             jpeg: sameAlbum ? this.remembered!.jpeg : null,
+            ...(sameAlbum && this.remembered!.coverVersion ? { coverVersion: this.remembered!.coverVersion } : {}),
             tracklist: sameAlbum ? this.remembered!.tracklist : unavailableTracklist(),
           };
           if (!sameAlbum) this.cached = null;
@@ -262,21 +292,72 @@ export class LineInAlbum {
     const key = memory?.key ?? null;
     const liveTracks = this.catalog.view(this.forRemembered(value), memory?.tracklist);
     const tracks = memory?.tracklist.status === "complete" ? memory.tracklist : liveTracks;
+    const edition = await this.edition(memory);
+    const corrected = edition.effective;
+    const manual = corrected?.provenance.origin === "manual";
+    const fallback = memory && this.editions ? this.editions.catalogFallback({
+      sourceId: this.sourceId, albumKey: memory.key, success: memory.success, album: memory.album,
+    }, !manual && (!memory.album.catalog || tracks.status === "unavailable"
+      || !memory.album.artwork || this.coverFailures.has(memory.key)),
+    Boolean(value?.enabled && value.active && value.expires_at_ms > Date.now())) : undefined;
+    if ((edition.binding?.revision ?? 0) !== this.displayedEditionRevision) this.prefetchedKey = null;
+    this.displayedEditionRevision = edition.binding?.revision ?? 0;
     return {
       state: value?.state ?? "offline", expiresAt: value?.expires_at_ms ?? Date.now(),
-      key, tracklist: tracks, album: memory ? {
-        title: memory.album.title, artist: memory.album.artist,
-        artworkUrl: memory.album.artwork && (this.cached?.key === key || (!this.store
+      key, tracklist: corrected?.tracklist ?? tracks, album: memory ? {
+        title: corrected?.album.title ?? memory.album.title, artist: corrected?.album.artist ?? memory.album.artist,
+        artworkUrl: corrected ? (corrected.jpeg ? `/api/line-in-album/artwork/${key}?edition=${corrected.revision}` : null)
+          : memory.album.artwork && (this.cached?.key === key || (!this.store
           && value?.enabled && value.active && value.album_key === key))
-          ? `/api/line-in-album/artwork/${key}` : null,
+          ? `/api/line-in-album/artwork/${key}${memory.jpeg
+            ? `?cover=${createHash("sha256").update(Buffer.from(memory.jpeg, "base64")).digest("hex")}` : ""}` : null,
       } : null,
       retry: value && value.enabled && value.active && !["sampling", "recognizing"].includes(value.state)
         ? { source_id: value.source_id, boot_id: value.boot_id, generation: value.generation } : null,
-      cacheError: value?.cache_error ? "Source last-album cache could not be saved or restored." : this.cacheError,
+      cacheError: edition.error ?? (value?.cache_error ? "Source last-album cache could not be saved or restored." : this.cacheError),
+      ...(this.editions ? { edition: memory && edition.binding ? {
+        binding: edition.binding, original: { title: memory.album.title, artist: memory.album.artist,
+          ...(memory.album.catalog ? { country: memory.album.catalog.country } : {}) },
+        corrected: manual, scope: corrected?.scope ?? "original", provenance: corrected?.provenance ?? null, fallback,
+      } : null } : {}),
     };
   }
 
-  async artwork(key: string, signal: AbortSignal): Promise<Artwork | null> {
+  async originalAlbumContext() {
+    await this.snapshot();
+    const memory = this.remembered;
+    return memory ? structuredClone({
+      sourceId: this.sourceId, albumKey: memory.key, success: memory.success, album: memory.album,
+    }) : null;
+  }
+
+  async currentAlbumContext(): Promise<CurrentAlbumContext | null> {
+    const view = await this.view();
+    const memory = this.remembered;
+    if (!memory || view.key !== memory.key || !view.album) return null;
+    const edition = await this.edition(memory);
+    if (edition.error) throw new Error("Edition context is unavailable.");
+    const corrected = edition.effective;
+    const album = corrected?.album ?? memory.album;
+    const tracks = corrected?.tracklist ?? (memory.tracklist.status === "complete"
+      ? memory.tracklist : this.catalog.view(this.forRemembered(this.latest), memory.tracklist));
+    const jpeg = corrected ? corrected.jpeg : memory.jpeg ? Buffer.from(memory.jpeg, "base64") : null;
+    const effective = {
+      title: tracks.status === "complete" ? tracks.title! : album.title,
+      artist: tracks.status === "complete" ? tracks.artist! : album.artist,
+      catalog: album.catalog, tracklist: tracks,
+      artworkAsset: jpeg ? createHash("sha256").update(jpeg).digest("hex") : null,
+      ...(corrected ? { provenance: corrected.provenance } : {}),
+    };
+    return currentAlbumContextSchema.parse({
+      sourceId: this.sourceId,
+      original: { albumKey: memory.key, success: memory.success, album: memory.album },
+      effective: { ...effective, revision: createHash("sha256").update(JSON.stringify(effective)).digest("hex") },
+      correction: { applied: corrected?.provenance.origin === "manual", revision: edition.binding?.revision ?? 0, scope: corrected?.scope ?? "original" },
+    });
+  }
+
+  async artwork(key: string, signal: AbortSignal, editionRevision?: number): Promise<Artwork | null> {
     signal.throwIfAborted();
     if (this.closed) return null;
     if (!/^[a-f0-9]{32}-[0-9]+$/.test(key)) return null;
@@ -284,7 +365,27 @@ export class LineInAlbum {
     signal.throwIfAborted();
     if (this.closed) return null;
     if (this.remembered?.key !== key) return null;
-    if (this.cached?.key === key) return this.cached.artwork;
+    const original = this.remembered;
+    const edition = await this.edition(original);
+    signal.throwIfAborted();
+    if (this.remembered?.key !== key || JSON.stringify(this.remembered.success) !== JSON.stringify(original.success)) return null;
+    if (edition.error) throw new Error("Edition artwork unavailable.");
+    if (edition.effective) {
+      return editionRevision === edition.effective.revision && edition.effective.jpeg
+        ? { bytes: edition.effective.jpeg, contentType: "image/jpeg" } : null;
+    }
+    if (editionRevision !== undefined) return null;
+    if (this.cached?.key === key) {
+      if (this.remembered.coverVersion !== ALBUM_COVER_VERSION && !this.pending
+        && current?.enabled && current.active && current.album_key === key && current.album?.artwork
+        && performance.now() >= (this.coverRetries.get(key)?.after ?? 0)) {
+        const backoff = this.coverRetries.get(key)?.backoff ?? ALBUM_COVER_RETRY_MS;
+        this.coverRetries.set(key, { after: performance.now() + backoff, backoff: Math.min(60 * 60_000, backoff * 2) });
+        while (this.coverRetries.size > 8) this.coverRetries.delete(this.coverRetries.keys().next().value!);
+        this.startArtwork(key, current.album.artwork);
+      }
+      return this.cached.artwork;
+    }
     if (!current?.album?.artwork || !current.enabled || !current.active || current.album_key !== key) return null;
     if (this.pending && this.pending.key !== key) {
       const previous = this.pending;
@@ -295,20 +396,27 @@ export class LineInAlbum {
       // Retire the old operation before revalidating and starting another generation.
       return this.artwork(key, signal);
     }
-    if (!this.pending) {
-      const controller = new AbortController();
-      const operation: PendingArtwork = {
-        key, controller, waiters: new Set(),
-        promise: this.loadArtwork(key, current.album.artwork, controller),
-      };
-      this.pending = operation;
-      const finish = (result: ArtworkResult) => {
-        if (this.pending === operation) this.pending = null;
-        for (const waiter of operation.waiters) waiter(result);
-      };
-      void operation.promise.then((image) => finish({ image }), (error: unknown) => finish({ error }));
-    }
-    return this.waitForArtwork(this.pending, signal);
+    if (!this.pending) this.startArtwork(key, current.album.artwork);
+    return this.waitForArtwork(this.pending!, signal);
+  }
+
+  private startArtwork(key: string, url: string): void {
+    const controller = new AbortController();
+    const operation: PendingArtwork = {
+      key, controller, waiters: new Set(),
+      promise: this.loadArtwork(key, url, controller),
+    };
+    this.pending = operation;
+    const finish = (result: ArtworkResult) => {
+      if (this.pending === operation) this.pending = null;
+      if ("error" in result && !controller.signal.aborted) {
+        while (this.coverFailures.size >= 8) this.coverFailures.delete(this.coverFailures.values().next().value!);
+        this.coverFailures.add(key);
+        log("line_in_album_artwork_unavailable");
+      }
+      for (const waiter of operation.waiters) waiter(result);
+    };
+    void operation.promise.then((image) => finish({ image }), (error: unknown) => finish({ error }));
   }
 
   private waitForArtwork(operation: PendingArtwork, signal: AbortSignal): Promise<Artwork | null> {
@@ -339,14 +447,16 @@ export class LineInAlbum {
       }).finally(() => { checking = false; });
     }, 250);
     try {
-      const image = await this.fetch(url, combined);
-      const decoded = await decodeAmbientImage(image.bytes, image.type, combined, true);
+      const image = await this.fetch(albumCoverUrl(url), combined);
+      const decoded = await decodeAlbumCover(image.bytes, image.type, combined);
       const after = await this.snapshot();
       if (combined.aborted || !after?.enabled || !after.active || after.album_key !== key
         || this.remembered?.key !== key) return null;
       const artwork: Artwork = { bytes: decoded.data, contentType: "image/jpeg" };
       this.cached = { key, artwork };
-      this.remembered = { ...this.remembered, jpeg: decoded.data.toString("base64") };
+      this.remembered = { ...this.remembered, jpeg: decoded.data.toString("base64"), coverVersion: ALBUM_COVER_VERSION };
+      this.coverRetries.delete(key);
+      this.coverFailures.delete(key);
       this.persist();
       return artwork;
     } finally {

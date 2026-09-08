@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Snapshot } from "../shared/protocol.js";
+import { DEFAULT_VINYL, vinylSettingsSchema } from "../shared/vinyl.js";
 import { ambientIdSchema, ambientSettingsSchema, BUILTIN_BACKGROUNDS, DEFAULT_AMBIENT, uploadIdSchema, type AmbientLibrary } from "../shared/ambient.js";
 import { remoteKeySchema } from "./remoteEvents.js";
 import { CEC_ROUTE_ACKNOWLEDGEMENTS, CEC_ROUTE_DECISIONS } from "../shared/remote.js";
@@ -35,9 +36,10 @@ export const snapshotSchema: z.ZodType<Snapshot, z.ZodTypeDef, unknown> = z.obje
   positionMs: nonnegative,
   speed: z.union([z.literal(0), z.literal(1)]),
   visualOffsetMs: finite,
-  viewMode: z.enum(["now-playing", "lyrics", "split", "ambient"]).default("split"),
+  viewMode: z.enum(["now-playing", "lyrics", "split", "ambient", "vinyl"]).default("split"),
   lyricFollowMode: z.enum(["smooth", "instant"]).default("smooth"),
   ambient: ambientSettingsSchema.default(DEFAULT_AMBIENT),
+  vinyl: vinylSettingsSchema.default(DEFAULT_VINYL),
   precision: z.enum(["ma-queue", "ma-player", "demo"]),
   message: text.nullable(),
   cec: z.object({

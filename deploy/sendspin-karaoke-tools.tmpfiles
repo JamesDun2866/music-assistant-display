@@ -1,0 +1,2 @@
+d /run/sendspin-karaoke-tools 2750 sendspin-karaoke-source sendspin-karaoke-tools -
+# Source tools v1 only; no general recording controls or private state access.

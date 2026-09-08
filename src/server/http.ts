@@ -15,6 +15,12 @@ import type { RemoteSource } from "../shared/remote.js";
 import { KioskRemote, type LeaseTiming } from "./kiosk-remote.js";
 import { BUILTIN_BACKGROUNDS } from "../shared/ambient.js";
 import { KioskDiagnostics } from "./kiosk-diagnostics.js";
+import { journalRoutes, type JournalHttpService } from "./journal-http.js";
+import { JournalError } from "./journal-store.js";
+import { editionRoutes, type EditionHttpService } from "./edition-http.js";
+import { EditionError } from "./album-editions.js";
+import { sourceToolsRouter } from "./source-tools-http.js";
+import type { SourceTools } from "./source-tools.js";
 
 const versionedBackgrounds = new Set(BUILTIN_BACKGROUNDS.flatMap((image) => [image.url, image.thumbnailUrl])
   .filter((url): url is string => Boolean(url && /\?v=[a-f0-9]{12}$/.test(url))));
@@ -38,6 +44,9 @@ export interface HttpOptions {
   webDirectory?: string;
   artwork?: (identity: string, signal: AbortSignal) => Promise<Artwork | null>;
   lineInAlbum?: Pick<LineInAlbum, "view" | "artwork"> & Partial<Pick<LineInAlbum, "retry">>;
+  journal?: JournalHttpService;
+  editions?: EditionHttpService;
+  sourceTools?: SourceTools;
 }
 const demoSchema = z.object({
   action: z.enum(["play", "pause", "stop", "next", "seek"]),
@@ -131,6 +140,7 @@ export function createApp(options: HttpOptions) {
     if (!options.ambient) { res.status(503).json({ error: "Ambient storage is unavailable" }); return; }
     res.json(options.ambient.library());
   });
+  app.use("/api/source-tools", sourceToolsRouter(options.sourceTools));
   app.get("/api/line-in-album", async (_req, res) => {
     res.json(options.lineInAlbum ? await options.lineInAlbum.view()
       : { state: "not-configured", expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist() });
@@ -148,11 +158,20 @@ export function createApp(options: HttpOptions) {
   });
   app.get("/api/line-in-album/artwork/:key", async (req, res) => {
     if (!options.lineInAlbum) { res.sendStatus(404); return; }
+    const revision = req.query.edition;
+    const cover = req.query.cover;
+    if (Object.keys(req.query).some((name) => name !== "edition" && name !== "cover")
+      || cover !== undefined && (typeof cover !== "string" || !/^[a-f0-9]{64}$/.test(cover) || revision !== undefined)
+      || revision !== undefined
+      && (typeof revision !== "string" || !/^[1-9][0-9]{0,15}$/.test(revision) || !Number.isSafeInteger(Number(revision)))) {
+      res.status(400).json({ error: "Invalid album artwork revision." }); return;
+    }
     const controller = new AbortController();
     const close = () => controller.abort();
     res.once("close", close);
     try {
-      const image = await options.lineInAlbum.artwork(req.params.key, controller.signal);
+      const image = await options.lineInAlbum.artwork(req.params.key, controller.signal,
+        revision === undefined ? undefined : Number(revision));
       if (!image) { res.sendStatus(404); return; }
       res.type(image.contentType).send(image.bytes);
     } catch {
@@ -210,6 +229,8 @@ export function createApp(options: HttpOptions) {
     next();
   });
   app.use(express.json({ limit: "4kb", strict: true }));
+  journalRoutes(app, options.journal);
+  editionRoutes(app, options.editions);
   app.post("/api/kiosk/remote", remote.register);
   app.post("/api/kiosk/remote/renew", remote.renew);
   app.post("/api/kiosk/diagnostics/report", kioskDiagnostics.report);
@@ -226,6 +247,7 @@ export function createApp(options: HttpOptions) {
   app.get("/api/settings", (_req, res) => res.json({
     visualOffsetMs: options.settings.visualOffsetMs, viewMode: options.settings.viewMode, ambient: options.settings.ambient,
     lyricFollowMode: options.settings.lyricFollowMode,
+    vinyl: options.settings.vinyl,
   }));
   app.get("/api/events", (req, res) => {
     if (streams >= 8) { res.status(503).json({ error: "Too many kiosk connections" }); return; }
@@ -243,11 +265,11 @@ export function createApp(options: HttpOptions) {
   });
   app.post("/api/settings", async (req, res) => {
     const parsed = settingsPatchSchema.safeParse(req.body);
-    if (!parsed.success) { res.status(400).json({ error: "Provide valid view, lyric follow (smooth or instant), offset or ambient settings (unique image ids and a dwell time of 15–3600 seconds)" }); return; }
+    if (!parsed.success) { res.status(400).json({ error: "Provide valid view, lyric follow (smooth or instant), offset, vinyl (showTracklist/showMeters booleans) or ambient settings (unique image ids and a dwell time of 15–3600 seconds)" }); return; }
     await options.settings.set(parsed.data);
     options.bridge.changed();
     res.json({ visualOffsetMs: options.settings.visualOffsetMs, viewMode: options.settings.viewMode,
-      lyricFollowMode: options.settings.lyricFollowMode, ambient: options.settings.ambient });
+      lyricFollowMode: options.settings.lyricFollowMode, ambient: options.settings.ambient, vinyl: options.settings.vinyl });
   });
   app.post("/api/demo", (req, res) => {
     if (!options.demo) { res.status(404).json({ error: "Demo is not enabled" }); return; }
@@ -302,11 +324,11 @@ export function createApp(options: HttpOptions) {
     },
   }));
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    const status = error instanceof AmbientError ? error.status : error instanceof SyntaxError ? 400 :
+    const status = error instanceof AmbientError || error instanceof JournalError || error instanceof EditionError ? error.status : error instanceof SyntaxError ? 400 :
       typeof error === "object" && error !== null && "type" in error && error.type === "entity.too.large" ? 413 : 500;
     log("http_request_failed", String(status));
     if (res.destroyed || res.headersSent) return;
-    res.status(status).json({ error: error instanceof AmbientError ? error.message :
+    res.status(status).json({ error: error instanceof AmbientError || error instanceof JournalError || error instanceof EditionError ? error.message :
       status === 500 ? "Operation failed; inspect service status/logs" : "Invalid request body" });
   });
   return app;

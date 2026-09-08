@@ -2,7 +2,7 @@
 
 The TV interface is an original music-player-inspired design, not a Spotify
 client or a reproduction of Spotify branding. It does not sign in to Spotify,
-create a library, play audio on the Pi, or add Music Assistant write permissions.
+create a Spotify library, play audio on the Pi, or add Music Assistant write permissions.
 The CAST remains the audio endpoint; the Pi remains the screen.
 
 ## Choose your view
@@ -13,6 +13,7 @@ The CAST remains the audio endpoint; the Pi remains the screen.
 | **Lyrics** | Large line-synchronized text, with compact artwork and track context |
 | **Split** | Album artwork and lyrics together; the default for a fresh installation |
 | **Ambient** | Real landscape photographs or your images while listening to records, CDs, or any other source |
+| **Vinyl** | Saved, cover-first line-in presentation with optional tracklist, passive meters and quiet controls |
 | **Line-in album** | Optional, independently identified album context from this Pi's analogue input; no current-track claim or lyric clock |
 
 Select a normal view using the visible mode selector. The choice is saved on the
@@ -42,6 +43,10 @@ A wide-screen layout places the cover on the left and the catalog tracklist
 on the right, with scrolling for albums that do not fit on screen. Narrow
 screens stack the sections. Disc and track numbers describe the matched
 catalog edition, not the physical vinyl sides or the current playback position.
+The title and action buttons keep separate, bounded space. Catalog status,
+metadata retry and provider information appear below the cover and tracklist;
+scroll the album page to reach them. Long titles and notices extend the page
+instead of collapsing the artwork or tracklist.
 If a complete catalog tracklist cannot be resolved, the view reports that
 instead of substituting a different album or silently truncating the list.
 An unsuccessful attempt leaves the cached album unchanged. **Retry identification**
@@ -57,10 +62,30 @@ verified album-artist credit. Identification needs a 12-second sample and
 network processing time. The view reports sampling, identification, unavailable
 and offline states alongside the last identified album, if one is cached.
 
+Use **Correct album edition** to search, preview and confirm a replacement
+catalog edition. The displayed title, cover and tracklist change together;
+the original recognition stays separate. The same action is available under
+**Vinyl > Line-in details**. See [journal and edition correction](journal-and-editions.md)
+for remembered mappings, current-identification-only limits and privacy.
+
+## Source tools and Vinyl
+
+The [Vinyl view](vinyl-mode.md) keeps the last album prominent and saves its
+tracklist and meter toggles. It never selects itself in response to audio.
+Its live source status remains separate from cached album context.
+
+Open **Tools** from any view for passive stereo **Meters**, completed
+**Recordings**, **Health** and the 90-day **Journal**. Opening tools keeps
+idle-fading controls awake. The [recordings library](source-tools.md#completed-recordings)
+renames display/download labels without changing audio, and album attachments
+require explicit confirmation. [Health](source-tools.md#health-and-diagnostic-export)
+offers a sanitized diagnostic download. These controls do not start capture,
+recording or recognition, or expose the application beyond its local interface.
+
 ## Low-cost lyric follow at 4K
 
 After upgrading, open **Display settings > Lyric follow > Instant (low-cost)**.
-This control is available in every view, including Ambient, using the TV remote
+This control is available in the normal music views and Ambient, using the TV remote
 or the normal admin browser through the SSH tunnel described below. The setting
 is saved on the service and applies to every connected display, including the
 TV, without a physical mouse or a kiosk restart.

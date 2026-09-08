@@ -13,7 +13,9 @@ const schema = z.object({
   MA_ALLOW_LYRICS_REFRESH: bool,
   MA_ALLOW_SPOTIFY_ARTWORK: bool,
   LINE_IN_ALBUM_SOURCE_ID: z.string().regex(/^[a-f0-9]{64}$/).optional(),
-  LINE_IN_ALBUM_SOURCE_UID: z.coerce.number().int().positive().optional(),
+  LINE_IN_ALBUM_SOURCE_UID: z.coerce.number().int().positive().max(0xfffffffe).optional(),
+  SOURCE_TOOLS_SOURCE_ID: z.string().regex(/^[a-f0-9]{64}$/).optional(),
+  SOURCE_TOOLS_SOURCE_UID: z.coerce.number().int().positive().max(0xfffffffe).optional(),
   CEC_ENABLED: bool,
   CEC_REMOTE_ENABLED: bool,
   CEC_DEVICE: z.string().max(32).regex(/^\/dev\/cec(?:0|[1-9][0-9]*)$/).default("/dev/cec0"),
@@ -30,6 +32,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
   const config = result.data;
   if ((config.LINE_IN_ALBUM_SOURCE_ID === undefined) !== (config.LINE_IN_ALBUM_SOURCE_UID === undefined)) {
     throw new ConfigError("Line-in album display requires both LINE_IN_ALBUM_SOURCE_ID and LINE_IN_ALBUM_SOURCE_UID");
+  }
+  if ((config.SOURCE_TOOLS_SOURCE_ID === undefined) !== (config.SOURCE_TOOLS_SOURCE_UID === undefined)) {
+    throw new ConfigError("Source tools require both SOURCE_TOOLS_SOURCE_ID and SOURCE_TOOLS_SOURCE_UID");
+  }
+  if (config.SOURCE_TOOLS_SOURCE_ID === undefined) {
+    config.SOURCE_TOOLS_SOURCE_ID = config.LINE_IN_ALBUM_SOURCE_ID;
+    config.SOURCE_TOOLS_SOURCE_UID = config.LINE_IN_ALBUM_SOURCE_UID;
   }
   if (!config.DEMO_MODE) {
     if (!config.MA_URL || !config.MA_TOKEN || !config.MA_PLAYER_ID || !config.MA_QUEUE_ID) {

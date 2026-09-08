@@ -3,6 +3,7 @@ import * as fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SettingsStore } from "../src/server/settings.js";
+import { DEFAULT_VINYL } from "../src/shared/vinyl.js";
 import { BUILTIN_BACKGROUNDS, DEFAULT_AMBIENT } from "../src/shared/ambient.js";
 
 vi.mock("node:fs/promises", async (importOriginal) => {
@@ -56,7 +57,7 @@ describe("bundled photo catalog and legacy ambient preference migration", () => 
       };
       await fs.writeFile(path.join(dir, "settings.json"), JSON.stringify(stored));
       const settings = new SettingsStore(dir); await settings.init();
-      const expected = { ...stored, lyricFollowMode: "smooth", ambient: { ...stored.ambient, selectedIds: [upload, ...DEFAULT_AMBIENT.selectedIds] } };
+      const expected = { ...stored, lyricFollowMode: "smooth", vinyl: DEFAULT_VINYL, ambient: { ...stored.ambient, selectedIds: [upload, ...DEFAULT_AMBIENT.selectedIds] } };
       expect(settings).toMatchObject(expected);
       expect(JSON.parse(await fs.readFile(path.join(dir, "settings.json"), "utf8"))).toEqual(expected);
       const restored = new SettingsStore(dir); await restored.init();
@@ -120,7 +121,7 @@ describe("bundled photo catalog and legacy ambient preference migration", () => 
       const expectedIds = [
         ...uploadIds.slice(0, 10), ...DEFAULT_AMBIENT.selectedIds.slice(0, oldCount), ...uploadIds.slice(10),
       ];
-      const expected = { ...stored, lyricFollowMode: "smooth", ambient: { ...stored.ambient, selectedIds: expectedIds } };
+      const expected = { ...stored, lyricFollowMode: "smooth", vinyl: DEFAULT_VINYL, ambient: { ...stored.ambient, selectedIds: expectedIds } };
       const settings = new SettingsStore(dir); await settings.init();
       expect(settings).toMatchObject(expected);
       expect(settings.ambient.selectedIds.length).toBeLessThanOrEqual(maximum);

@@ -48,6 +48,11 @@ export function focusCurrentView(root: HTMLElement) {
   focusNavigation(selected ?? root.querySelector<HTMLElement>(".ambient-library > summary, .settings > summary"));
 }
 
+export function navigationDialog(root: HTMLElement): HTMLElement | undefined {
+  return [...root.querySelectorAll<HTMLElement>("[data-navigation-dialog]")].filter(navigationVisible).at(-1)
+    ?? (root.matches("[data-navigation-dialog]") && navigationVisible(root) ? root : undefined);
+}
+
 const controlsSelector = "button:not(:disabled), summary, input:not(:disabled):not([type='hidden']), a[href], [data-navigation-scroll][tabindex]";
 function leavesDisplay(element: HTMLElement) {
   return element instanceof HTMLAnchorElement
@@ -61,10 +66,12 @@ export function navigate(
 ): boolean {
   const { key, repeat } = action;
   if (repeat && (key === "select" || key === "back")) return true;
-  const dialog = [...root.querySelectorAll<HTMLElement>("[data-navigation-dialog]")].find(navigationVisible);
+  const dialog = navigationDialog(root);
   if (key === "back") {
-    const cancel = dialog?.querySelector<HTMLButtonElement>("[data-navigation-cancel]");
-    if (cancel) { cancel.click(); return true; }
+    if (dialog) {
+      dialog.querySelector<HTMLButtonElement>("[data-navigation-cancel]")?.click();
+      return true;
+    }
     const open = [...root.querySelectorAll<HTMLDetailsElement>("details[open]")].filter(navigationVisible);
     const closest = target?.closest<HTMLDetailsElement>("details[open]");
     const panel = (closest && root.contains(closest) ? open.filter((item) => closest.contains(item)) : open).at(-1);

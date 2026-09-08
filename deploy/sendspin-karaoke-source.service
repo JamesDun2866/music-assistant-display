@@ -9,7 +9,7 @@ StartLimitBurst=5
 Type=simple
 User=sendspin-karaoke-source
 Group=sendspin-karaoke-source
-SupplementaryGroups=audio sendspin-karaoke-album
+SupplementaryGroups=audio sendspin-karaoke-album sendspin-karaoke-tools
 EnvironmentFile=/etc/sendspin-karaoke-source/environment
 Environment=PYTHONUNBUFFERED=1
 Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -34,7 +34,7 @@ LockPersonality=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 DevicePolicy=closed
 DeviceAllow=char-alsa rw
-ReadWritePaths=/var/lib/sendspin-karaoke-source /run/sendspin-karaoke-album
+ReadWritePaths=/var/lib/sendspin-karaoke-source /run/sendspin-karaoke-album /run/sendspin-karaoke-tools
 
 [Install]
 WantedBy=multi-user.target

@@ -42,10 +42,11 @@ check_system_runtime /usr/bin/node /usr/bin/npm
 
 getent group sendspin-karaoke >/dev/null || groupadd --system sendspin-karaoke
 getent group sendspin-karaoke-album >/dev/null || groupadd --system sendspin-karaoke-album
+getent group sendspin-karaoke-tools >/dev/null || groupadd --system sendspin-karaoke-tools
 if ! id sendspin-karaoke >/dev/null 2>&1; then
   useradd --system --gid sendspin-karaoke --home-dir "$state" --no-create-home --shell /usr/sbin/nologin sendspin-karaoke
 fi
-for group in video dialout sendspin-karaoke-album; do
+for group in video dialout sendspin-karaoke-album sendspin-karaoke-tools; do
   if getent group "$group" >/dev/null; then
     usermod -a -G "$group" sendspin-karaoke
   fi

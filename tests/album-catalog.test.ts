@@ -1,8 +1,16 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { AlbumCatalog, catalogLookupUrl, collectionTracks, trackCollection } from "../src/server/album-catalog.js";
+import { AlbumCatalog, catalogLookupUrl, collectionTracks, exactCollection, trackCollection } from "../src/server/album-catalog.js";
 import { catalogReferenceSchema, tracklistSchema, type AlbumSnapshot, type CatalogReference } from "../src/shared/line-in-album.js";
 
 const reference: CatalogReference = { kind: "collection", id: "123", country: "gb" };
+it("selects high-resolution artwork only for an exact complete Apple collection", () => {
+  const raw = collection();
+  const artwork = "https://is1-ssl.mzstatic.com/image/thumb/Music/album/100x100bb.jpg";
+  Object.assign(raw.results[0]!, { artworkUrl100: artwork });
+  expect(exactCollection(raw, reference).album.artwork).toBe(artwork.replace("100x100", "1200x1200"));
+  Object.assign(raw.results[0]!, { artworkUrl100: "https://evil.example/1200x1200bb.jpg" });
+  expect(exactCollection(raw, reference).album.artwork).toBeNull();
+});
 function source(generation = 1): AlbumSnapshot {
   const now = Date.now();
   return {

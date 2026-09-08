@@ -1,0 +1,12 @@
+.listening-journal { max-width: 70rem; margin: 0 auto; padding: 1.2rem; }
+.journal-actions { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin: 1rem 0; }
+.journal-actions a { color: inherit; text-decoration: underline; padding: .7rem; }
+.journal-entries { list-style: none; padding: 0; max-height: 60vh; overflow: auto; }
+.journal-entries li { display: flex; gap: 1.1rem; padding: 1rem 0; border-bottom: 1px solid #667080; align-items: center; }
+.journal-entries h3, .journal-entries p { margin: .3rem 0; overflow-wrap: anywhere; }
+.journal-entries img, .journal-cover-missing { flex: 0 0 6rem; width: 6rem; height: 6rem; object-fit: contain; }
+.journal-cover-missing { display: grid; place-items: center; text-align: center; font-size: .85rem; background: #252d38; }
+.journal-backdrop { position: fixed; inset: 0; z-index: 40; background: #000b; display: grid; place-items: center; padding: 1rem; }
+.journal-confirm { max-width: 60rem; max-height: 80vh; overflow: auto; padding: 2rem; background: #171b21; border: 2px solid #a8b6c8; }
+.journal-confirm button { margin: .6rem .8rem .6rem 0; }
+@media (max-width: 600px) { .journal-confirm { padding: 1rem; } }

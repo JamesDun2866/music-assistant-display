@@ -411,6 +411,13 @@ until another recording or a service restart, not as a persistent history.
 
 ### Copy a completed recording
 
+With source 0.6.0 and the matching display, **Tools > Recordings** offers
+bounded authenticated downloads without changing source-directory permissions.
+Display/download labels and explicitly confirmed album metadata are private
+sidecars; the original audio and filenames are unchanged. See
+[source tools](source-tools.md) for setup, passive meters and health.
+The existing manual-copy procedure below remains available.
+
 The directory is private to the service account. Run `record-status` as shown
 above and wait for `state: "completed"` and `worker_pending: false`; the path
 must end in `.flac` or `.wav`, not `.partial`. Inspect saved files with:
@@ -505,7 +512,7 @@ metadata is missing, the song title is not substituted.
 The sample is fingerprinted locally in an isolated worker. Shazam receives
 the resulting fingerprint/signature over HTTPS, not the raw WAV sample or
 your saved recording. The sample is not saved as a recording. An allowed
-album thumbnail can subsequently be fetched from Apple's image CDN by the
+album cover can subsequently be fetched from Apple's image CDN by the
 display backend; see [recognition privacy](security.md#optional-shazamio-album-identification).
 HTTP failures, no match and timeouts do not cause automatic retries.
 

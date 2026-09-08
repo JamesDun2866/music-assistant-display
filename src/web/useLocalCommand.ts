@@ -5,6 +5,7 @@ interface CommandOptions {
   raw?: boolean;
   headers?: Record<string, string>;
   accept?: (data: unknown) => void;
+  timeoutMs?: 15000 | 45000;
 }
 
 export function useLocalCommand() {
@@ -58,7 +59,7 @@ export function useLocalCommand() {
     setError(null);
     setNotice(null);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15_000);
+    const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 15_000);
     activeRequest.current = controller;
     activeTimeout.current = timeout;
     try {

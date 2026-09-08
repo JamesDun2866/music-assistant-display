@@ -1,0 +1,62 @@
+.display.view-vinyl { background: #101411; }
+.view-vinyl .listening-stage { display: block; }
+.view-vinyl .display-header { gap: 1rem; padding-bottom: 1rem; }
+.view-vinyl .view-switcher { flex-wrap: wrap; }
+.view-vinyl .display-footer { padding-top: .5rem; }
+.view-vinyl .display-header, .view-vinyl .display-footer, .vinyl-controls {
+  transition: opacity 220ms ease-out, visibility 0s;
+}
+.vinyl-quiet .display-header, .vinyl-quiet .display-footer, .vinyl-controls[aria-hidden="true"] {
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 220ms ease-out, visibility 0s 220ms;
+}
+.vinyl-view { height: 100%; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .8rem; }
+.vinyl-album { min-height: 0; min-width: 0; overflow-y: auto; text-align: center; scrollbar-color: var(--quiet) var(--canvas); display: grid; grid-template-rows: minmax(10rem, 1fr) auto; }
+.vinyl-cover { height: 100%; min-height: 0; min-width: 0; display: grid; place-items: center; }
+.vinyl-cover img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+.vinyl-placeholder { display: grid; place-items: center; width: min(100%, 24rem); height: 100%; min-height: 10rem; padding: 2rem; border: 1px solid var(--line); color: var(--muted); }
+.vinyl-metadata { margin: 1rem auto .4rem; max-width: 65rem; padding-inline: .5rem; }
+.vinyl-eyebrow { color: var(--muted); font-size: clamp(.75rem, .9vw, 1rem); letter-spacing: .12em; text-transform: uppercase; margin: 0 0 .4rem; }
+.vinyl-metadata h1 { margin: 0; font-size: clamp(1.5rem, 2.6vw, 3.5rem); line-height: 1.15; text-wrap: balance; }
+.vinyl-artist { color: var(--muted); font-size: clamp(1rem, 1.3vw, 1.8rem); margin: .4rem 0; }
+.vinyl-with-tracks { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: clamp(1.5rem, 4vw, 6rem); }
+.vinyl-tracklist { min-height: 0; min-width: 0; overflow-y: auto; overscroll-behavior: contain; padding: .5rem 1rem 1rem; scrollbar-color: var(--quiet) var(--canvas); }
+.vinyl-tracklist h2 { margin: 0; font-size: clamp(1.1rem, 1.4vw, 1.8rem); }
+.vinyl-tracklist p, .vinyl-tracklist h3 { color: var(--muted); }
+.vinyl-tracklist ol { list-style: none; padding: 0; margin: 0; }
+.vinyl-tracklist li { display: flex; gap: .8rem; padding: .6rem 0; border-bottom: 1px solid #ffffff0d; font-size: clamp(1rem, 1.2vw, 1.6rem); overflow-wrap: anywhere; }
+.vinyl-track-number { min-width: 2.2ch; flex-shrink: 0; color: var(--quiet); font-variant-numeric: tabular-nums; }
+.vinyl-bottom { grid-column: 1 / -1; min-width: 0; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .5rem 2rem; }
+.vinyl-status { font-size: .8rem; color: var(--muted); margin: 0; }
+.vinyl-meters { width: min(100%, 24rem); color: var(--muted); }
+.vinyl-meters .source-meters { font-size: .7rem; }
+.vinyl-meters .source-meters > p { margin: 0; }
+.vinyl-meters .source-meter-channel { grid-template-columns: 2.2rem minmax(2rem, 1fr) 5.5rem; gap: .4rem; margin: .25rem 0; }
+.vinyl-meters .source-meter-track { height: .35rem; border-color: #637567; }
+.vinyl-meters .source-meter-clipping { font-size: .65rem; }
+.vinyl-meters .source-meter-scale { display: none; }
+.vinyl-controls { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .5rem; }
+.vinyl-controls button, .vinyl-controls summary { font-size: .8rem; padding: .5rem .7rem; }
+.vinyl-details-panel { position: fixed; z-index: 30; inset: auto var(--gutter) 8rem auto; width: min(36rem, calc(100% - 2 * var(--gutter))); max-height: calc(100dvh - 12rem); overflow-y: auto; padding: 1.5rem; background: #192420; border: 1px solid var(--line); border-radius: .7rem; box-shadow: 0 1rem 4rem #0008; }
+.vinyl-details-panel p { line-height: 1.5; color: var(--muted); }
+@media (max-width: 1100px) {
+  .view-vinyl .header-status { display: none; }
+  .view-vinyl .view-switcher button { min-width: 0; padding-inline: .7rem; }
+}
+@media (max-width: 700px) {
+  .display.view-vinyl { height: auto; min-height: 100dvh; }
+  .view-vinyl .display-header { display: block; }
+  .view-vinyl .view-switcher { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .view-vinyl .view-switcher button { font-size: .8rem; }
+  .vinyl-view { height: auto; }
+  .vinyl-album { display: block; }
+  .vinyl-with-tracks { grid-template-columns: minmax(0, 1fr); }
+  .vinyl-cover { height: auto; aspect-ratio: 16 / 9; max-height: 42dvh; }
+  .vinyl-tracklist { max-height: 55dvh; }
+  .vinyl-bottom { flex-direction: column; }
+  .vinyl-meters .source-meter-reading { grid-column: auto; text-align: right; }
+  .vinyl-details-panel { bottom: 1rem; max-height: calc(100dvh - 2rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .view-vinyl *, .vinyl-view * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
