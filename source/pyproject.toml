@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendspin-karaoke-source"
-version = "0.2.0"
+version = "0.4.0"
 description = "Opt-in paired Sendspin USB stereo line-input service"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,6 +15,11 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["aiosendspin[server]==9.1.1"]
+recognition = [
+  "shazamio==0.8.1",
+  "shazamio-core==1.1.2",
+  "audioop-lts==0.2.2; python_version >= '3.13'",
+]
 
 [project.scripts]
 sendspin-karaoke-source = "sendspin_karaoke_source.cli:main"

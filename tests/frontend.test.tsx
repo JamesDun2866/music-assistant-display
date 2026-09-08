@@ -703,7 +703,7 @@ describe("snapshot and asset validation", () => {
       fireEvent.keyDown(plain, { key: "ArrowLeft" });
       expect(metadata).toHaveFocus();
       fireEvent.keyDown(metadata, { key: "ArrowLeft" });
-      expect(screen.getByRole("tab", { name: "Ambient" })).toHaveFocus();
+      expect(screen.getByRole("tab", { name: "Line-in album" })).toHaveFocus();
     });
 
     it("shows elapsed, remaining, and paused status without advancing", async () => {

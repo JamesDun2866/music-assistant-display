@@ -40,6 +40,19 @@ after five continuous seconds below the silence threshold without rearming.
 Recording is off by default; there are no recording controls in the display UI.
 Analogue input does not supply track identities or lyrics.
 
+**Optional line-in album identification:** the source can use
+[ShazamIO to identify an album once per audible session](docs/uca222-source.md#optional-album-identification-behavior-and-limits).
+Recognition is disabled on fresh installations and requires separate optional
+dependencies and explicit enablement. It remembers the owner's enable/disable
+choice across service restarts. Select the independent **Line-in album** view
+for cover art on the left and the matched catalog album's tracklist on the right,
+without replacing Now Playing, Lyrics or Ambient. Five seconds
+of silence clears the result and rearms recognition; it does not restart a
+recording. This unofficial online integration has no availability guarantee,
+may identify a different album edition, and does not provide track-following
+or synchronized lyrics. Upgrade both source and display from public `main`;
+repeat `--with-recognition` on each source install to retain the optional extra.
+
 ## A music-first TV interface
 
 The original dark Now Playing interface puts large album artwork, track/artist/

@@ -13,12 +13,42 @@ The CAST remains the audio endpoint; the Pi remains the screen.
 | **Lyrics** | Large line-synchronized text, with compact artwork and track context |
 | **Split** | Album artwork and lyrics together; the default for a fresh installation |
 | **Ambient** | Real landscape photographs or your images while listening to records, CDs, or any other source |
+| **Line-in album** | Optional, independently identified album context from this Pi's analogue input; no current-track claim or lyric clock |
 
-Select a view using the visible mode selector. The choice is saved on the
+Select a normal view using the visible mode selector. The choice is saved on the
 backend in the same protected `settings.json` as the visual offset. It survives
 reloads, track changes and service/Pi restarts. Changing the view does not reset
 your offset, seek the music, or automatically change when a track has no lyrics.
 Older offset-only settings files migrate automatically to Split.
+The optional **Line-in album** view is the exception: it is temporary, does
+not change the saved normal view, and returns to that normal view on reload.
+
+## Optional Line-in album view
+
+The [optional ShazamIO setup](uca222-source.md#optional-album-identification-behavior-and-limits)
+adds a separate album-identification view. It never automatically replaces
+normal Music Assistant playback or Ambient. Select **Line-in album** explicitly
+to view the album inferred from the Pi's source input; the view is independent
+of the configured MA player's queue and can also be used during local recording.
+It is not proof that a particular speaker is currently playing that input.
+
+Identification makes one attempt per audible session, retains the album rather
+than following each song, and resets after five continuous seconds of silence.
+A wide-screen layout places the cover on the left and the catalog tracklist
+on the right, with scrolling for albums that do not fit on screen. Narrow
+screens stack the sections. Disc and track numbers describe the matched
+catalog edition, not the physical vinyl sides or the current playback position.
+If a complete catalog tracklist cannot be resolved, the view reports that
+instead of substituting a different album or silently truncating the list.
+A failed/unmatched attempt stays unavailable for that session. Album metadata
+is inferred and can refer to a single, compilation or reissue instead of the
+physical record. No recognized song lyrics, progress bar or synchronized lyrics
+are supplied by this view. Return to the normal views for MA track metadata and
+lyrics; selecting this view does not start capture, streaming or recording.
+The source supplies the detected track's artist as context, not a separately
+verified album-artist credit. Identification needs a 12-second sample and
+network processing time. The view reports sampling, identification, unavailable
+and offline states rather than displaying a previous session's album forever.
 
 ## Low-cost lyric follow at 4K
 

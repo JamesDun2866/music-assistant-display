@@ -14,6 +14,7 @@ import { NativeCecController } from "./cec-native.js";
 import { createApp } from "./http.js";
 import { log } from "./log.js";
 import { AmbientStore } from "./ambient.js";
+import { LineInAlbum } from "./line-in-album.js";
 
 async function main(): Promise<void> {
   try { process.loadEnvFile(".env"); } catch (error) { if (!isFsError(error, "ENOENT")) throw error; }
@@ -41,8 +42,10 @@ async function main(): Promise<void> {
   const bridge = new Bridge(provider, cache, settings, config.DEMO_MODE);
   const demo = config.DEMO_MODE ? new DemoPlayer(bridge) : undefined;
   const monitor = client && artwork ? new MaMonitor(client, bridge, config.MA_PLAYER_ID!, config.MA_QUEUE_ID!, artwork) : null;
+  const lineInAlbum = config.LINE_IN_ALBUM_SOURCE_ID && !config.DEMO_MODE
+    ? new LineInAlbum(config.LINE_IN_ALBUM_SOURCE_ID, config.LINE_IN_ALBUM_SOURCE_UID!) : undefined;
   const server = createServer(createApp({
-    bridge, settings, ambient, cec, demo, remote: nativeCec,
+    bridge, settings, ambient, cec, demo, remote: nativeCec, lineInAlbum,
     ...(demo ? { artwork: (identity: string, signal: AbortSignal) => demo.artwork.get(identity, signal) } :
       artwork ? { artwork: (identity: string, signal: AbortSignal) => artwork.get(identity, signal) } : {}),
   }));
@@ -64,6 +67,7 @@ async function main(): Promise<void> {
     closing = true;
     clearInterval(tick);
     monitor?.close();
+    lineInAlbum?.close();
     bridge.close();
     server.closeAllConnections();
     await Promise.all([

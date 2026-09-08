@@ -3,8 +3,10 @@ set -euo pipefail
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 umask 077
 
-[[ $EUID -eq 0 && $# -eq 0 ]] ||
-  { echo "Usage: sudo bash scripts/install-source.sh" >&2; exit 1; }
+[[ $EUID -eq 0 && ( $# -eq 0 || ( $# -eq 1 && $1 == --with-recognition ) ) ]] ||
+  { echo "Usage: sudo bash scripts/install-source.sh [--with-recognition]" >&2; exit 1; }
+recognition=false
+[[ ${1:-} != --with-recognition ]] || recognition=true
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 source "$source_dir/scripts/check-source-runtime.sh"
 [[ -f /etc/os-release ]] || { echo "Raspberry Pi OS Trixie arm64 is required." >&2; exit 1; }
@@ -12,6 +14,10 @@ source "$source_dir/scripts/check-source-runtime.sh"
 [[ ${VERSION_CODENAME:-} == trixie && $(dpkg --print-architecture) == arm64 ]] ||
   { echo "Supported target: Raspberry Pi OS Trixie 64-bit (arm64)." >&2; exit 1; }
 check_source_runtime /usr/bin/python3
+if $recognition; then
+  /usr/bin/python3 -I -c 'import sys; sys.exit(not ((3, 12) <= sys.version_info[:2] < (3, 14)))' ||
+    { echo "ShazamIO 0.8.1 recognition requires Python 3.12 or 3.13 (ARM64 binary wheels)." >&2; exit 1; }
+fi
 exec 9>/run/lock/sendspin-karaoke-source-install.lock
 flock -n 9 || { echo "Another source install is running." >&2; exit 1; }
 
@@ -21,7 +27,8 @@ config=/etc/sendspin-karaoke-source
 unit=/etc/systemd/system/sendspin-karaoke-source.service
 wrapper=/usr/local/bin/sendspin-karaoke-source
 marker='sendspin-karaoke source installation v1'
-for path in "$root" "$root/releases" "$state" "$config" "$config/environment" "$unit" "$wrapper"; do
+for path in "$root" "$root/releases" "$state" "$config" "$config/environment" "$unit" "$wrapper" \
+  /run/sendspin-karaoke-album /etc/tmpfiles.d/sendspin-karaoke-album.conf; do
   [[ ! -L "$path" ]] || { echo "Refusing symbolic link at managed path: $path" >&2; exit 1; }
 done
 if [[ -e "$root" ]]; then
@@ -41,11 +48,15 @@ apt-get update
 apt-get install -y --no-install-recommends python3-venv libportaudio2 libasound2-plugins libsndfile1 ca-certificates util-linux
 check_source_runtime /usr/bin/python3
 getent group sendspin-karaoke-source >/dev/null || groupadd --system sendspin-karaoke-source
+getent group sendspin-karaoke-album >/dev/null || groupadd --system sendspin-karaoke-album
 if ! id sendspin-karaoke-source >/dev/null 2>&1; then
   useradd --system --gid sendspin-karaoke-source --home-dir "$state" --no-create-home \
     --shell /usr/sbin/nologin sendspin-karaoke-source
 fi
-usermod -a -G audio sendspin-karaoke-source
+usermod -a -G audio,sendspin-karaoke-album sendspin-karaoke-source
+install -o root -g root -m 0644 "$source_dir/deploy/sendspin-karaoke-album.tmpfiles" \
+  /etc/tmpfiles.d/sendspin-karaoke-album.conf
+systemd-tmpfiles --create /etc/tmpfiles.d/sendspin-karaoke-album.conf
 install -d -o root -g root -m 0755 "$root" "$root/releases"
 printf '%s\n' "$marker" > "$root/.managed-installation"
 chmod 0644 "$root/.managed-installation"
@@ -66,11 +77,18 @@ install -m 0644 "$source_dir/source/sendspin_karaoke_source/"*.py "$release/pack
 install -m 0644 "$source_dir/source/pyproject.toml" "$release/package/pyproject.toml"
 chown -R sendspin-karaoke-source:sendspin-karaoke-source "$release"
 runuser -u sendspin-karaoke-source -- /usr/bin/python3 -I -m venv "$release/venv"
+package="$release/package"
+if $recognition; then package="$package[recognition]"; fi
 runuser -u sendspin-karaoke-source -- env TMPDIR="$release/work" \
-  "$release/venv/bin/python" -I -m pip install --disable-pip-version-check --no-cache-dir "$release/package"
+  "$release/venv/bin/python" -I -m pip install --disable-pip-version-check --no-cache-dir \
+  --only-binary=shazamio-core,numpy,pydantic-core,audioop-lts "$package"
 runuser -u sendspin-karaoke-source -- "$release/venv/bin/python" -I -c \
   'from aiosendspin.client import SendspinClient, SourceCapture; import sounddevice; import soundfile; import sendspin_karaoke_source.cli; assert soundfile.check_format("FLAC", "PCM_16") and soundfile.check_format("WAV", "PCM_16")'
 runuser -u sendspin-karaoke-source -- "$release/venv/bin/sendspin-karaoke-source" --help >/dev/null
+if $recognition; then
+  runuser -u sendspin-karaoke-source -- "$release/venv/bin/python" -I -c \
+    'from shazamio import Shazam; from shazamio_core import Recognizer; from sendspin_karaoke_source.album_provider import SingleRequestClient'
+fi
 chown -R root:root "$release"
 chmod -R a+rX,go-w "$release"
 
@@ -105,3 +123,8 @@ echo "List inputs: sudo -u sendspin-karaoke-source sendspin-karaoke-source devic
 echo "Pair explicitly with --server-url and --state-dir /var/lib/sendspin-karaoke-source."
 echo "Edit $config/environment; then explicitly enable/start sendspin-karaoke-source.service."
 echo "After an upgrade, explicitly restart the source service to use the new release."
+echo "--with-recognition installs optional dependencies; new installations remain OFF until explicitly enabled."
+echo "Recognition remembers explicit enable/disable choices and thresholds across service restarts."
+echo "Repeat --with-recognition on upgrades to retain the optional dependencies."
+echo "For read-only album display, configure LINE_IN_ALBUM_SOURCE_UID=$(id -u sendspin-karaoke-source)"
+echo "and LINE_IN_ALBUM_SOURCE_ID from recognition-status in the DISPLAY environment; restart display."

@@ -8,10 +8,11 @@ import { SettingsStore } from "../src/server/settings.js";
 import { Bridge } from "../src/server/bridge.js";
 import { DemoProvider, DemoPlayer } from "../src/server/demo.js";
 import { DEFAULT_AMBIENT } from "../src/shared/ambient.js";
+import { unavailableTracklist } from "../src/shared/line-in-album.js";
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
-async function fixture(artwork?: HttpOptions["artwork"]) {
+async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptions["lineInAlbum"]) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "karaoke-http-"));
   const settings = new SettingsStore(dir);
   await settings.init();
@@ -20,7 +21,7 @@ async function fixture(artwork?: HttpOptions["artwork"]) {
   const status = { enabled: false, available: false, message: "disabled", owned: false };
   const cec = { status: () => status, execute: vi.fn(async () => status) };
   const server: Server = createServer(createApp({
-    bridge, settings, cec, demo,
+    bridge, settings, cec, demo, lineInAlbum,
     artwork: artwork ?? ((identity, signal) => demo.artwork.get(identity, signal)),
   }));
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -38,6 +39,28 @@ async function fixture(artwork?: HttpOptions["artwork"]) {
   const headers = { Cookie: session.headers.get("set-cookie")!.split(";")[0]!, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" };
   return { base, headers, cec, bridge, demo, dir };
 }
+it("keeps album endpoints read-only and behind existing local Host/Origin guards", async () => {
+  const view = vi.fn(async () => ({
+    state: "disabled" as const, expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist(),
+  }));
+  const image = vi.fn(async () => null);
+  const { base, headers } = await fixture(undefined, { view, artwork: image });
+  expect((await fetch(`${base}/api/line-in-album`, { headers: { Origin: "https://evil.example" } })).status).toBe(403);
+  view.mockClear();
+  const rebound = await new Promise<number | undefined>((resolve, reject) => {
+    request(`${base}/api/line-in-album`, { headers: { Host: "evil.example" } }, (res) => {
+      res.resume(); resolve(res.statusCode);
+    }).on("error", reject).end();
+  });
+  expect(rebound).toBe(403);
+  expect(view).not.toHaveBeenCalled();
+  expect(await (await fetch(`${base}/api/line-in-album`)).json()).toMatchObject({ state: "disabled", album: null });
+  expect((await fetch(`${base}/api/line-in-album`, { method: "POST", headers, body: '{"enabled":true}' })).status).toBe(404);
+  expect((await fetch(`${base}/api/line-in-album/artwork/old`, {
+    headers: { Origin: "https://evil.example" },
+  })).status).toBe(403);
+  expect(image).not.toHaveBeenCalled();
+});
 it("protects local TV controls against cross-origin, DNS rebinding, missing CSRF and arbitrary commands", async () => {
   const { base, headers, cec } = await fixture();
   const reboundStatus = await new Promise<number | undefined>((resolve, reject) => {

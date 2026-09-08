@@ -107,6 +107,25 @@ class ControlHandlerTests(unittest.IsolatedAsyncioTestCase):
             (await self.handle(b'{"command":"record-stop"}\n'))["recording"]["state"], "completed",
         )
 
+    async def test_recognition_controls_never_start_or_stop_recording(self):
+        self.server.recognition = SimpleNamespace(
+            enable=AsyncMock(return_value={"state": "armed"}),
+            disable=AsyncMock(return_value={"state": "disabled"}),
+            status=Mock(return_value={"state": "idle"}),
+        )
+        enabled = await self.handle(b'{"command":"recognition-enable","silence_dbfs":-55}\n')
+        self.assertEqual(enabled, {"ok": True, "recognition": {"state": "armed"}})
+        self.server.recognition.enable.assert_awaited_once_with(-55)
+        self.assertEqual((await self.handle(b'{"command":"recognition-status"}\n'))["recognition"]["state"], "idle")
+        self.assertEqual((await self.handle(b'{"command":"recognition-disable"}\n'))["recognition"]["state"], "disabled")
+        self.recorder.start.assert_not_awaited()
+        self.recorder.stop.assert_not_awaited()
+        self.server.recognition.enable.side_effect = SourceError("optional dependency missing")
+        failed = await self.handle(b'{"command":"recognition-enable"}\n')
+        self.assertFalse(failed["ok"])
+        self.assertEqual(failed["recognition"]["state"], "idle")
+        self.assertNotIn("recording", failed)
+
     async def test_busy_bad_schema_size_and_truncated_requests_are_explicit_errors(self):
         self.recorder.start.side_effect = SourceError("busy")
         response = await self.handle(b'{"command":"record-start"}\n')
@@ -937,7 +956,7 @@ class ServiceTests(PrivateWorkspace, unittest.IsolatedAsyncioTestCase):
         with patch("sendspin_karaoke_source.cli.pairing_policy", AsyncMock()), \
              patch("sendspin_karaoke_source.cli.make_client", client_factory):
             task = asyncio.create_task(service(
-                config, None, store, owner=owner, control_factory=control_factory,
+                config, load_identity(self.path), store, owner=owner, control_factory=control_factory,
             ))
             try:
                 await eventually(lambda: clients and clients[0].disconnect.await_count)
@@ -968,7 +987,7 @@ class ServiceTests(PrivateWorkspace, unittest.IsolatedAsyncioTestCase):
         )
         with patch("sendspin_karaoke_source.cli.pairing_policy", AsyncMock()):
             with self.assertRaises(PairingRequired):
-                await service(config, None, store, owner=owner, control_factory=lambda *args: control)
+                await service(config, load_identity(self.path), store, owner=owner, control_factory=lambda *args: control)
         factory.assert_not_called()
         control.close.assert_awaited_once()
 

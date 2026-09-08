@@ -65,5 +65,15 @@ a source-service virtual environment or appliance image. Recordings are user
 content, not bundled project assets; record and share only audio you are entitled
 to use.
 
+The separate `recognition` extra downloads pinned `shazamio`, `shazamio-core`
+and, on Python 3.13, `audioop-lts`, plus their dependencies. Their code and
+native wheels retain their own licenses and notices; they are not bundled
+or relicensed by this repository. ShazamIO is an unofficial client: its
+open-source license does not grant rights to Shazam's service or guarantee
+availability or no-charge access. Recognized artwork and Apple catalog
+metadata are external provider content, not MIT-licensed project assets.
+See [recognition behavior and limits](docs/uca222-source.md#optional-album-identification-behavior-and-limits)
+and [external-service privacy](docs/security.md#optional-shazamio-album-identification).
+
 The package's `private: true` prevents accidental npm publication; it does not
 require authentication to clone the public GitHub repository.

@@ -36,11 +36,15 @@ def decode(data):
     if type(message) is not dict or type(message.get("command")) is not str:
         raise SourceError("Recording control requires a command object.")
     command = message["command"]
-    allowed = {"command", "format", "silence_dbfs"} if command == "record-start" else {"command"}
-    if command not in ("record-start", "record-stop", "record-status") or set(message) - allowed:
+    allowed = ({"command", "format", "silence_dbfs"} if command == "record-start"
+               else {"command", "silence_dbfs"} if command == "recognition-enable" else {"command"})
+    if command not in ("record-start", "record-stop", "record-status", "recognition-enable",
+                       "recognition-disable", "recognition-status") or set(message) - allowed:
         raise SourceError("Unsupported recording command or fields; paths/filenames are not accepted.")
     if command == "record-start":
         validate_options(message.get("format", "flac"), message.get("silence_dbfs", -45.0))
+    if command == "recognition-enable":
+        validate_options("flac", message.get("silence_dbfs", -45.0))
     return message
 
 
@@ -51,9 +55,10 @@ def check_socket(path):
 
 
 class ControlServer:
-    def __init__(self, state_dir, recorder):
+    def __init__(self, state_dir, recorder, recognition=None):
         self.path = state_dir / SOCKET_NAME
         self.recorder = recorder
+        self.recognition = recognition
         self.server = None
         self.handlers = set()
         self.failed = asyncio.Event()
@@ -94,14 +99,25 @@ class ControlServer:
             self.failed.set()
 
     async def _handle(self, reader, writer):
+        recognition_command = False
         try:
             try:
                 async with asyncio.timeout(2):
                     data = await reader.readuntil(b"\n")
                 request = decode(data)
+                recognition_command = request["command"].startswith("recognition-")
                 async with asyncio.timeout(REQUEST_SECONDS - 2):
                     command = request["command"]
-                    if command == "record-start":
+                    if command.startswith("recognition-"):
+                        if self.recognition is None:
+                            raise SourceError("Recognition is unavailable.")
+                        if command == "recognition-enable":
+                            status = await self.recognition.enable(request.get("silence_dbfs", -45.0))
+                        elif command == "recognition-disable":
+                            status = await self.recognition.disable()
+                        else:
+                            status = self.recognition.status()
+                    elif command == "record-start":
                         status = await self.recorder.start(
                             request.get("format", "flac"), request.get("silence_dbfs", -45.0),
                         )
@@ -109,14 +125,17 @@ class ControlServer:
                         status = await self.recorder.stop()
                     else:
                         status = self.recorder.status()
-                response = {"ok": True, "recording": status}
+                response = {"ok": True, "recognition" if command.startswith("recognition-") else "recording": status}
             except (SourceError, OSError, TimeoutError, asyncio.LimitOverrunError,
                     asyncio.IncompleteReadError) as error:
+                field = "recognition" if recognition_command else "recording"
+                component = self.recognition if recognition_command else self.recorder
+                status_command = "recognition-status" if recognition_command else "record-status"
                 response = {
                     "ok": False,
                     "error": str(error) if isinstance(error, SourceError)
-                    else "Recording control I/O failed or timed out; inspect record-status.",
-                    "recording": self.recorder.status(),
+                    else f"Source control I/O failed or timed out; inspect {status_command}.",
+                    field: component.status() if component is not None else {},
                 }
             writer.write(json.dumps(response, allow_nan=False).encode() + b"\n")
             async with asyncio.timeout(1):
@@ -159,7 +178,10 @@ async def request(config):
     message = {"command": config.command}
     if config.command == "record-start":
         message.update(format=config.format, silence_dbfs=config.silence_dbfs)
+    if config.command == "recognition-enable":
+        message.update(silence_dbfs=config.silence_dbfs)
     writer = None
+    field = "recognition" if config.command.startswith("recognition-") else "recording"
     try:
         check_socket(path)
         async with asyncio.timeout(REQUEST_SECONDS):
@@ -176,12 +198,17 @@ async def request(config):
             if not response["ok"]:
                 raise SourceError(
                     f"{response.get('error', 'Recording request failed.')} "
-                    f"Status: {json.dumps(response.get('recording', {}))}"
+                    f"Status: {json.dumps(response.get(field, {}))}"
                 )
-            if type(response.get("recording")) is not dict:
+            if type(response.get(field)) is not dict:
                 raise SourceError("Invalid recording status from service.")
-            return response["recording"]
+            return response[field]
     except (OSError, TimeoutError, asyncio.IncompleteReadError, asyncio.LimitOverrunError):
+        if field == "recognition":
+            raise SourceError(
+                "Recognition service unavailable or timed out. Run as its user with the same --state-dir; "
+                "check recognition-status. A timed-out enable may have enabled recognition."
+            ) from None
         raise SourceError(
             "Recording service unavailable or timed out. Run as its user with the same --state-dir; "
             "check service status. A timed-out command may have started recording: use record-status."

@@ -22,11 +22,16 @@ jobs:
         run: |
           source/.venv/bin/sendspin-karaoke-source check-device --help
           source/.venv/bin/sendspin-karaoke-source record-start --help
+          source/.venv/bin/sendspin-karaoke-source recognition-enable --help
           bash -n scripts/install-source.sh
           bash -n scripts/check-source-runtime.sh
           bash -n scripts/source-cli.sh
       - name: Test opt-in capture lifecycle and real paired Sendspin protocol
         run: source/.venv/bin/python -I -B -m unittest discover -s source/tests -p 'test_*.py' -v
+      - name: Install optional recognition and test native fingerprinting with mocked HTTP
+        run: |
+          source/.venv/bin/python -m pip install './source[recognition]'
+          source/.venv/bin/python -I -B -m unittest discover -s source/tests -p 'test_recognition.py' -v
   checks:
     strategy:
       matrix:
