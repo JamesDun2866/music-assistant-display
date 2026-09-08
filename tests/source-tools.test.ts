@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createServer, type Server } from "node:net";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Stats } from "node:fs";
 import { afterEach, expect, it, vi } from "vitest";
@@ -24,18 +26,21 @@ const reply = (data: unknown) => ({ version: 1, source_id: sourceId, boot_id: bo
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
 async function socketFixture(output: Buffer | string, verify = vi.fn(async () => "identity")) {
-  const socketPath = process.platform === "win32" ? `\\\\.\\pipe\\tools-test-${randomUUID()}`
-    : path.resolve(`.tools-test-${randomUUID()}.sock`);
+  // Unix socket paths must fit sockaddr_un even when the checkout path is long.
+  const directory = process.platform === "win32" ? undefined : await mkdtemp(path.join(tmpdir(), "tools-"));
+  const socketPath = directory ? path.join(directory, "tools.sock")
+    : `\\\\.\\pipe\\tools-test-${randomUUID()}`;
   const sockets = new Set<import("node:net").Socket>();
   const server: Server = createServer((socket) => {
     sockets.add(socket); socket.once("close", () => sockets.delete(socket));
     socket.once("data", () => socket.end(output));
   });
-  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(socketPath, resolve); });
   cleanups.push(async () => {
     sockets.forEach((socket) => socket.destroy());
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    if (server.listening) await new Promise<void>((resolve) => server.close(() => resolve()));
+    if (directory) await rm(directory, { recursive: true, force: true });
   });
+  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(socketPath, resolve); });
   return new ToolsSocketClient(1000, socketPath, verify);
 }
 it("strictly rejects duplicate JSON keys, invalid UTF8, nonfinite values and extra commands", () => {
