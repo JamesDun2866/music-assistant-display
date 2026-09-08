@@ -20,3 +20,7 @@ CEC_DEVICE=/dev/cec0
 # Legacy one-shot adapter only; ignored when CEC_REMOTE_ENABLED=true.
 # CEC_ADAPTER=/dev/cec0
 CEC_ALLOW_STANDBY=false
+# Optional independent Line-in album view. Both values required; no paths or source control access.
+# Obtain source_id from the source user's recognition-status; UID from id -u sendspin-karaoke-source.
+# LINE_IN_ALBUM_SOURCE_ID=64-lowercase-hex-SHA256-of-source-public-identity
+# LINE_IN_ALBUM_SOURCE_UID=source-service-numeric-uid

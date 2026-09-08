@@ -112,6 +112,7 @@ class SharedCapture:
         self.audio_factory = audio_factory
         self.lock = asyncio.Lock()
         self.consumers = {}
+        self.observers = set()
         self.session = None
         self.reader = None
         self.failed = asyncio.Event()
@@ -136,6 +137,7 @@ class SharedCapture:
                     session.request_close()
                     raise
             self.consumers[consumer] = since_us
+            self._observe("context", True)
             if self.reader is None:
                 self.reader = asyncio.create_task(self._read())
 
@@ -148,6 +150,7 @@ class SharedCapture:
                     # even if the event loop briefly stalled while capture stayed live.
                     if timestamp >= since_us:
                         consumer.offer(pcm, timestamp)
+                self._observe("offer", pcm, timestamp)
         except asyncio.CancelledError:
             raise
         except Exception as error:
@@ -157,7 +160,17 @@ class SharedCapture:
                 self.failure = error
                 self.failed.set()
             LOG.error("Shared capture failed (%s); recording will not rearm.", error_classes(error))
+            self._observe("context", False)
             self.session.request_close()
+
+    def _observe(self, method, *args):
+        for observer in tuple(self.observers):
+            try:
+                getattr(observer, method)(*args)
+            except Exception as error:
+                # Optional observers must never take down the real-time owner.
+                self.observers.discard(observer)
+                LOG.error("Capture observer stopped (%s); streaming unaffected.", error_classes(error))
 
     async def _finish_close(self):
         session = self.session
@@ -178,6 +191,7 @@ class SharedCapture:
         consumer.mute()
         async with self.lock:
             self.consumers.pop(consumer, None)
+            self._observe("context", bool(self.consumers))
             if self.consumers:
                 return
             if self.reader is not None:

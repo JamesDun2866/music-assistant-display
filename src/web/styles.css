@@ -353,3 +353,27 @@ kbd { font: inherit; color: var(--ink); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+.line-in-album { width: min(100%, 100rem); height: 100%; min-height: 0; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, .9fr) minmax(20rem, 1.1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: .75rem 2.5rem; }
+.album-header, .album-notes { grid-column: 1 / -1; }
+.album-header h1 { font-size: clamp(1.8rem, 3vw, 4rem); line-height: 1.1; margin: .25rem 0; overflow-wrap: anywhere; }
+.album-header .stage-caption { margin: 0; padding: 0; }
+.album-header .track-artist { margin: 0; line-height: 1.4; }
+.album-cover { min-height: 0; display: flex; align-items: flex-start; justify-content: flex-start; }
+.line-in-album .artwork { width: min(100%, 52vh); max-height: 100%; aspect-ratio: 1; margin: 0; }
+.album-tracklist { min-height: 0; max-height: 65vh; overflow-y: auto; overscroll-behavior: contain; padding: 0 1rem 0 0; text-align: left; }
+.album-tracklist:focus-visible { outline: 3px solid currentColor; outline-offset: -3px; }
+.album-tracklist h2 { font-size: clamp(1.3rem, 1.8vw, 2rem); line-height: 1.2; margin: 0 0 .5rem; }
+.album-tracklist > p { margin: 0 0 .75rem; }
+.album-tracklist h3 { margin: 1.5rem 0 .5rem; }
+.album-tracklist ol { list-style: none; padding: 0; margin: 0; }
+.album-tracklist li { display: grid; grid-template-columns: 2.5em minmax(0, 1fr); gap: .5em; padding: .55em 0; font-size: clamp(1.05rem, 1.5vw, 1.7rem); border-bottom: 1px solid #ffffff18; overflow-wrap: anywhere; }
+.album-track-number { opacity: .65; text-align: right; font-variant-numeric: tabular-nums; }
+.album-notes { font-size: .85rem; opacity: .75; }
+.album-notes p { margin: .2rem 0; }
+.view-line-in .listening-stage { display: block; overflow: hidden; }
+@media (max-width: 760px) {
+  .view-line-in .listening-stage { overflow-y: auto; }
+  .line-in-album { height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; padding: 1rem; }
+  .album-tracklist { max-height: 55vh; }
+  .line-in-album .artwork { width: min(70vw, 35vh); }
+}

@@ -59,8 +59,54 @@ service restart and is never enabled by installation or ordinary MA playback.
 
 Sending audio to MA still makes it available to MA and the selected
 downstream players; their retention, access and transport security are
-separate from this Pi service. The source does not perform cloud song
-recognition or upload audio for lyrics.
+separate from this Pi service. No audio is uploaded for lyrics.
+
+### Optional ShazamIO album identification
+
+Recognition is separately opt-in and requires the optional source dependency
+extra. Fresh installations start disabled; an explicit enable/disable choice
+and silence threshold are remembered in private source settings. A restart
+can therefore resume previously authorized recognition, but never a recording.
+Enabling it observes
+input already captured for MA playback or an explicit recording; it does not
+open the input on its own. Do not enable it on an input carrying sensitive
+audio. It processes a bounded 12-second sample in an isolated local worker,
+then sends an audio-derived fingerprint/signature to Shazam over HTTPS.
+The recognition request is not a raw PCM/WAV or full recording upload, but it
+still discloses recognizable information about the audio and the network's
+public IP to an external service. It is not offline or anonymous recognition.
+
+The provider transport allows one recognition POST to `amp.shazam.com` per
+session and refuses redirects and automatic retries. Five seconds of silence
+or a new capture context can permit a new session; this is not a monthly quota
+or a guarantee of one request per vinyl. ShazamIO is unofficial; open-source
+licensing does not establish authorization under the service's terms or
+guarantee continued no-charge access. No paid API credentials are installed.
+
+Only bounded album title, detected artist and approved artwork metadata leave
+the worker. Lyrics and other provider fields are discarded. A private-group,
+read-only snapshot at `/run/sendspin-karaoke-album/album.json` lets the display
+read this minimal context without access to the source's identity, recordings
+or control socket. The display binds to the configured source public-identity
+hash and numeric service UID, validates file ownership/schema, and expires old
+snapshots. Do not relax the source state directory's permissions to enable it.
+
+When the Line-in album view requests current artwork, the display server may
+fetch an approved HTTPS thumbnail from `is1-ssl.mzstatic.com` through
+`is5-ssl.mzstatic.com`. This discloses the requested artwork and public IP to
+Apple's CDN. URLs, DNS destinations, response sizes, image decoding and
+generation are checked; redirects are refused, and the browser receives only
+a local image route. This opt-in is separate from Spotify Connect artwork.
+Disabling recognition clears the result on the next local status refresh or
+snapshot expiry; it does not stop listening or recording.
+The album view can also request the exact matched album's public catalog
+tracklist from `https://itunes.apple.com/lookup`. A validated collection
+reference needs one GET; a track reference needs up to two GETs to resolve
+its collection first. This is a metadata lookup, not another audio-recognition
+request or an upload of audio. It discloses the catalog identifier, storefront
+and public IP to Apple; no credentials, private recordings, previews or lyrics
+are sent. Bounded results, including failures, are cached per album generation
+so display polling does not repeatedly request the catalog.
 
 ## Display data and controls
 

@@ -4,6 +4,8 @@ import express, { type NextFunction, type Request, type Response } from "express
 import { z } from "zod";
 import type { CecCommand, CecStatus } from "../shared/protocol.js";
 import type { Bridge } from "./bridge.js";
+import type { LineInAlbum } from "./line-in-album.js";
+import { unavailableTracklist } from "../shared/line-in-album.js";
 import type { DemoPlayer } from "./demo.js";
 import type { SettingsStore } from "./settings.js";
 import { settingsPatchSchema } from "./settings.js";
@@ -35,6 +37,7 @@ export interface HttpOptions {
   demo?: DemoPlayer;
   webDirectory?: string;
   artwork?: (identity: string, signal: AbortSignal) => Promise<Artwork | null>;
+  lineInAlbum?: Pick<LineInAlbum, "view" | "artwork">;
 }
 const demoSchema = z.object({
   action: z.enum(["play", "pause", "stop", "next", "seek"]),
@@ -127,6 +130,24 @@ export function createApp(options: HttpOptions) {
   app.get("/api/backgrounds", (_req, res) => {
     if (!options.ambient) { res.status(503).json({ error: "Ambient storage is unavailable" }); return; }
     res.json(options.ambient.library());
+  });
+  app.get("/api/line-in-album", async (_req, res) => {
+    res.json(options.lineInAlbum ? await options.lineInAlbum.view()
+      : { state: "not-configured", expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist() });
+  });
+  app.get("/api/line-in-album/artwork/:key", async (req, res) => {
+    if (!options.lineInAlbum) { res.sendStatus(404); return; }
+    const controller = new AbortController();
+    const close = () => controller.abort();
+    res.once("close", close);
+    try {
+      const image = await options.lineInAlbum.artwork(req.params.key, controller.signal);
+      if (!image) { res.sendStatus(404); return; }
+      res.type(image.contentType).send(image.bytes);
+    } catch {
+      log("line_in_album_artwork_unavailable");
+      if (!res.destroyed) res.sendStatus(502);
+    } finally { res.off("close", close); }
   });
   app.get("/api/backgrounds/image/:id", async (req, res) => {
     if (!options.ambient) { res.status(503).json({ error: "Ambient storage is unavailable" }); return; }

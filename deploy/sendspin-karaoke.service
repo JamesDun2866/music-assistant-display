@@ -7,6 +7,7 @@ StartLimitIntervalSec=0
 Type=simple
 User=sendspin-karaoke
 Group=sendspin-karaoke
+SupplementaryGroups=sendspin-karaoke-album
 WorkingDirectory=/opt/sendspin-karaoke/current
 Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
 EnvironmentFile=/etc/sendspin-karaoke/environment

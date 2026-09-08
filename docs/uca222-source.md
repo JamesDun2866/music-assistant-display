@@ -82,7 +82,8 @@ or run the normal display installer in an attempt to get this optional service.
 
 ### Install from public main without switching the display checkout
 
-The source and optional recorder are available on public **`main`**.
+The source, optional recorder and optional album identification are available
+on public **`main`**.
 As your normal desktop user on the Pi, create a separate public source setup
 clone. HTTPS cloning requires no GitHub account, token or private-repository
 access:
@@ -117,6 +118,11 @@ From that checkout, as your normal desktop user:
 ```sh
 sudo bash scripts/install-source.sh
 ```
+
+For optional album identification, use
+`sudo bash scripts/install-source.sh --with-recognition` instead, and follow the
+[display binding and explicit enablement steps](#install-and-bind-the-optional-feature).
+Installing that extra does not enable recognition on a fresh installation.
 
 This installs the capture package in its own Python virtual environment with
 a separate service account and state directory. It preserves existing source
@@ -454,10 +460,221 @@ The display still follows its configured CAST/player; the capture service
 does not change that configuration or create an extra audio output on the Pi.
 Select **Ambient** for records or CDs.
 
-Analogue input contains audio, not a track URI, cover or lyrics. This service
-does not perform song recognition or synthesize now-playing metadata. A source
+Analogue input contains audio, not a track URI, cover or lyrics. Optional
+ShazamIO album identification can infer an album from a short audio sample;
+it does not make the input a metadata-bearing digital source. A source
 name in MA is not enough to retrieve the correct song's synchronized lyrics.
 Do not repoint `MA_PLAYER_ID` at the capture-only source to make lyrics appear.
+
+### Optional album identification: behavior and limits
+
+Album identification is a separate, explicit opt-in from recording and live
+streaming. It uses the unofficial ShazamIO client, not a paid AudD account.
+The client's open-source license does not guarantee continued access to
+Shazam, a permanent free service tier, catalog coverage or permission under
+the service's terms. Use remains subject to the provider's terms and availability.
+Recognition contacts an external service; it is not offline processing.
+There is no paid-provider integration, API key or subscription setup, but
+rate limits, quotas and continued no-charge access are not guaranteed.
+
+The intended unit is one **silence-separated audio session**, not one physical
+vinyl record. When the enabled recognizer sees active line-in audio, it collects
+a 12-second sample and attempts recognition once. The recognized song is used
+only to identify album metadata. The display shows album context, not a claim
+that the first matched song is still playing. It does not request recognition
+again as each track changes.
+
+Five continuous seconds below the silence threshold clears that album and
+rearms identification for the next audible session. Initial silence does not
+trigger recognition. An unmatched sample or failed request does not
+automatically retry within the same session. A side flip or long inter-track
+gap can create another session; surface noise can prevent a session ending.
+The result can identify a compilation, single or reissue rather than the
+physical pressing being played. Album title is taken from Shazam's explicit
+album metadata, and artist context from the detected track's artist. An exact
+catalog reference, when available, is used to retrieve the matched release's
+tracklist. There is no fuzzy Spotify search or guess based on album names. If album
+metadata is missing, the song title is not substituted.
+
+The sample is fingerprinted locally in an isolated worker. Shazam receives
+the resulting fingerprint/signature over HTTPS, not the raw WAV sample or
+your saved recording. The sample is not saved as a recording. An allowed
+album thumbnail can subsequently be fetched from Apple's image CDN by the
+display backend; see [recognition privacy](security.md#optional-shazamio-album-identification).
+HTTP failures, no match and timeouts do not cause automatic retries.
+
+Identification and recording have independent state. Rearming identification
+never starts another recording; the recorder still stays off after its own
+five-second silence stop. Neither identification nor artwork failures should
+interrupt line-in listening or a local recording.
+
+Some Shazam responses may include plain lyrics, but this feature does not
+retain or display them. One recognition at the beginning of an album cannot
+track later song changes, and returned text is not a synchronized lyric clock.
+Normal Music Assistant track lyrics remain a separate display feature.
+
+#### Install and bind the optional feature
+
+Remembered recognition and catalog tracklists require source **0.4.0**,
+**Python 3.12 or 3.13**, and the matching updated
+display on the same Pi. The normal source installer still works without this
+feature; Python 3.14 is not supported for the optional recognition dependency
+set. Use a current public **`main`** checkout of
+`JamesDun2866/music-assistant-display`, not a feature branch or an older
+unrelated repository. For a new clone, follow
+[the public source setup above](#install-from-public-main-without-switching-the-display-checkout);
+for an existing clone, follow
+[the clean-checkout update procedure below](#operation-updates-and-recovery),
+including its `--with-recognition` variant. Run on the Pi:
+
+```sh
+sudo bash scripts/install-source.sh --with-recognition
+sudo systemctl restart sendspin-karaoke-source.service
+```
+
+For a first installation, complete device configuration and pairing before
+starting the service. For an existing installation, restart between listening
+and recording sessions. The flag installs `shazamio==0.8.1`,
+`shazamio-core==1.1.2` and, on Python 3.13, `audioop-lts==0.2.2`, with their
+dependencies. No separate ffmpeg install is needed for the in-memory PCM/WAV
+path. The native recognition runs in a separate, time/memory-limited process.
+No live Shazam request occurs just from installation.
+
+**Upgrade both the source and display together.** Version 0.4.0 changes the
+read-only album handoff to version 2; a mismatched older display/source reports
+the album source offline rather than interpreting incompatible data. Keep your
+existing `LINE_IN_ALBUM_SOURCE_ID` and `LINE_IN_ALBUM_SOURCE_UID` settings.
+
+**Repeat `--with-recognition` on future source upgrades.** Each install creates
+a new virtual environment; omitting the flag selects a release without these
+optional dependencies. Installing the extra does not grant consent or enable
+recognition on a fresh installation. A previously saved enable choice can
+resume recognition when the upgraded service starts.
+
+Build and install the updated display using its existing supported system
+Node/npm environment, as your normal user:
+
+```sh
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+bash scripts/check-runtime.sh &&
+/usr/bin/node /usr/bin/npm ci &&
+/usr/bin/node /usr/bin/npm run build &&
+sudo bash scripts/install.sh
+```
+
+Run this from the same updated public `main` checkout, or update the separate
+display checkout using the [repeatable main-based guide](upgrading.md).
+The display installer restarts the display and adds its read-only album-group
+membership. Do not pass `--with-recognition` to the display installer, rerun
+kiosk configuration, or change MA credentials. Both installers preserve
+existing configuration and state.
+
+Get the source's public binding identifier and its account UID:
+
+```sh
+sudo -u sendspin-karaoke-source \
+  /usr/local/bin/sendspin-karaoke-source recognition-status
+id -u sendspin-karaoke-source
+```
+
+Copy the `source_id` from the first command and the number from the second
+into the **display** environment at `/etc/sendspin-karaoke/environment`:
+
+```ini
+LINE_IN_ALBUM_SOURCE_ID=REPLACE_WITH_64_LOWERCASE_HEX_SOURCE_ID
+LINE_IN_ALBUM_SOURCE_UID=REPLACE_WITH_NUMERIC_SOURCE_UID
+```
+
+Replace both placeholders; incomplete/invalid values prevent display startup.
+The ID is a hash of the source's public key, not a pairing key. Do not copy
+private identity files or configure these values in the source environment.
+
+```sh
+sudo systemctl restart sendspin-karaoke.service
+```
+
+The source installer provisions `/run/sendspin-karaoke-album` through
+systemd-tmpfiles. Only the source can write the short-lived `album.json`;
+the display's `sendspin-karaoke-album` group can read it. The existing private
+source state remains inaccessible to the display. No file-path setting,
+LAN recognition endpoint or extra audio-device access is introduced.
+
+#### Enable for a listening session
+
+```sh
+sudo -u sendspin-karaoke-source \
+  /usr/local/bin/sendspin-karaoke-source recognition-enable --silence-dbfs -45
+```
+
+This arms recognition; it does **not** start capture, MA playback or recording.
+It also saves your choice and recognition threshold for future service starts.
+On an upgrade from source 0.3.0, enable once using the new version: the old
+version's in-memory choice was not saved. Fresh installations remain disabled
+until their owner explicitly enables recognition.
+Select/play the line-in in MA, or explicitly start a local recording. While
+neither owns the input, status remains `idle`. While captured audio is silent,
+it remains `armed`; initial silence never spends a recognition request.
+
+Select **Line-in album** on the updated display. This explicit, independent
+view does not replace Now Playing, follow the configured room player's queue,
+or prove that that player is using this input. It can show album context
+while recording without MA playback. Selecting it does not enable recognition.
+On a wide display, the album cover is on the left and the matched catalog
+release's tracklist is on the right. Track order is album/disc order, not an
+indication of which song is currently playing. Catalog lookups are separate
+from the one-per-session recognition request. An unavailable or incomplete
+catalog result must not be presented as a complete tracklist or replace it
+with guessed songs. The current catalog reader supports complete releases up
+to 200 tracks; larger releases are reported unavailable instead of truncated.
+Catalog lookup uses an exact Apple Music reference and its two-letter
+storefront. An album reference needs one iTunes lookup GET; a track reference
+can need two to resolve the album first. No storefront fallback or fuzzy
+album search is performed. Requests have a 15-second overall budget and
+bounded responses. The per-generation cache includes failures, so repeatedly
+polling or reopening the view does not retry a failed catalog lookup for that
+generation. Missing or incomplete tracklists do not remove identified album
+text or artwork.
+Its selection is temporary: a browser reload returns to the saved normal view.
+Local status polling in this view is not additional Shazam recognition.
+
+```sh
+sudo -u sendspin-karaoke-source \
+  /usr/local/bin/sendspin-karaoke-source recognition-status
+
+sudo -u sendspin-karaoke-source \
+  /usr/local/bin/sendspin-karaoke-source recognition-disable
+```
+
+Status shows `enabled`, `active`, `state`, `source_id` and either minimal
+`album` metadata or `null`. States include `disabled`, `idle`, `armed`,
+`sampling`, `recognizing`, `identified` and `unavailable`. Here `active`
+means an existing input consumer owns capture, not necessarily audible sound.
+The display reports missing/expired/unreadable handoffs as offline rather
+than indefinitely retaining an old album. Snapshots expire after four seconds.
+
+The default silence threshold is -45 dBFS, measured by peak absolute sample
+across both channels, like recording. Any above-threshold sample resets the
+silence interval. Disable before changing the recognition threshold; its
+threshold does not change the recorder's independently selected threshold.
+Five seconds of silence during sample collection discards the sample without
+a request; during recognition it cancels the pending result. Losing the last
+capture owner clears the album. Late results from old sessions are discarded.
+
+Disabling clears the album and saves the disabled choice. Restarting clears
+the previous album/session but restores the saved recognition choice and
+threshold; it never restores a running recording. If recognition fails, inspect its status and source
+journal while leaving ordinary line-in and recording configuration unchanged.
+No API token, audio file or provider response needs to be posted in support logs.
+
+The saved choice lives in the service's private
+`recognition-settings.json`, not in the display environment or browser.
+Do not copy settings from another installation to opt it in implicitly.
+Missing optional dependencies or invalid/unsafe saved settings leave recognition
+off with an explicit diagnostic; the normal source and recording remain separate.
+Status includes `remembered_enabled` and `settings_error` (`null`,
+`restore_failed` or `save_failed`). A failed settings write is not a successful
+persistent change: the previous on-disk choice may remain. Resolve the reported
+storage problem and repeat the command before relying on the next reboot.
 
 ## Operation, updates and recovery
 
@@ -474,7 +691,8 @@ sudo systemctl restart sendspin-karaoke-source.service
 ```
 
 For an update, obtain the intended trusted version of this checkout and rerun
-`sudo bash scripts/install-source.sh`. The installer does not restart an
+`sudo bash scripts/install-source.sh` (add `--with-recognition` if you use
+album identification). The installer does not restart an
 already running source; explicitly restart it afterwards to use the new
 release. The normal display upgrade and uninstall scripts manage only the
 display, not the optional source.
@@ -484,7 +702,12 @@ For the separate checkout created above, first run
 If it lists changes, preserve them and resolve them before updating; do not
 reset or clean them away. Confirm `git remote get-url origin` identifies
 `JamesDun2866/music-assistant-display` and `git branch --show-current` reports
-`main`. With that clean public checkout:
+`main`. With that clean public checkout, the following block updates the
+source **without recognition dependencies**. If you use album identification,
+replace the installer line with
+`sudo bash scripts/install-source.sh --with-recognition &&` before running it.
+Repeat that flag on every source upgrade; an omitted flag creates a release
+without the extra even when the saved recognition choice is enabled.
 
 ```sh
 cd "$HOME/music-assistant-source-setup" &&
@@ -505,6 +728,13 @@ stop rather than force-resetting. A failed fetch, merge or install prevents
 the restart. Successful updates preserve the source's configuration, identity
 and pairings; no new pairing is normally needed. The restart briefly
 interrupts line-in audio, so schedule it between listening sessions.
+
+For album identification, also [update the display from public main](upgrading.md)
+and reload the browser. Source 0.4.0 and the updated display must move together
+for handoff v2 and full catalog tracklists. Keep the display's existing source
+binding values. Users of source 0.3.0 must run `recognition-enable` once with the
+new version to save their choice; later restarts restore that choice, never a
+recording. See [installation and binding](#install-and-bind-the-optional-feature).
 
 ```sh
 sudo systemctl status sendspin-karaoke-source.service --no-pager

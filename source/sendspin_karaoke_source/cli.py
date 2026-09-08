@@ -22,6 +22,7 @@ from .state import load_identity, locked_state, open_store
 from .control import ControlServer, request
 from .recording import Recorder
 from .shared import SharedCapture
+from .recognition import Recognition
 
 LOG = logging.getLogger(__name__)
 PAIR_TIMEOUT = 120
@@ -162,7 +163,7 @@ async def dispatch(config):
         if config.command == "check-device":
             await check_device(config.device)
             return
-        if config.command.startswith("record-"):
+        if config.command.startswith(("record-", "recognition-")):
             print(json.dumps(await request(config), indent=2))
             return
         with locked_state(config.state_dir):
@@ -180,10 +181,13 @@ async def dispatch(config):
 async def service(config, identity, store, *, owner=None, control_factory=ControlServer):
     owner = owner or SharedCapture(config.device)
     recorder = Recorder(owner, config.state_dir)
+    recognition = Recognition(owner, identity, state_dir=config.state_dir)
     control = control_factory(config.state_dir, recorder)
+    control.recognition = recognition
     running = None
     failed = None
     try:
+        await recognition.start()
         await control.start()
         running = asyncio.create_task(run(
             config, identity, store,
@@ -210,6 +214,7 @@ async def service(config, identity, store, *, owner=None, control_factory=Contro
         primary = sys.exception()
         await cleanup_async([
             ("recording control close", control.close),
+            ("recognition shutdown", recognition.close),
             ("recording shutdown", recorder.close),
             ("network shutdown", stop_network),
             ("shared input shutdown", owner.close),

@@ -16,6 +16,16 @@ also ships on public `main`, but is not updated or restarted by the display
 scripts below. Use its [source-only update procedure](uca222-source.md#operation-updates-and-recovery)
 to preserve pairing and configuration; stop any recording before its restart.
 
+**Using optional Line-in album identification?** Update both the display and
+source together for source 0.4.0's version-2 handoff and complete catalog
+tracklists. Add `--with-recognition` on every source install/upgrade; the display
+installer does not accept that flag. Keep existing `LINE_IN_ALBUM_SOURCE_ID`
+and `LINE_IN_ALBUM_SOURCE_UID` values. Source 0.3.0 users must enable recognition
+once with the new version to save their choice across restarts. Fresh installs
+remain disabled until explicitly enabled, and recordings never auto-resume.
+Follow the [optional recognition setup](uca222-source.md#install-and-bind-the-optional-feature)
+after updating this checkout from public `main`.
+
 This guide updates a checkout of **JamesDun2866/music-assistant-display**.
 Public clones and fetches over HTTPS need no GitHub account, token or deploy
 key. SSH origins are also accepted for contributors who already use SSH.

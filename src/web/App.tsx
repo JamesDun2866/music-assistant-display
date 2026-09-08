@@ -12,6 +12,7 @@ import { isExplicitKiosk, useRemoteNavigation } from "./useRemoteNavigation.js";
 import type { NavigationAction } from "./remoteEvents.js";
 import { CecDiagnostics } from "./CecDiagnostics.js";
 import { KioskDiagnosticsPanel, useKioskDiagnostics } from "./KioskDiagnostics.js";
+import { LineInAlbumView } from "./LineInAlbum.js";
 
 function timeLabel(ms: number): string {
   const seconds = Math.max(0, Math.floor(ms / 1_000));
@@ -172,12 +173,13 @@ export function App() {
   const libraryDetails = useRef<HTMLDetailsElement>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [lineInOpen, setLineInOpen] = useState(false);
   const track = snapshot?.track;
   const longMetadata = track && [track.title, track.artist, track.album].some((value) => value.length > 65);
   const offset = snapshot?.visualOffsetMs ?? 0;
   const viewMode = snapshot?.viewMode ?? "split";
   const lyricFollowMode = snapshot?.lyricFollowMode ?? "smooth";
-  const ambientMode = viewMode === "ambient";
+  const ambientMode = viewMode === "ambient" && !lineInOpen;
   const ambient = snapshot?.ambient ?? DEFAULT_AMBIENT;
   const library = useAmbientLibrary(ambientMode, libraryOpen);
   const controls = useAmbientControls(ambientMode, pending || libraryOpen || settingsOpen);
@@ -223,11 +225,12 @@ export function App() {
   }, [kiosk]);
 
   const changeOffset = useCallback((value: number) => {
-    if (localDisabled) return;
+    if (localDisabled || lineInOpen) return;
     void execute("/api/settings", { visualOffsetMs: Math.max(-30_000, Math.min(30_000, value)) }, "Timing offset saved.");
-  }, [localDisabled, execute]);
+  }, [localDisabled, execute, lineInOpen]);
 
   const changeView = useCallback((value: ViewMode) => {
+    setLineInOpen(false);
     if (localDisabled || value === viewMode) return;
     void execute("/api/settings", { viewMode: value }, "Display view saved.");
   }, [localDisabled, execute, viewMode]);
@@ -297,17 +300,21 @@ export function App() {
     : snapshot.playback === "playing" ? "Playing" : snapshot.playback === "paused" ? "Paused" : "Ready";
   const progressPosition = track?.durationMs ? Math.min(positionMs, track.durationMs) : 0;
 
-  return <div ref={display} className={`display view-${viewMode} ${stale ? "is-stale" : ""} ${ambientMode && !controls.visible ? "ambient-quiet" : ""}`}>
+  return <div ref={display} className={`display view-${lineInOpen ? "line-in" : viewMode} ${stale && !lineInOpen ? "is-stale" : ""} ${ambientMode && !controls.visible ? "ambient-quiet" : ""}`}>
     <header className="display-header" hidden={ambientMode && !controls.visible}>
-      <a className="skip-link" href="#display-content">Skip to {ambientMode ? "scene" : viewMode === "now-playing" ? "now playing" : "lyrics"}</a>
+      <a className="skip-link" href="#display-content">Skip to {lineInOpen ? "line-in album" : ambientMode ? "scene" : viewMode === "now-playing" ? "now playing" : "lyrics"}</a>
       <div className="view-switcher" role="tablist" aria-label="Display view" aria-busy={pending}>
         {viewModes.map(({ value, label }) => <button key={value} id={`tab-${value}`} role="tab"
-          aria-selected={viewMode === value} aria-controls="display-content" tabIndex={viewMode === value ? 0 : -1}
+          aria-selected={!lineInOpen && viewMode === value} aria-controls="display-content" tabIndex={!lineInOpen && viewMode === value ? 0 : -1}
           disabled={viewMode !== value && (!snapshot || transportError !== null)} aria-disabled={localDisabled}
           onClick={() => changeView(value)}>{label}</button>)}
+        <button id="tab-line-in" role="tab" aria-selected={lineInOpen}
+          aria-controls="display-content" tabIndex={lineInOpen ? 0 : -1}
+          onClick={() => setLineInOpen(true)}>Line-in album</button>
       </div>
       <div className="header-status">
-        {ambientMode ? <span className="connection-status">Ambient · No audio</span> : <>
+        {lineInOpen ? <span className="connection-status">Independent line-in view</span>
+          : ambientMode ? <span className="connection-status">Ambient · No audio</span> : <>
           {snapshot?.demo && <span className="demo-badge">Demo mode · no audio</span>}
           <span className={`connection-status ${stale ? "warning" : ""}`} role="status">
             <span className="status-dot" aria-hidden="true" />{stateLabel}
@@ -317,9 +324,9 @@ export function App() {
     </header>
 
     <main id="display-content" className={ambientMode ? "ambient-stage" : "listening-stage"} role="tabpanel"
-      aria-labelledby={`tab-${viewMode}`} tabIndex={-1}
+      aria-labelledby={`tab-${lineInOpen ? "line-in" : viewMode}`} tabIndex={-1}
       onPointerDown={ambientMode ? (event) => event.currentTarget.focus() : undefined}>
-      {ambientMode ? <AmbientScene settings={ambient} images={library.images} onIssue={library.setSceneIssue} /> : <>
+      {lineInOpen ? <LineInAlbumView /> : ambientMode ? <AmbientScene settings={ambient} images={library.images} onIssue={library.setSceneIssue} /> : <>
       <section className={`now-playing${longMetadata ? " has-long-metadata" : ""}`} aria-label="Current song"
         tabIndex={track ? 0 : undefined} data-navigation-scroll>
         <Artwork key={JSON.stringify([snapshot?.generation, track?.identity, track?.artworkUrl])}
@@ -349,7 +356,7 @@ export function App() {
       </section>}
       </>}
     </main>
-    {!ambientMode && <div className="service-messages">
+    {!ambientMode && !lineInOpen && <div className="service-messages">
       {stale && <div className="stale-banner" role="status">
         <strong>{cleared ? "Still reconnecting" : viewMode === "now-playing" ? "Display frozen" : "Lyrics frozen"}</strong>
         <span>{transportError || snapshot?.message || "The player connection is stale. Reconnecting automatically…"}</span>
@@ -358,7 +365,7 @@ export function App() {
     </div>}
 
     <footer className="display-footer" hidden={ambientMode && !controls.visible}>
-      {!ambientMode && <div className="playback-timeline" aria-label="Playback progress">
+      {!ambientMode && !lineInOpen && <div className="playback-timeline" aria-label="Playback progress">
         <span className="time">{track ? timeLabel(positionMs) : "0:00"}</span>
         <progress className="progress-track" aria-label="Song position"
           max={track?.durationMs || 100} value={progressPosition}
@@ -369,7 +376,7 @@ export function App() {
           {track?.durationMs ? `−${timeLabel(track.durationMs - progressPosition)}` : "–:––"}</span>
       </div>}
 
-      {!ambientMode && snapshot?.demo && <div className="demo-controls" aria-label="Demo playback controls">
+      {!ambientMode && !lineInOpen && snapshot?.demo && <div className="demo-controls" aria-label="Demo playback controls">
         <span className="demo-description">Synthetic demo</span>
         <button disabled={disabled} onClick={() => demo(snapshot.playback === "playing" ? "pause" : "play")}>
           {snapshot.playback === "playing" ? "Pause demo" : "Play demo"}
@@ -383,7 +390,7 @@ export function App() {
       </div>}
 
       <div className="display-tools">
-        <span className="local-note">{ambientMode ? "Your room. A little quieter." : track && snapshot?.precision === "ma-queue"
+        <span className="local-note">{lineInOpen ? "Album identification only · No playback controls" : ambientMode ? "Your room. A little quieter." : track && snapshot?.precision === "ma-queue"
           ? "Approximate queue-event sync" : track && snapshot?.precision === "ma-player"
             ? "External source · Approximate player timing" : "Local display · No audio output"}</span>
         <div className="tool-actions">
@@ -406,9 +413,9 @@ export function App() {
             }
             if (!event.currentTarget.open) setConfirmStandby(false);
           }}>
-            <summary>Display settings {!ambientMode && <span className="offset-summary">{offsetText}</span>}</summary>
+            <summary>Display settings {!ambientMode && !lineInOpen && <span className="offset-summary">{offsetText}</span>}</summary>
             <div className="settings-panel" tabIndex={0} data-navigation-scroll aria-label="Display settings help">
-              <section aria-labelledby="follow-heading">
+              {!lineInOpen && <section aria-labelledby="follow-heading">
                 <h2 id="follow-heading">Lyric follow</h2>
                 <p>Instant centers each cue without animation, fades or changing font weight. Try it for jerky scrolling on a 4K TV. Photos and lyric timing stay unchanged.</p>
                 <div className="follow-mode-controls" role="group" aria-label="Lyric follow mode">
@@ -418,8 +425,8 @@ export function App() {
                     onClick={() => changeLyricFollow("instant")}>Instant (low-cost)</button>
                 </div>
                 <p>Saved on the local service for every display. Reduced motion always uses instant follow. Focus, touch or scroll timed lyrics to pause following; select Resume lyric follow to rejoin.</p>
-              </section>
-              {!ambientMode && <section aria-labelledby="timing-heading">
+              </section>}
+              {!ambientMode && !lineInOpen && <section aria-labelledby="timing-heading">
                 <h2 id="timing-heading">Make the words meet the music</h2>
                 <p>Adjust this screen, not playback. A positive offset shows lyrics earlier. Saved on the local service.</p>
                 {snapshot?.precision === "ma-queue" && <p>Timing follows approximate Music Assistant queue events, not the Sendspin audio clock.</p>}
