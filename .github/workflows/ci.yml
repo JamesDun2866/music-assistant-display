@@ -23,6 +23,7 @@ jobs:
           source/.venv/bin/sendspin-karaoke-source check-device --help
           source/.venv/bin/sendspin-karaoke-source record-start --help
           source/.venv/bin/sendspin-karaoke-source recognition-enable --help
+          source/.venv/bin/sendspin-karaoke-source recognition-retry --help
           bash -n scripts/install-source.sh
           bash -n scripts/check-source-runtime.sh
           bash -n scripts/source-cli.sh

@@ -101,7 +101,7 @@ class RecognitionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.subject.album, ALBUM)
         self.feed(.025, 0)
         self.assertEqual(self.subject.state, "armed")
-        self.assertIsNone(self.subject.album)
+        self.assertEqual(self.subject.album, ALBUM)
         self.assertGreater(self.subject.generation, generation)
         self.feed(12)
         await eventually(lambda: self.provider.await_count == 2)
@@ -138,7 +138,7 @@ class RecognitionTests(unittest.IsolatedAsyncioTestCase):
         self.feed(4.975, 0)
         self.assertIsNotNone(self.subject.album)
         self.feed(.025, 0)
-        self.assertIsNone(self.subject.album)
+        self.assertEqual(self.subject.album, ALBUM)
 
     async def test_unmatched_and_failure_do_not_retry_until_silence(self):
         await self.active()
@@ -171,14 +171,14 @@ class RecognitionTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.subject.worker)
         self.assertEqual(self.publish.call_args.args[0]["state"], "disabled")
 
-    async def test_context_end_clears_without_starting_recording(self):
+    async def test_context_end_preserves_album_without_starting_recording(self):
         await self.active()
         self.feed(12)
         await eventually(lambda: self.subject.state == "identified")
         self.owner.consumers.clear()
         self.subject.context(False)
         self.assertEqual(self.subject.state, "idle")
-        self.assertIsNone(self.subject.album)
+        self.assertEqual(self.subject.album, ALBUM)
         self.feed(15)
         self.provider.assert_awaited_once()
         self.subject.context(True)

@@ -39,7 +39,7 @@ def decode(data):
     allowed = ({"command", "format", "silence_dbfs"} if command == "record-start"
                else {"command", "silence_dbfs"} if command == "recognition-enable" else {"command"})
     if command not in ("record-start", "record-stop", "record-status", "recognition-enable",
-                       "recognition-disable", "recognition-status") or set(message) - allowed:
+                       "recognition-disable", "recognition-status", "recognition-retry") or set(message) - allowed:
         raise SourceError("Unsupported recording command or fields; paths/filenames are not accepted.")
     if command == "record-start":
         validate_options(message.get("format", "flac"), message.get("silence_dbfs", -45.0))
@@ -65,6 +65,7 @@ class ControlServer:
         self.failure = None
         self.socket_identity = None
         self.closing = False
+        self.album_retry = None
 
     async def start(self):
         self.closing = False
@@ -82,6 +83,14 @@ class ControlServer:
         os.chmod(self.path, 0o600)
         info = self.path.lstat()
         self.socket_identity = (info.st_dev, info.st_ino)
+        if self.recognition is not None:
+            from .album_retry import AlbumRetryServer
+            self.album_retry = AlbumRetryServer(self.recognition, parent=self)
+            try:
+                await self.album_retry.start()
+            except (SourceError, OSError) as error:
+                LOG.warning("Album retry socket unavailable (%s); update the source installation.",
+                            type(error).__name__)
 
     def _accept(self, reader, writer):
         if self.closing or len(self.handlers) >= MAX_CLIENTS:
@@ -115,6 +124,8 @@ class ControlServer:
                             status = await self.recognition.enable(request.get("silence_dbfs", -45.0))
                         elif command == "recognition-disable":
                             status = await self.recognition.disable()
+                        elif command == "recognition-retry":
+                            status = await self.recognition.retry()
                         else:
                             status = self.recognition.status()
                     elif command == "record-start":
@@ -158,6 +169,8 @@ class ControlServer:
 
     async def close(self):
         self.closing = True
+        if self.album_retry is not None:
+            await self.album_retry.close()
         if self.server is not None:
             self.server.close()
             await self.server.wait_closed()

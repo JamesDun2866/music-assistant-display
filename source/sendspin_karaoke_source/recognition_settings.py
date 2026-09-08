@@ -43,9 +43,9 @@ def object_pairs(pairs):
     return result
 
 
-def read_settings(directory):
+def read_settings(directory, name=NAME, maximum=MAX_BYTES, validator=validate):
     check_private(directory, directory=True)
-    path = directory / NAME
+    path = directory / name
     check_private(path)
     try:
         fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
@@ -53,33 +53,37 @@ def read_settings(directory):
         return None
     try:
         info = os.fstat(fd)
-        if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_BYTES or info.st_nlink != 1:
+        if not stat.S_ISREG(info.st_mode) or info.st_size > maximum or info.st_nlink != 1:
             raise SourceError("Unsafe recognition settings file; recognition remains off.")
         if os.name == "posix" and (info.st_uid != os.geteuid() or info.st_mode & 0o077):
             raise SourceError("Recognition settings must be private to the source user.")
-        raw = os.read(fd, MAX_BYTES + 1)
-        if len(raw) > MAX_BYTES:
+        raw = os.read(fd, maximum + 1)
+        if len(raw) > maximum:
             raise SourceError("Recognition settings exceed the size limit.")
         try:
             value = json.loads(raw, object_pairs_hook=object_pairs)
         except (ValueError, UnicodeError, RecursionError):
             raise SourceError("Corrupt recognition settings; recognition remains off.") from None
-        return validate(value)
+        return validator(value)
     finally:
         os.close(fd)
 
 
-def write_settings(directory, value, cancelled):
-    validate(value)
+def write_settings(directory, value, cancelled, name=NAME, maximum=MAX_BYTES, validator=validate,
+                   pending_name=None):
+    validator(value)
+    data = json.dumps(value, allow_nan=False, ensure_ascii=False)
+    if len(data.encode("utf-8")) > maximum:
+        raise SourceError("Private metadata exceeds the size limit.")
     check_private(directory, directory=True)
-    path = directory / NAME
+    path = directory / name
     check_private(path)
-    pending = directory / f".recognition-settings-{uuid.uuid4().hex}"
+    pending = directory / (pending_name or f".{name}-{uuid.uuid4().hex}")
     fd = None
     try:
         fd = os.open(pending, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), 0o600)
         with os.fdopen(fd, "w", encoding="utf-8", closefd=False) as output:
-            json.dump(value, output, allow_nan=False)
+            output.write(data)
             output.flush()
             os.fsync(fd)
         os.close(fd)

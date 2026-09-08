@@ -40,8 +40,26 @@ export const unavailableTracklist = (message = "Tracklist unavailable"): Trackli
 export const albumArtworkReference = z.string().max(1024).regex(
   /^https:\/\/is[1-5]-ssl\.mzstatic\.com\/image\/thumb\/[A-Za-z0-9_./-]{1,800}\/[1-9][0-9]{1,3}x[1-9][0-9]{1,3}(?:bb|cc)\.(?:jpg|png)$/,
 ).refine((value) => !value.includes(".."));
+export const albumKeySchema = z.string().regex(/^[a-f0-9]{32}-[0-9]{1,16}$/);
+export const albumMetadataSchema = z.object({
+  title: text, artist: text, artwork: albumArtworkReference.nullable(), catalog: catalogReferenceSchema.nullable(),
+}).strict();
+export const retryBindingSchema = z.object({
+  source_id: z.string().regex(/^[a-f0-9]{64}$/),
+  boot_id: z.string().regex(/^[a-f0-9]{32}$/),
+  generation: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+}).strict();
+export type RetryBinding = z.infer<typeof retryBindingSchema>;
+export const albumSuccessSchema = retryBindingSchema.omit({ source_id: true }).extend({
+  at_ms: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+}).strict();
+export type AlbumSuccess = z.infer<typeof albumSuccessSchema>;
+export function albumEligibility(value: AlbumSnapshot): string {
+  const success = value.album_success;
+  return `${value.boot_id}-${value.generation}:${success ? `${success.boot_id}-${success.generation}` : "legacy"}`;
+}
 export const albumSnapshotSchema = z.object({
-  version: z.literal(2),
+  version: z.literal(3),
   source_id: z.string().regex(/^[a-f0-9]{64}$/),
   boot_id: z.string().regex(/^[a-f0-9]{32}$/),
   generation: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
@@ -53,12 +71,16 @@ export const albumSnapshotSchema = z.object({
   silence_dbfs: z.number().finite().negative(),
   remembered_enabled: z.boolean(),
   settings_error: z.enum(["restore_failed", "save_failed"]).nullable(),
-  album: z.object({
-    title: text, artist: text, artwork: albumArtworkReference.nullable(), catalog: catalogReferenceSchema.nullable(),
-  }).strict().nullable(),
+  album: albumMetadataSchema.nullable(),
+  album_key: albumKeySchema.nullable(),
+  album_success: albumSuccessSchema.nullable(),
+  cache_error: z.enum(["restore_failed", "save_failed"]).nullable(),
 }).strict().superRefine((value, ctx) => {
   if (value.expires_at_ms - value.updated_at_ms !== 4000
-      || (value.state === "identified") !== (value.album !== null)
+      || (value.state === "identified" && value.album === null)
+      || (value.album !== null) !== (value.album_key !== null)
+      || (value.album === null && value.album_success !== null)
+      || (value.album_success?.boot_id === value.boot_id && value.album_success.generation > value.generation)
       || (!value.enabled && (value.state !== "disabled" || value.active))
       || (value.enabled && value.state === "disabled")
       || (value.enabled && !value.active && value.state !== "idle")
@@ -76,5 +98,7 @@ export const albumViewSchema = z.object({
     artworkUrl: z.string().regex(/^\/api\/line-in-album\/artwork\/[a-f0-9]{32}-[0-9]+$/).nullable(),
   }).strict().nullable(),
   tracklist: tracklistSchema.default(() => unavailableTracklist()),
+  retry: retryBindingSchema.nullable().default(null),
+  cacheError: z.string().max(256).nullable().default(null),
 }).strict();
 export type AlbumView = z.infer<typeof albumViewSchema>;

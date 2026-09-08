@@ -14,6 +14,7 @@ import time
 import uuid
 
 from .album_handoff import write_snapshot
+from .album_memory import AlbumMemory
 from .audio import CHANNELS, FRAMES, RATE
 from .config import SourceError
 from .recognition_settings import RecognitionSettings
@@ -55,8 +56,8 @@ async def process_album(pcm):
                     failure = {}
                 kind = failure.get("error") if type(failure) is dict else None
                 if type(kind) is str and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,127}", kind):
-                    raise SourceError(f"Recognition worker failed ({kind}); no retry this session.")
-                raise SourceError("Recognition worker unavailable; no retry this session.")
+                    raise SourceError(f"Recognition worker failed ({kind}); no automatic retry this session.")
+                raise SourceError("Recognition worker unavailable; no automatic retry this session.")
             value = json.loads(raw)
             if type(value) is not dict or set(value) != {"album"}:
                 raise ValueError("Invalid worker result")
@@ -107,6 +108,12 @@ class Recognition:
         self.state = "disabled"
         self.generation = 0
         self.album = None
+        self.album_key = None
+        self.album_success = None
+        self.album_memory = AlbumMemory(state_dir) if state_dir is not None else None
+        self.album_dirty = False
+        self.cache_error = None
+        self.last_retry = -math.inf
         self.threshold_dbfs = -45.0
         self.threshold = 32768 * 10 ** (-45 / 20)
         self.buffer = bytearray()
@@ -126,6 +133,16 @@ class Recognition:
 
     async def start(self):
         async with self.operation_lock:
+            if self.album_memory is not None:
+                try:
+                    saved_album = await self.album_memory.load()
+                    if saved_album is not None and saved_album["source_id"] == self.source_id:
+                        self.album = saved_album["album"]
+                        self.album_key = saved_album["key"]
+                        self.album_success = saved_album["success"]
+                except (SourceError, OSError, TimeoutError) as error:
+                    self.cache_error = "restore_failed"
+                    LOG.warning("Last album could not be restored (%s).", type(error).__name__)
             if self.settings is not None:
                 try:
                     saved = await self.settings.load()
@@ -145,12 +162,32 @@ class Recognition:
     def status(self):
         now = int(self.clock() * 1000)
         return {
-            "version": 2, "source_id": self.source_id, "boot_id": self.boot_id,
+            "version": 3, "source_id": self.source_id, "boot_id": self.boot_id,
             "generation": self.generation, "updated_at_ms": now, "expires_at_ms": now + 4000,
             "state": self.state, "enabled": self.enabled, "active": self.active,
             "silence_dbfs": self.threshold_dbfs, "album": self.album,
             "remembered_enabled": self.remembered_enabled, "settings_error": self.settings_error,
+            "album_key": self.album_key, "cache_error": self.cache_error,
+            "album_success": self.album_success,
         }
+
+    async def retry(self, binding=None):
+        async with self.operation_lock:
+            if binding is not None and binding != (self.source_id, self.boot_id, self.generation):
+                raise SourceError("Recognition changed; refresh status before retrying.")
+            if not self.enabled:
+                raise SourceError("Recognition is off. Enable it explicitly before retrying.")
+            if not self.active or self.last_audio is None or time.monotonic() - self.last_audio > 1:
+                raise SourceError("No active line-in audio. Start line-in playback before retrying.")
+            if self.state in ("sampling", "recognizing") or (self.worker is not None and not self.worker.done()):
+                raise SourceError("Recognition is busy; wait for the current attempt.")
+            now = time.monotonic()
+            if now - self.last_retry < 15:
+                raise SourceError("Retry is rate limited; wait 15 seconds between requests.")
+            self.last_retry = now
+            # Rearming only observes future PCM. It cannot acquire capture or recording.
+            self._reset("armed")
+            return self.status()
 
     async def enable(self, silence_dbfs=-45.0):
         async with self.operation_lock:
@@ -218,7 +255,6 @@ class Recognition:
     def _reset(self, state):
         self.generation += 1
         self.state = state
-        self.album = None
         self.buffer.clear()
         self.silent_frames = 0
         self.last_timestamp = None
@@ -279,14 +315,13 @@ class Recognition:
             self._reset("unavailable")
         else:
             self.state = "unavailable"
-            self.album = None
             self.buffer.clear()
             self.changed.set()
         if not isinstance(error, (SourceError, OSError, TimeoutError)):
             LOG.error("Unexpected recognition failure (%s); streaming unaffected.", type(error).__name__)
         else:
             LOG.warning("%s", str(error) if isinstance(error, SourceError)
-                        else f"Recognition unavailable ({type(error).__name__}); no retry this session.")
+                        else f"Recognition unavailable ({type(error).__name__}); no automatic retry this session.")
 
     async def _attempt(self, pcm, generation):
         try:
@@ -298,7 +333,16 @@ class Recognition:
                 self.fail(error, reset_session=False)
         else:
             if generation == self.generation and self.enabled and self.active:
-                self.album = album
+                if album is not None and album != self.album:
+                    self.album = album
+                    self.album_key = f"{self.boot_id}-{self.generation}"
+                if album is not None:
+                    previous_ms = self.album_success["at_ms"] if self.album_success else -1
+                    self.album_success = {
+                        "at_ms": max(0, int(self.clock() * 1000), previous_ms + 1),
+                        "boot_id": self.boot_id, "generation": generation,
+                    }
+                    self.album_dirty = True
                 self.state = "identified" if album else "unavailable"
                 self.changed.set()
 
@@ -321,6 +365,15 @@ class Recognition:
 
     async def _write(self):
         async with self.publish_lock:
+            if self.album_dirty and self.album_memory is not None:
+                self.album_dirty = False
+                try:
+                    await self.album_memory.save_album(self.source_id, self.album_key, self.album, self.album_success)
+                    self.cache_error = None
+                except (SourceError, OSError, TimeoutError) as error:
+                    self.cache_error = "save_failed"
+                    LOG.warning("Last album could not be saved (%s); it may not survive restart.",
+                                type(error).__name__)
             if self.publish_broken:
                 return
             try:
