@@ -1,9 +1,12 @@
 import { chmod, lstat, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { performance } from "node:perf_hooks";
+import { randomBytes } from "node:crypto";
 import sharp from "sharp";
 import { afterEach, expect, it, vi } from "vitest";
 import { LineInAlbum } from "../src/server/line-in-album.js";
 import { AlbumMemoryStore } from "../src/server/album-memory.js";
+import { ALBUM_COVER_RETRY_MS, MAX_ALBUM_COVER_RECORD_BYTES } from "../src/server/album-cover.js";
 import { unavailableTracklist, type AlbumSnapshot } from "../src/shared/line-in-album.js";
 
 const sourceId = "a".repeat(64), boot = "b".repeat(32), key = `${boot}-1`;
@@ -47,6 +50,89 @@ function service(read: () => Promise<AlbumSnapshot | null>, directory?: string,
   services.push(value);
   return { value, fetcher, catalog };
 }
+
+it.each([100, 270])("upgrades a legacy %ipx original without recognition, preserves it offline, and persists new pixels/revisions", async (size) => {
+  const root = await directory();
+  const store = new AlbumMemoryStore(root);
+  await store.init(sourceId, 123);
+  const jpeg = await sharp({ create: { width: size, height: size, channels: 3, background: "#789a93" } }).jpeg().toBuffer();
+  const snapshot = source({ album: { ...source().album!, catalog: null } });
+  await store.save({ version: 2, sourceId, uid: 123, key, album: snapshot.album!, success: snapshot.album_success,
+    jpeg: jpeg.toString("base64"), tracklist: unavailableTracklist() });
+  let now = 1000;
+  vi.spyOn(performance, "now").mockImplementation(() => now);
+  let current: AlbumSnapshot | null = null;
+  const high = await sharp({ create: { width: 1800, height: 1800, channels: 3, background: "#789a93" } }).png().toBuffer();
+  const fetcher = vi.fn(async () => ({ bytes: high, type: "image/png" })).mockRejectedValueOnce(new Error("Offline"));
+  const live = service(async () => current, root, fetcher);
+  await live.value.init();
+  const before = await live.value.currentAlbumContext();
+  const oldUrl = (await live.value.view()).album!.artworkUrl;
+  expect((await live.value.artwork(key, AbortSignal.timeout(1000)))?.bytes).toEqual(jpeg);
+  expect(fetcher).not.toHaveBeenCalled();
+  current = { ...snapshot, updated_at_ms: Date.now(), expires_at_ms: Date.now() + 4000 };
+  expect((await live.value.artwork(key, AbortSignal.timeout(1000)))?.bytes).toEqual(jpeg);
+  await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+  for (let index = 0; index < 20; index++) {
+    await live.value.view();
+    expect((await live.value.artwork(key, AbortSignal.timeout(1000)))?.bytes).toEqual(jpeg);
+  }
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  now += ALBUM_COVER_RETRY_MS + 1;
+  current = { ...snapshot, updated_at_ms: Date.now(), expires_at_ms: Date.now() + 4000 };
+  await live.value.artwork(key, AbortSignal.timeout(1000));
+  await vi.waitFor(async () => expect((await live.value.currentAlbumContext())?.effective.artworkAsset)
+    .not.toBe(before!.effective.artworkAsset), { timeout: 5000 });
+  const after = await live.value.currentAlbumContext();
+  expect(after!.original).toEqual(before!.original);
+  expect(after!.effective.revision).not.toBe(before!.effective.revision);
+  expect((await live.value.view()).album!.artworkUrl).not.toBe(oldUrl);
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(fetcher).toHaveBeenCalledWith(art.replace("400x400", "1200x1200"), expect.any(AbortSignal));
+  const upgraded = await live.value.artwork(key, AbortSignal.timeout(1000));
+  expect((await sharp(upgraded!.bytes).metadata()).width).toBe(1200);
+  await live.value.flush();
+  expect(JSON.parse(await readFile(path.join(root, "line-in-album", "last-album.json"), "utf8")).coverVersion).toBe(1);
+  live.value.close();
+  current = null;
+  const restored = service(async () => current, root);
+  await restored.value.init();
+  expect((await restored.value.artwork(key, AbortSignal.timeout(1000)))?.bytes).toEqual(upgraded!.bytes);
+  current = { ...snapshot, updated_at_ms: Date.now(), expires_at_ms: Date.now() + 4000 };
+  for (let index = 0; index < 20; index++) await restored.value.artwork(key, AbortSignal.timeout(1000));
+  expect(restored.fetcher).not.toHaveBeenCalled();
+});
+
+it("exports a source-bound cloned album context with a content revision, not a playback claim", async () => {
+  const snapshot = source({ album: { ...source().album!, artwork: null, catalog: null } });
+  const live = service(async () => snapshot);
+  const context = await live.value.currentAlbumContext();
+  expect(context).toMatchObject({
+    sourceId,
+    original: { albumKey: key, success: snapshot.album_success },
+    effective: { title: "Recognized album", artworkAsset: null },
+    correction: { applied: false, scope: "original", revision: 0 },
+  });
+  expect(context!.effective.revision).toMatch(/^[a-f0-9]{64}$/);
+  context!.original.album.title = "Caller mutation";
+  expect((await live.value.originalAlbumContext())!.album.title).toBe("Recognized album");
+  expect(JSON.stringify(context)).not.toMatch(/duration|positionMs|recording|playing/);
+});
+
+it("round trips a detailed full-cover record above the former 1 MiB file budget", async () => {
+  const root = await directory();
+  const jpeg = await sharp(randomBytes(1200 * 1200 * 3), { raw: { width: 1200, height: 1200, channels: 3 } })
+    .jpeg({ quality: 85 }).toBuffer();
+  const store = new AlbumMemoryStore(root);
+  await store.init(sourceId, 123);
+  const record = { version: 2 as const, sourceId, uid: 123, key, album: source().album!,
+    success: source().album_success, jpeg: jpeg.toString("base64"), coverVersion: 1 as const, tracklist: unavailableTracklist() };
+  expect(Buffer.byteLength(JSON.stringify(record))).toBeGreaterThan(1024 * 1024);
+  await store.save(record);
+  expect(await new AlbumMemoryStore(root).init(sourceId, 123)).toEqual(record);
+  await expect(store.save({ ...record, jpeg: "A".repeat(MAX_ALBUM_COVER_RECORD_BYTES) })).rejects.toThrow();
+  expect(await new AlbumMemoryStore(root).init(sourceId, 123)).toEqual(record);
+});
 
 it("persists safe metadata, decoded JPEG and complete tracklist across offline reboot without network or fake freshness", async () => {
   const root = await directory();
@@ -148,7 +234,7 @@ it("reports old, corrupt and oversized cache records without restoring raw runti
   await writeFile(pending, '{"interrupted":', { mode: 0o600 });
   expect(await store.init(sourceId, 123)).toBeNull();
   await expect(lstat(pending)).rejects.toMatchObject({ code: "ENOENT" });
-  for (const raw of [JSON.stringify(source()), JSON.stringify({ version: 0, album: "old" }), "{", "x".repeat(1024 * 1024 + 1)]) {
+  for (const raw of [JSON.stringify(source()), JSON.stringify({ version: 0, album: "old" }), "{", "x".repeat(MAX_ALBUM_COVER_RECORD_BYTES + 1)]) {
     await writeFile(file, raw, { mode: 0o600 });
     const live = service(async () => null, root);
     await live.value.init();

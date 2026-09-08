@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { albumViewSchema, type AlbumView } from "../shared/line-in-album.js";
+import { type AlbumView } from "../shared/line-in-album.js";
 import { useLocalCommand } from "./useLocalCommand.js";
+import { useLineInAlbum } from "./useLineInAlbum.js";
+import { AlbumEditionCorrection } from "./AlbumEditionCorrection.js";
+import { AlbumCatalogStatus } from "./AlbumCatalogStatus.js";
 
 const labels: Record<AlbumView["state"], string> = {
   "not-configured": "Line-in album display is not configured",
@@ -15,41 +18,10 @@ const labels: Record<AlbumView["state"], string> = {
 };
 
 export function LineInAlbumView() {
-  const [view, setView] = useState<AlbumView | null>(null);
+  const { view, refresh } = useLineInAlbum();
   const [failedImage, setFailedImage] = useState<string | null>(null);
   const command = useLocalCommand();
   useEffect(() => { setFailedImage(null); }, [view?.album?.artworkUrl]);
-  useEffect(() => {
-    let alive = true;
-    let expiry: ReturnType<typeof setTimeout> | undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const controller = new AbortController();
-    const poll = async () => {
-      try {
-        const response = await fetch("/api/line-in-album", {
-          cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(2500)]),
-        });
-        if (!response.ok) throw new Error("album_unavailable");
-        const result = albumViewSchema.parse(await response.json());
-        if (!alive) return;
-        clearTimeout(expiry);
-        if (result.expiresAt <= Date.now()) {
-          setView({ ...result, state: "offline", retry: null });
-        } else {
-          setView(result);
-          expiry = setTimeout(() => setView((previous) => previous
-            ? { ...previous, state: "offline", retry: null } : null),
-            Math.max(0, Math.min(4000, result.expiresAt - Date.now())));
-        }
-      } catch {
-        if (alive) setView((previous) => previous ? { ...previous, state: "offline", retry: null } : null);
-      } finally {
-        if (alive) timer = setTimeout(() => { void poll(); }, 750);
-      }
-    };
-    void poll();
-    return () => { alive = false; controller.abort(); clearTimeout(timer); clearTimeout(expiry); };
-  }, []);
   const album = view?.album;
   const tracks = view?.tracklist;
   const complete = album && tracks?.status === "complete";
@@ -59,17 +31,28 @@ export function LineInAlbumView() {
     <header className="album-header">
       <div className="album-title-block">
         <p className="stage-caption" role="status">
-          {album && <><span>Last identified album</span><span aria-hidden="true"> · </span></>}
+          {album && <><span>{view?.edition?.corrected ? "Corrected catalog edition"
+            : view?.edition?.provenance?.origin === "automatic-catalog" ? "Automatically resolved catalog edition"
+              : "Last identified album"}</span><span aria-hidden="true"> · </span></>}
           <span>{view ? labels[view.state] : "Line-in source unavailable"}</span>
         </p>
         <h1>{title || (view ? labels[view.state] : "Line-in source unavailable")}</h1>
         {artist && <p className="track-artist">{artist}</p>}
+        {(view?.edition?.corrected || view?.edition?.provenance) && <p>
+          Originally recognized: {view.edition.original.title} — {view.edition.original.artist}</p>}
       </div>
-      <button type="button" disabled={!view?.retry || command.pending}
-        onClick={() => { if (view?.retry) void command.execute("/api/line-in-album/retry", view.retry,
-          "Retry requested. Listening for a fresh 12-second sample."); }}>
-        Retry identification
-      </button>
+      <div className="album-actions" role="group" aria-label="Album actions">
+        <button type="button" disabled={!view?.retry || command.pending}
+          onClick={() => { if (view?.retry) void command.execute("/api/line-in-album/retry", view.retry,
+            "Retry requested. Listening for a fresh 12-second sample."); }}>
+          Retry identification
+        </button>
+        <AlbumEditionCorrection binding={view?.edition?.binding ?? null} original={view?.edition?.original ?? null}
+          corrected={view?.edition?.corrected ?? false} provenance={view?.edition?.provenance}
+          fallback={view?.edition?.fallback} onChanged={refresh} />
+      </div>
+      {view?.edition?.scope === "current-album" && <p className="album-command-message">
+        Current identification only; not remembered for future matches.</p>}
       {command.error && <p className="album-command-message" role="alert">{command.error}</p>}
       {command.notice && <p className="album-command-message" role="status">{command.notice}</p>}
       {view?.cacheError && <p className="album-command-message" role="alert">{view.cacheError}</p>}
@@ -99,6 +82,8 @@ export function LineInAlbumView() {
         </> : <p role="status">{tracks?.message || "Tracklist unavailable"}</p>}
       </section>
     </> : null}
+    <AlbumCatalogStatus binding={view?.edition?.binding ?? null} status={view?.edition?.fallback}
+      provenance={view?.edition?.provenance} onChanged={refresh} />
     <div className="album-notes">
       <p>Independent local line-in view, not your selected Music Assistant player.</p>
       <p>Catalog release only: physical edition is not verified. No current-track highlighting, lyrics or playback timing.</p>

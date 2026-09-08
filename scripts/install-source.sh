@@ -28,7 +28,8 @@ unit=/etc/systemd/system/sendspin-karaoke-source.service
 wrapper=/usr/local/bin/sendspin-karaoke-source
 marker='sendspin-karaoke source installation v1'
 for path in "$root" "$root/releases" "$state" "$config" "$config/environment" "$unit" "$wrapper" \
-  /run/sendspin-karaoke-album /etc/tmpfiles.d/sendspin-karaoke-album.conf; do
+  /run/sendspin-karaoke-album /etc/tmpfiles.d/sendspin-karaoke-album.conf \
+  /run/sendspin-karaoke-tools /etc/tmpfiles.d/sendspin-karaoke-tools.conf; do
   [[ ! -L "$path" ]] || { echo "Refusing symbolic link at managed path: $path" >&2; exit 1; }
 done
 if [[ -e "$root" ]]; then
@@ -49,14 +50,21 @@ apt-get install -y --no-install-recommends python3-venv libportaudio2 libasound2
 check_source_runtime /usr/bin/python3
 getent group sendspin-karaoke-source >/dev/null || groupadd --system sendspin-karaoke-source
 getent group sendspin-karaoke-album >/dev/null || groupadd --system sendspin-karaoke-album
+getent group sendspin-karaoke-tools >/dev/null || groupadd --system sendspin-karaoke-tools
 if ! id sendspin-karaoke-source >/dev/null 2>&1; then
   useradd --system --gid sendspin-karaoke-source --home-dir "$state" --no-create-home \
     --shell /usr/sbin/nologin sendspin-karaoke-source
 fi
-usermod -a -G audio,sendspin-karaoke-album sendspin-karaoke-source
+usermod -a -G audio,sendspin-karaoke-album,sendspin-karaoke-tools sendspin-karaoke-source
+if id sendspin-karaoke >/dev/null 2>&1; then
+  usermod -a -G sendspin-karaoke-tools sendspin-karaoke
+fi
 install -o root -g root -m 0644 "$source_dir/deploy/sendspin-karaoke-album.tmpfiles" \
   /etc/tmpfiles.d/sendspin-karaoke-album.conf
 systemd-tmpfiles --create /etc/tmpfiles.d/sendspin-karaoke-album.conf
+install -o root -g root -m 0644 "$source_dir/deploy/sendspin-karaoke-tools.tmpfiles" \
+  /etc/tmpfiles.d/sendspin-karaoke-tools.conf
+systemd-tmpfiles --create /etc/tmpfiles.d/sendspin-karaoke-tools.conf
 install -d -o root -g root -m 0755 "$root" "$root/releases"
 printf '%s\n' "$marker" > "$root/.managed-installation"
 chmod 0644 "$root/.managed-installation"
@@ -130,3 +138,7 @@ echo "For cached album display and retry-only control, configure LINE_IN_ALBUM_S
 echo "and LINE_IN_ALBUM_SOURCE_ID from recognition-status in the DISPLAY environment; restart display."
 echo "Album handoff v3 requires updating both source and display. Last album metadata survives reboot."
 echo "The display album group can request recognition-retry only; source identity and recording remain private."
+echo "Source 0.6.0 adds passive meters, completed-recording tools and health via a separate tools socket."
+echo "Upgrade/restart the display as well. Tools reuse its complete album ID/UID pair by default,"
+echo "or configure both SOURCE_TOOLS_SOURCE_ID and SOURCE_TOOLS_SOURCE_UID independently."
+echo "Tools never start recording; labels and album sidecars leave downloaded audio unchanged."

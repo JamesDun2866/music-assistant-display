@@ -12,7 +12,8 @@ import { unavailableTracklist } from "../src/shared/line-in-album.js";
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
-async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptions["lineInAlbum"]) {
+async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptions["lineInAlbum"], journal?: HttpOptions["journal"],
+  editions?: HttpOptions["editions"]) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "karaoke-http-"));
   const settings = new SettingsStore(dir);
   await settings.init();
@@ -21,7 +22,7 @@ async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptio
   const status = { enabled: false, available: false, message: "disabled", owned: false };
   const cec = { status: () => status, execute: vi.fn(async () => status) };
   const server: Server = createServer(createApp({
-    bridge, settings, cec, demo, lineInAlbum,
+    bridge, settings, cec, demo, lineInAlbum, journal, editions,
     artwork: artwork ?? ((identity, signal) => demo.artwork.get(identity, signal)),
   }));
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -39,6 +40,58 @@ async function fixture(artwork?: HttpOptions["artwork"], lineInAlbum?: HttpOptio
   const headers = { Cookie: session.headers.get("set-cookie")!.split(";")[0]!, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" };
   return { base, headers, cec, bridge, demo, dir };
 }
+it("protects journal clear/export/artwork with local guards, explicit confirmation and bounded page schemas", async () => {
+  const revision = "f".repeat(32);
+  const page = vi.fn(async () => ({
+    entries: [], nextCursor: null, revision, retentionDays: 90 as const, status: "ready" as const, message: null,
+  }));
+  const clear = vi.fn(async () => {});
+  const artwork = vi.fn(async () => null);
+  const { base, headers } = await fixture(undefined, undefined, {
+    page, clear, artwork, async *export() { yield '{"version":1,"entries":[]}'; },
+  });
+  const url = `${base}/api/listening-journal`;
+  expect((await fetch(url, { headers: { Origin: "https://evil.example" } })).status).toBe(403);
+  expect((await fetch(`${url}/export`, { headers: { Origin: "https://evil.example" } })).status).toBe(403);
+  expect((await fetch(`${url}/artwork/${"a".repeat(64)}`, { headers: { Origin: "https://evil.example" } })).status).toBe(403);
+  expect(artwork).not.toHaveBeenCalled();
+  expect((await fetch(`${url}?limit=101`)).status).toBe(400);
+  expect((await fetch(`${url}?url=https://evil.example`)).status).toBe(400);
+  expect((await fetch(`${url}/clear`, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ confirm: true, revision }) })).status).toBe(403);
+  for (const body of [{ revision }, { confirm: false, revision }, { confirm: true, revision, command: "record" }]) {
+    expect((await fetch(`${url}/clear`, { method: "POST", headers, body: JSON.stringify(body) })).status).toBe(400);
+  }
+  expect(clear).not.toHaveBeenCalled();
+  expect((await fetch(`${url}/clear`, { method: "POST", headers,
+    body: JSON.stringify({ confirm: true, revision }) })).status).toBe(200);
+  expect(clear).toHaveBeenCalledExactlyOnceWith(revision);
+  const exported = await fetch(`${url}/export`);
+  expect(exported.headers.get("content-disposition")).toBe('attachment; filename="listening-journal.json"');
+  expect(await exported.json()).toEqual({ version: 1, entries: [] });
+});
+it("requires local CSRF and strict edition bodies and keeps preview artwork session-bound", async () => {
+  const binding = { sourceId: "a".repeat(64), albumKey: `${"b".repeat(32)}-1`, success: null, revision: 0 };
+  const search = vi.fn(async () => ({ searchToken: "d".repeat(64), results: [] }));
+  const artwork = vi.fn(async () => null);
+  const { base, headers } = await fixture(undefined, undefined, undefined, {
+    search, artwork, preview: vi.fn(), confirm: vi.fn(), remove: vi.fn(),
+  });
+  const url = `${base}/api/line-in-album/edition`;
+  const body = { binding, artist: "Artist", album: "Album", country: "gb" };
+  expect((await fetch(`${url}/search`, { method: "POST", body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" } })).status).toBe(403);
+  for (const patch of [{ country: "" }, { artist: "https://private.local/album" }, { url: "http://localhost" }]) {
+    expect((await fetch(`${url}/search`, { method: "POST", headers, body: JSON.stringify({ ...body, ...patch }) })).status).toBe(400);
+  }
+  expect(search).not.toHaveBeenCalled();
+  expect((await fetch(`${url}/search`, { method: "POST", headers, body: JSON.stringify(body) })).status).toBe(200);
+  expect(search).toHaveBeenCalledWith(body, expect.stringMatching(/^[a-f0-9]{64}$/), expect.any(AbortSignal));
+  expect((await fetch(`${url}/artwork/${"d".repeat(64)}`)).status).toBe(403);
+  expect(artwork).not.toHaveBeenCalled();
+  expect((await fetch(`${url}/artwork/${"d".repeat(64)}`, { headers })).status).toBe(404);
+  expect(artwork).toHaveBeenCalledWith("d".repeat(64), expect.stringMatching(/^[a-f0-9]{64}$/), expect.any(AbortSignal));
+});
 it("keeps album endpoints read-only and behind existing local Host/Origin guards", async () => {
   const view = vi.fn(async () => ({
     state: "disabled" as const, expiresAt: Date.now(), key: null, album: null, tracklist: unavailableTracklist(),
@@ -61,6 +114,29 @@ it("keeps album endpoints read-only and behind existing local Host/Origin guards
     headers: { Origin: "https://evil.example" },
   })).status).toBe(403);
   expect(image).not.toHaveBeenCalled();
+});
+it("serves full local covers with strict content-version queries without relaxing origin guards", async () => {
+    const jpeg = Buffer.alloc(300 * 1024, 1);
+    const artwork = vi.fn(async (): Promise<Artwork> => ({ bytes: jpeg, contentType: "image/jpeg" }));
+    const { base } = await fixture(undefined, {
+      artwork, view: async () => ({ state: "offline", expiresAt: Date.now(), key: null, album: null,
+        tracklist: unavailableTracklist(), retry: null, cacheError: null }),
+    });
+    const url = `${base}/api/line-in-album/artwork/${"b".repeat(32)}-1`;
+    const hash = "a".repeat(64);
+    for (const query of [`cover=${hash}`, "edition=1", ""]) {
+      const response = await fetch(`${url}?${query}`);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain("image/jpeg");
+      expect(Buffer.from(await response.arrayBuffer())).toEqual(jpeg);
+    }
+    artwork.mockClear();
+    for (const query of [`cover=${hash}&edition=1`, `cover=${hash}&cover=${hash}`, "cover=bad",
+      "cover=https://evil.example", "unknown=1", "edition=0"]) {
+      expect((await fetch(`${url}?${query}`)).status).toBe(400);
+    }
+    expect((await fetch(`${url}?cover=${hash}`, { headers: { Origin: "https://evil.example" } })).status).toBe(403);
+    expect(artwork).not.toHaveBeenCalled();
 });
 it("allows only CSRF-protected source-bound album retries and preserves useful source errors", async () => {
     const retry = vi.fn(async () => {});
@@ -104,7 +180,8 @@ it("protects local TV controls against cross-origin, DNS rebinding, missing CSRF
     const { base, headers, dir } = await fixture();
     await fetch(`${base}/api/settings`, { method: "POST", headers, body: '{"visualOffsetMs":900}' });
     const response = await fetch(`${base}/api/settings`, { method: "POST", headers, body: '{"viewMode":"now-playing"}' });
-    expect(await response.json()).toEqual({ visualOffsetMs: 900, viewMode: "now-playing", lyricFollowMode: "smooth", ambient: DEFAULT_AMBIENT });
+    expect(await response.json()).toEqual({ visualOffsetMs: 900, viewMode: "now-playing", lyricFollowMode: "smooth", ambient: DEFAULT_AMBIENT,
+      vinyl: { showTracklist: false, showMeters: true } });
     const state = await (await fetch(`${base}/api/state`)).json() as { viewMode: string };
     expect(state.viewMode).toBe("now-playing");
     const restored = new SettingsStore(dir);
@@ -117,6 +194,18 @@ it("protects local TV controls against cross-origin, DNS rebinding, missing CSRF
     expect((await fetch(`${base}/api/settings`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: '{"viewMode":"lyrics"}',
     })).status).toBe(403);
+  });
+  it("publishes and persists independent vinyl preference patches", async () => {
+    const { base, headers, dir } = await fixture();
+    const response = await fetch(`${base}/api/settings`, { method: "POST", headers,
+      body: JSON.stringify({ viewMode: "vinyl", vinyl: { showTracklist: true, showMeters: false } }) });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ viewMode: "vinyl", vinyl: { showTracklist: true, showMeters: false } });
+    expect(await (await fetch(`${base}/api/state`)).json()).toMatchObject({ viewMode: "vinyl", vinyl: { showTracklist: true, showMeters: false } });
+    const restored = new SettingsStore(dir); await restored.init();
+    expect(restored.vinyl).toEqual({ showTracklist: true, showMeters: false });
+    expect((await fetch(`${base}/api/settings`, { method: "POST", headers,
+      body: '{"vinyl":{"showMeters":"false"}}' })).status).toBe(400);
   });
   it("serves only the current synthetic cover and no cover for the no-art track", async () => {
     const { base, demo, bridge } = await fixture();

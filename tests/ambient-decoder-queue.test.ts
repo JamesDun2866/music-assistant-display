@@ -2,6 +2,7 @@ import * as processes from "node:child_process";
 import sharp from "sharp";
 import { afterEach, expect, it, vi } from "vitest";
 import { decodeAmbientImage } from "../src/server/ambient-decoder.js";
+import { decodeAlbumCover } from "../src/server/album-cover.js";
 
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
@@ -25,14 +26,16 @@ it("shares one native worker between uploads and previews and skips cancelled qu
   const upload = decodeAmbientImage(input, "image/jpeg");
   const cancelled = decodeAmbientImage(input, "image/jpeg", controller.signal);
   const preview = decodeAmbientImage(input, "image/jpeg", undefined, true);
+  const cover = decodeAlbumCover(input, "image/jpeg");
   const rejected = expect(cancelled).rejects.toMatchObject({ status: 408 });
   controller.abort();
-  const [canonical, thumbnail] = await Promise.all([upload, preview, rejected]);
+  const [canonical, thumbnail, album] = await Promise.all([upload, preview, cover, rejected]);
   expect([canonical.width, canonical.height]).toEqual([3840, 2160]);
   expect([thumbnail.width, thumbnail.height]).toEqual([480, 270]);
+  expect([album.width, album.height]).toEqual([1200, 675]);
   expect(peak).toBe(1);
   expect(active).toBe(0);
-  expect(spawn).toHaveBeenCalledTimes(2);
+  expect(spawn).toHaveBeenCalledTimes(3);
   const activeController = new AbortController();
   let stopped: ReturnType<typeof processes.spawn> | undefined;
   spawn.mockImplementationOnce((...args) => {

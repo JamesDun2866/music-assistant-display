@@ -3,7 +3,9 @@
 **Use this same procedure for the first move from a detached/feature checkout
 to `main`, and for every later update.** `main` includes the system-Node fix,
 Ambient photographs/kiosk cursor, opt-in native CEC navigation, and the measured
-lyric-rendering fix. No feature-branch checkout is needed.
+lyric-rendering fix. It now carries the **pre-colour release** with source 0.6.0,
+the journal, confirmed edition correction, Vinyl mode and high-resolution
+artwork/catalog fallback. No feature-branch checkout is needed.
 
 These are **source commit updates**, not published semantic versions or tags.
 The package version alone does not identify the installed code. For a first
@@ -17,7 +19,7 @@ scripts below. Use its [source-only update procedure](uca222-source.md#operation
 to preserve pairing and configuration; stop any recording before its restart.
 
 **Using optional Line-in album identification?** Update both the display and
-source together for source 0.5.0's version-3 handoff, persistent last-album cache
+source together for source 0.6.0's version-3 handoff, persistent last-album cache
 and retry-only control. Older/newer mismatches report live album status offline;
 an existing display cache can remain visible. Cached album content survives
 silence, unsuccessful attempts, disabled recognition and reboots until another
@@ -28,6 +30,55 @@ once with the new version to save their choice across restarts. Fresh installs
 remain disabled until explicitly enabled, and recordings never auto-resume.
 Follow the [optional recognition setup](uca222-source.md#install-and-bind-the-optional-feature)
 after updating this checkout from public `main`.
+
+### Optional source tools update
+
+Source 0.6.0 adds passive meters, completed-recording labels/downloads and
+health through a separate tools v1 socket. Update both source and display;
+the existing album handoff remains v3. Restart the source explicitly after
+installing it and restart/update the display to load its new group membership.
+Do not restart during a recording. Complete album ID/UID configuration is
+reused by default; tools-only users can set their own complete pair.
+Original audio, recording consent and CLI commands are unchanged. See
+[source tools setup and limits](source-tools.md).
+
+The coordinated update also adds the [90-day journal and confirmed edition
+correction](journal-and-editions.md), and the saved [Vinyl view](vinyl-mode.md).
+The journal starts with new successful identifications; an existing cached
+album is not imported as a new historical event. Journal clear needs the
+source online. Existing view choices, recognition consent, pairings and
+recording files are preserved; no new view is selected automatically.
+
+### Display-only artwork and catalog update
+
+The high-resolution cover and MusicBrainz/CAA fallback update changes the
+display service only; an existing source 0.6.0 installation and handoff v3
+need no reinstall or re-pairing. Follow the repeatable public `main` update
+below to build and install the display. Old cached covers remain available
+while an active source permits a bounded upgrade.
+Use **Retry album metadata** to retry catalog resolution without recording
+a new sample, or **Correct album edition > MusicBrainz** to preview and
+confirm an uncertain release. See [artwork](album-artwork.md) and
+[alternate catalogs](album-catalog-fallback.md) for privacy and coverage limits.
+
+### Current pre-colour release
+
+Current public `main` has no artwork-matched colour controls or extraction.
+Native CEC behavior is unchanged from the previous public release; this is
+not a claim that intermittent remote loss is resolved.
+
+An existing boolean `artworkColours` preference is accepted and preserved in
+`settings.json`, but has no effect and cannot be changed through the settings API.
+It is not added to older files, and loading valid settings does not rewrite them.
+All other validation remains strict. No album, edition, journal, recording,
+pairing or source-service data is removed.
+
+Use the normal main-based update below rather than resetting to an older
+commit that may reject a saved `artworkColours` preference. After installing,
+**reload the kiosk browser** to replace any already-loaded newer UI.
+A backend restart alone does not reload the page.
+
+### Checkout and runtime prerequisites
 
 This guide updates a checkout of **JamesDun2866/music-assistant-display**.
 Public clones and fetches over HTTPS need no GitHub account, token or deploy

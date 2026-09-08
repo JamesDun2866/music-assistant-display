@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BUILTIN_BACKGROUNDS, type AmbientImage, type AmbientLibrary, type AmbientSettings } from "../shared/ambient.js";
 import { ambientImageSchema, ambientLibrarySchema } from "./schema.js";
 import type { LocalCommand } from "./useLocalCommand.js";
-import { focusCurrentView, focusNavigation, useNavigationAdjustment } from "./navigation.js";
+import { focusCurrentView, focusNavigation, navigationVisible, useNavigationAdjustment } from "./navigation.js";
 
 export const AMBIENT_IDLE_MS = 8_000;
 export const AMBIENT_CROSSFADE_MS = 1_200;
@@ -22,12 +22,21 @@ export function useAmbientControls(active: boolean, blocked: boolean) {
     lastInteraction.current = performance.now();
     focusRequested.current ||= focus;
     setVisible(true);
-    if (focus && document.querySelector(".display-header:not([hidden])")) {
+    if (focus && document.querySelector(".display-header:not([hidden]):not([inert])")) {
       focusRequested.current = false;
       focusAmbientControl();
     }
   }, []);
-  const hide = useCallback(() => setVisible(false), []);
+  const protectedInteraction = () => {
+    const focus = document.activeElement;
+    return (focus instanceof HTMLElement && Boolean(focus.closest(
+      ".display-header, .display-footer, [data-idle-controls], .display button, .display input, .display textarea, .display select, .display [contenteditable]",
+    ))) || [...document.querySelectorAll<HTMLElement>(".display details[open], .display [data-navigation-dialog], .display [role='dialog']")]
+      .some(navigationVisible);
+  };
+  const hide = useCallback(() => {
+    if (!blocked && !protectedInteraction()) setVisible(false);
+  }, [blocked]);
 
   useEffect(() => {
     if (visible && focusRequested.current) {
@@ -43,10 +52,7 @@ export function useAmbientControls(active: boolean, blocked: boolean) {
       window.addEventListener(type, activity, { passive: true });
     }
     const timer = setInterval(() => {
-      const focus = document.activeElement;
-      const focusedControl = focus instanceof HTMLElement
-        && Boolean(focus.closest(".display-header, .display-footer"));
-      if (blocked || focusedControl) {
+      if (blocked || protectedInteraction()) {
         lastInteraction.current = performance.now();
       } else if (performance.now() - lastInteraction.current >= AMBIENT_IDLE_MS) {
         setVisible(false);

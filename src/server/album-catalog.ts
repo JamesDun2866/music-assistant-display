@@ -1,9 +1,10 @@
 import { z } from "zod";
 import {
-  albumEligibility, catalogReferenceSchema, unavailableTracklist, type AlbumSnapshot, type CatalogReference, type Tracklist,
+  albumArtworkReference, albumEligibility, catalogReferenceSchema, unavailableTracklist, type AlbumSnapshot, type CatalogReference, type Tracklist,
 } from "../shared/line-in-album.js";
 import { trustedGet } from "./line-in-network.js";
 import { log } from "./log.js";
+import { albumCoverUrl } from "./album-cover.js";
 
 const MAX_TRACKS = 200;
 const id = z.number().int().positive().max(999_999_999_999_999);
@@ -62,10 +63,27 @@ export function collectionTracks(raw: unknown, collectionId: string): Tracklist 
     if (!tracks.length || tracks.some((song, index) => song.trackNumber !== index + 1
         || ![tracks.length, sorted.length].includes(song.trackCount))) return incomplete();
   }
+
   if (sorted.some((song) => song.discNumber > discs)) return incomplete();
   return {
     status: "complete", message: null, title: collection.collectionName, artist: collection.artistName,
     discCount: discs, tracks: sorted.map((song) => ({ disc: song.discNumber, number: song.trackNumber, title: song.trackName })),
+  };
+}
+
+/** Only exact, complete collections qualify as edition corrections. */
+export function exactCollection(raw: unknown, reference: CatalogReference) {
+  if (reference.kind !== "collection") throw new Error("An exact collection is required");
+  const tracklist = collectionTracks(raw, reference.id);
+  if (tracklist.status !== "complete") throw new Error("Complete tracklist unavailable for this catalog release.");
+  const rows = envelope.parse(raw).results;
+  const collection = rows.find((row) => collectionSchema.safeParse(row).success)!;
+  const artwork = z.object({ artworkUrl100: z.unknown().optional() }).parse(collection).artworkUrl100;
+  const parsedArtwork = albumArtworkReference.safeParse(artwork);
+  return {
+    album: { title: tracklist.title!, artist: tracklist.artist!,
+      catalog: catalogReferenceSchema.parse(reference), artwork: parsedArtwork.success ? albumCoverUrl(parsedArtwork.data) : null },
+    tracklist,
   };
 }
 

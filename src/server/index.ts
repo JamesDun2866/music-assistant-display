@@ -15,6 +15,10 @@ import { createApp } from "./http.js";
 import { log } from "./log.js";
 import { AmbientStore } from "./ambient.js";
 import { LineInAlbum } from "./line-in-album.js";
+import { ListeningJournal } from "./listening-journal.js";
+import { AlbumEditions } from "./album-editions.js";
+import { SourceTools, recordingAlbumContext, sourceToolsApplication } from "./source-tools.js";
+import type { SourceHealth } from "../shared/source-tools.js";
 
 async function main(): Promise<void> {
   try { process.loadEnvFile(".env"); } catch (error) { if (!isFsError(error, "ENOENT")) throw error; }
@@ -46,8 +50,31 @@ async function main(): Promise<void> {
     ? new LineInAlbum(config.LINE_IN_ALBUM_SOURCE_ID, config.LINE_IN_ALBUM_SOURCE_UID!,
       undefined, undefined, undefined, config.STATE_DIR) : undefined;
   await lineInAlbum?.init();
+  const editions = lineInAlbum ? new AlbumEditions(config.STATE_DIR, () => lineInAlbum.originalAlbumContext(),
+    { sourceUid: config.LINE_IN_ALBUM_SOURCE_UID! }) : undefined;
+  if (editions) {
+    try { await editions.init(); }
+    catch { editions.close(); log("edition_storage_unavailable"); }
+    lineInAlbum!.setEditions(editions);
+  }
+  const journal = config.LINE_IN_ALBUM_SOURCE_ID && !config.DEMO_MODE
+    ? new ListeningJournal(config.LINE_IN_ALBUM_SOURCE_ID, config.LINE_IN_ALBUM_SOURCE_UID!, config.STATE_DIR) : undefined;
+  await journal?.init();
+  let maConnection: SourceHealth["display"]["ma"] = config.DEMO_MODE ? "demo" : "disconnected";
+  client?.on("connection", (state: string) => {
+    if (state === "connecting" || state === "disconnected") maConnection = state;
+    if (state === "stale") maConnection = "disconnected";
+  });
+  client?.on("authenticated", () => { maConnection = "connected"; });
+  const sourceTools = new SourceTools({
+    sourceId: config.DEMO_MODE ? undefined : config.SOURCE_TOOLS_SOURCE_ID,
+    sourceUid: config.DEMO_MODE ? undefined : config.SOURCE_TOOLS_SOURCE_UID,
+    albumContext: lineInAlbum ? recordingAlbumContext(lineInAlbum, config.LINE_IN_ALBUM_SOURCE_UID!) : undefined,
+    display: () => ({ state: "online", mode: config.DEMO_MODE ? "demo" : "live", ma: maConnection }),
+    application: await sourceToolsApplication(),
+  });
   const server = createServer(createApp({
-    bridge, settings, ambient, cec, demo, remote: nativeCec, lineInAlbum,
+    bridge, settings, ambient, cec, demo, remote: nativeCec, lineInAlbum, sourceTools, journal, editions,
     ...(demo ? { artwork: (identity: string, signal: AbortSignal) => demo.artwork.get(identity, signal) } :
       artwork ? { artwork: (identity: string, signal: AbortSignal) => artwork.get(identity, signal) } : {}),
   }));
@@ -70,12 +97,14 @@ async function main(): Promise<void> {
     clearInterval(tick);
     monitor?.close();
     lineInAlbum?.close();
+    editions?.close();
     bridge.close();
     server.closeAllConnections();
     await Promise.all([
       new Promise<void>((resolve) => server.close(() => resolve())),
       cec.close(),
       lineInAlbum?.flush(),
+      journal?.close(),
     ]);
     log("service_stopped");
   };

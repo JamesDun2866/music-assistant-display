@@ -66,6 +66,7 @@ class ControlServer:
         self.socket_identity = None
         self.closing = False
         self.album_retry = None
+        self.album_journal = None
 
     async def start(self):
         self.closing = False
@@ -91,6 +92,14 @@ class ControlServer:
             except (SourceError, OSError) as error:
                 LOG.warning("Album retry socket unavailable (%s); update the source installation.",
                             type(error).__name__)
+            from .album_journal_ipc import AlbumJournalServer
+            self.album_journal = AlbumJournalServer(self.recognition, parent=self)
+            try:
+                await self.album_journal.start()
+            except (SourceError, OSError):
+                LOG.warning("Album journal socket unavailable; update the source installation.")
+                if self.recognition.journal is not None:
+                    self.recognition.journal.fail()
 
     def _accept(self, reader, writer):
         if self.closing or len(self.handlers) >= MAX_CLIENTS:
@@ -171,6 +180,8 @@ class ControlServer:
         self.closing = True
         if self.album_retry is not None:
             await self.album_retry.close()
+        if self.album_journal is not None:
+            await self.album_journal.close()
         if self.server is not None:
             self.server.close()
             await self.server.wait_closed()

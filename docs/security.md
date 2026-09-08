@@ -57,6 +57,21 @@ an error. Export individual completed audio files rather than sharing the
 whole state directory with its pairing credentials. Recording is off after a
 service restart and is never enabled by installation or ordinary MA playback.
 
+Source 0.6.0's [Tools panel](source-tools.md) uses a separate source-owned
+`/run/sendspin-karaoke-tools/tools.sock`, dedicated group and strict versioned
+commands. Linux peer credentials bind access to the installed display account;
+the display verifies the configured source identity and trusted socket.
+It can read bounded passive levels/health, list final recordings, change
+private metadata labels, attach confirmed same-source album context, and stream
+individual completed files. It cannot issue general recording, pairing or
+recognition commands. Source state remains private. Metering never transmits
+raw audio; recording downloads intentionally deliver the selected lossless
+audio to the authorized local/SSH browser using a one-use session-bound ticket.
+Downloads are bounded and cancellation-aware; partial/unsafe files are rejected.
+Labels and metadata sidecars never rewrite the original audio. Diagnostic JSON
+is an explicit allowlist excluding identity, network addresses, credentials,
+environment, paths, listening metadata and raw logs.
+
 Sending audio to MA still makes it available to MA and the selected
 downstream players; their retention, access and transport security are
 separate from this Pi service. No audio is uploaded for lyrics.
@@ -102,8 +117,8 @@ match the source identity and live boot/generation; disabled, inactive, stale
 or busy requests are rejected. The browser reaches this through a loopback-only,
 session/CSRF-protected POST. Retry does not grant consent or open audio capture.
 
-When the Line-in album view requests current artwork, the display server may
-fetch an approved HTTPS thumbnail from `is1-ssl.mzstatic.com` through
+For an enabled, active line-in album, the display server may fetch or upgrade
+an approved HTTPS cover from `is1-ssl.mzstatic.com` through
 `is5-ssl.mzstatic.com`. This discloses the requested artwork and public IP to
 Apple's CDN. URLs, DNS destinations, response sizes, image decoding and
 album identity are checked; redirects are refused, and the browser receives only
@@ -124,12 +139,66 @@ recognition retry, not repeated display polling.
 The source stores the last identified album in private `last-album.json`
 (at most 4 KiB). The display stores the bound source ID/UID, album metadata,
 processed JPEG and resolved tracklist in `STATE_DIR/line-in-album/last-album.json`
-(at most 1 MiB, including a JPEG up to 256 KiB and at most 200 tracks).
+(at most 3 MiB, including a JPEG up to 2 MiB and at most 200 tracks).
 Files are owner-only (0600), atomically replaced, and validated on restore.
 Already cached artwork and complete tracklists can be displayed after reboot
 without downloading them again. This retains a record of the last identified
 album, not audio, raw provider responses, lyrics or an album history. Include
 this metadata when considering the privacy of service-state backups.
+Full covers fit inside 1200 x 1200 pixels without upscaling. Legacy thumbnail
+caches remain readable and are retained during bounded background upgrades;
+the journal keeps its smaller, separate thumbnails. See
+[artwork resource limits and migration](album-artwork.md).
+
+### Identification journal and edition corrections
+
+The [journal](journal-and-editions.md) separately retains original successful
+identifications for 90 days in source/display private SQLite storage, even when
+the browser is closed. This is listening-related metadata, not audio or proof of
+completed plays. The journal has no event-count deletion before 90 days; its
+deduplicated thumbnails have a disclosed 256 MiB cache budget. Journal export
+contains the original album, artist, date and clock-adjustment status. Protect
+those exports and service-state backups accordingly.
+
+The dedicated source `journal.sock` permits only bound feed/clear operations
+from authorized local peers. Confirmed clear coordinates source and display
+watermarks so old events are not reimported. An offline or interrupted clear is
+reported explicitly; a durable pending-clear marker keeps history unavailable
+until synchronization resolves it. Clearing the journal does not delete the
+last album, recognition consent or corrections.
+
+Edition search sends explicitly submitted artist/album text and storefront to
+Apple's fixed iTunes search endpoint. It is not triggered by typing, polling
+or opening the editor. Preview and confirm are session-bound and reject an
+original album/success or correction revision that changed during the flow.
+Only verified complete catalog editions are confirmable. Saved corrections
+are source-scoped exact catalog mappings, or visibly limited to the current
+identification when no reliable original catalog identity exists. Confirmed
+recording attachments use a minimal projection of that effective album, not
+raw provider data, and never rewrite the audio.
+
+### Alternate catalog providers
+
+[MusicBrainz and Cover Art Archive fallback](album-catalog-fallback.md) can
+send album/artist text and public catalog identifiers during a bounded
+automatic lookup for an active source, or an explicit metadata search/retry.
+Explicit metadata retry can use a cached album while the source is offline.
+Neither path uploads audio or starts recognition. MusicBrainz, CAA and its
+approved archive storage hosts see the requested public metadata/artwork and
+public IP; no private source IDs, local tokens or recording contents are sent.
+
+Automatic replacement requires a unique, corroborated release-to-original
+Apple collection/storefront relationship and complete tracklist. Text scores
+never authorize replacement. Manual choices remain authoritative. Covers are
+bound to the same selected release, not a similarly named album. Original
+recognition and journal history are not rewritten.
+
+Provider requests share a bounded rate-limited queue, body and time limits,
+and persisted attempt/backoff state. Unlike Apple artwork, CAA needs redirects:
+only narrowly validated HTTPS archive paths carrying the same release/image
+identity are accepted, with public-address DNS checks on every connection.
+Provider records and cached cover assets remain private. See the fallback
+guide for storage limits, exact-match coverage and third-party data/artwork rights.
 
 ## Display data and controls
 
@@ -143,8 +212,9 @@ receives only a local image route. Downloads retain the bounded raster handling
 and in-memory cache used for MA artwork. This flag does not change library
 refresh permissions or resolve missing lyric identities.
 
-Persistent state contains display/Ambient preferences, uploaded image copies,
-a bounded local lyrics cache and, when configured, the last identified line-in album.
+Persistent state contains display/Ambient/Vinyl preferences, uploaded image copies,
+a bounded local lyrics cache and, when configured, the last identified line-in
+album, 90-day identification history and remembered edition corrections.
 Lyrics may be copyrighted; this project ships only original synthetic examples.
 Enable only providers you are entitled to use, follow provider terms, do not
 redistribute the cache, and protect backups like personal media metadata. Cache

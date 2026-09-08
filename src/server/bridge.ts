@@ -2,6 +2,7 @@ import { EventEmitter } from "node:events";
 import type { ConnectionState, Lyrics, PlaybackState, Snapshot, Track } from "../shared/protocol.js";
 import { emptyLyrics } from "../shared/protocol.js";
 import { DEFAULT_AMBIENT } from "../shared/ambient.js";
+import { DEFAULT_VINYL } from "../shared/vinyl.js";
 import type { LyricsProvider, TrackRequest } from "./provider.js";
 import { MonotonicPlaybackClock, type PlaybackClock } from "./clock.js";
 import type { LyricsCache } from "./cache.js";
@@ -39,7 +40,7 @@ export class Bridge extends EventEmitter {
   constructor(
     private readonly provider: LyricsProvider,
     private readonly cache: Pick<LyricsCache, "get" | "put">,
-    private readonly settings: Pick<SettingsStore, "visualOffsetMs"> & Partial<Pick<SettingsStore, "viewMode" | "ambient" | "lyricFollowMode">>,
+    private readonly settings: Pick<SettingsStore, "visualOffsetMs"> & Partial<Pick<SettingsStore, "viewMode" | "ambient" | "lyricFollowMode" | "vinyl">>,
     readonly demo = false,
     private readonly clock: PlaybackClock = new MonotonicPlaybackClock(),
     private readonly now = () => performance.now(),
@@ -54,6 +55,7 @@ export class Bridge extends EventEmitter {
       viewMode: this.settings.viewMode ?? "split",
       lyricFollowMode: this.settings.lyricFollowMode ?? "smooth",
       ambient: structuredClone(this.settings.ambient ?? DEFAULT_AMBIENT),
+      vinyl: { ...(this.settings.vinyl ?? DEFAULT_VINYL) },
       message: this.message, cec,
     };
   }

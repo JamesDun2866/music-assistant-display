@@ -12,6 +12,7 @@ import { Bridge } from "../src/server/bridge.js";
 import { DemoProvider } from "../src/server/demo.js";
 import { createApp } from "../src/server/http.js";
 import { BUILTIN_BACKGROUNDS, DEFAULT_AMBIENT, type AmbientImage, type AmbientLibrary } from "../src/shared/ambient.js";
+import { DEFAULT_VINYL } from "../src/shared/vinyl.js";
 
 vi.mock("node:fs/promises", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:fs/promises")>();
@@ -382,7 +383,7 @@ describe("ambient HTTP", () => {
     expect((await sharp(Buffer.from(await rendered.arrayBuffer())).metadata()).format).toBe("jpeg");
     const preferences = { selectedIds: [image.id], slideshow: false, dwellSeconds: 15 };
     const updated = await post("/api/settings", { ambient: preferences, viewMode: "ambient" });
-    expect(await updated.json()).toEqual({ visualOffsetMs: 0, viewMode: "ambient", lyricFollowMode: "smooth", ambient: preferences });
+    expect(await updated.json()).toEqual({ visualOffsetMs: 0, viewMode: "ambient", lyricFollowMode: "smooth", ambient: preferences, vinyl: DEFAULT_VINYL });
     expect(await (await fetch(`${base}/api/state`)).json()).toMatchObject({ viewMode: "ambient", ambient: preferences });
     expect((await post("/api/backgrounds/delete", { ids: [image.id] })).status).toBe(200);
     expect(changed).toHaveBeenCalledTimes(3);
@@ -516,7 +517,7 @@ describe("ambient HTTP", () => {
     ])).map((res) => res.status)).toEqual([200, 200, 200]);
     expect(settings.ambient).toEqual({ selectedIds, slideshow: false, dwellSeconds: 90 });
     expect(await (await fetch(`${base}/api/settings`)).json()).toEqual({
-      visualOffsetMs: -200, viewMode: "ambient", lyricFollowMode: "smooth", ambient: settings.ambient,
+      visualOffsetMs: -200, viewMode: "ambient", lyricFollowMode: "smooth", ambient: settings.ambient, vinyl: DEFAULT_VINYL,
     });
   });
 });

@@ -15,6 +15,7 @@ import uuid
 
 from .album_handoff import write_snapshot
 from .album_memory import AlbumMemory
+from .album_journal import AlbumJournal
 from .audio import CHANNELS, FRAMES, RATE
 from .config import SourceError
 from .recognition_settings import RecognitionSettings
@@ -111,6 +112,7 @@ class Recognition:
         self.album_key = None
         self.album_success = None
         self.album_memory = AlbumMemory(state_dir) if state_dir is not None else None
+        self.journal = AlbumJournal(state_dir, self.source_id, clock=clock) if state_dir is not None else None
         self.album_dirty = False
         self.cache_error = None
         self.last_retry = -math.inf
@@ -143,6 +145,17 @@ class Recognition:
                 except (SourceError, OSError, TimeoutError) as error:
                     self.cache_error = "restore_failed"
                     LOG.warning("Last album could not be restored (%s).", type(error).__name__)
+            if self.journal is not None:
+                try:
+                    recovery = await self.journal.start()
+                    if recovery is not None and (self.album_success is None
+                            or recovery["success"]["at_ms"] >= self.album_success["at_ms"]):
+                        self.album = recovery["album"]
+                        self.album_key = recovery["key"]
+                        self.album_success = recovery["success"]
+                        self.album_dirty = True
+                except (SourceError, OSError, TimeoutError):
+                    self.journal.fail()
             if self.settings is not None:
                 try:
                     saved = await self.settings.load()
@@ -337,11 +350,14 @@ class Recognition:
                     self.album = album
                     self.album_key = f"{self.boot_id}-{self.generation}"
                 if album is not None:
+                    observed_at_ms = max(0, int(self.clock() * 1000))
                     previous_ms = self.album_success["at_ms"] if self.album_success else -1
                     self.album_success = {
-                        "at_ms": max(0, int(self.clock() * 1000), previous_ms + 1),
+                        "at_ms": max(observed_at_ms, previous_ms + 1),
                         "boot_id": self.boot_id, "generation": generation,
                     }
+                    if self.journal is not None:
+                        self.journal.record(self.album_key, self.album, self.album_success, observed_at_ms)
                     self.album_dirty = True
                 self.state = "identified" if album else "unavailable"
                 self.changed.set()
@@ -399,3 +415,5 @@ class Recognition:
         if self.publisher is not None:
             self.publisher.cancel()
             await asyncio.gather(self.publisher, return_exceptions=True)
+        if self.journal is not None:
+            await self.journal.close()

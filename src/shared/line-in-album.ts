@@ -1,12 +1,9 @@
 import { z } from "zod";
+import { catalogReferenceSchema, albumArtworkReference } from "./album-reference.js";
+import { fallbackStatusSchema, providerProvenanceSchema } from "./album-provider.js";
+export { catalogReferenceSchema, albumArtworkReference, type CatalogReference } from "./album-reference.js";
 
 const text = z.string().min(1).max(256).refine((value) => value.trim().length > 0 && !/[\x00-\x1f\x7f]/.test(value));
-export const catalogReferenceSchema = z.object({
-  kind: z.enum(["collection", "track"]),
-  id: z.string().regex(/^[1-9][0-9]{0,14}$/),
-  country: z.string().regex(/^[a-z]{2}$/),
-}).strict();
-export type CatalogReference = z.infer<typeof catalogReferenceSchema>;
 export const tracklistSchema = z.object({
   status: z.enum(["loading", "complete", "unavailable"]),
   message: z.string().max(256).nullable(),
@@ -37,9 +34,6 @@ export type Tracklist = z.infer<typeof tracklistSchema>;
 export const unavailableTracklist = (message = "Tracklist unavailable"): Tracklist => ({
   status: "unavailable", message, title: null, artist: null, discCount: null, tracks: [],
 });
-export const albumArtworkReference = z.string().max(1024).regex(
-  /^https:\/\/is[1-5]-ssl\.mzstatic\.com\/image\/thumb\/[A-Za-z0-9_./-]{1,800}\/[1-9][0-9]{1,3}x[1-9][0-9]{1,3}(?:bb|cc)\.(?:jpg|png)$/,
-).refine((value) => !value.includes(".."));
 export const albumKeySchema = z.string().regex(/^[a-f0-9]{32}-[0-9]{1,16}$/);
 export const albumMetadataSchema = z.object({
   title: text, artist: text, artwork: albumArtworkReference.nullable(), catalog: catalogReferenceSchema.nullable(),
@@ -89,16 +83,29 @@ export const albumSnapshotSchema = z.object({
   }
 });
 export type AlbumSnapshot = z.infer<typeof albumSnapshotSchema>;
+export const albumEditionBindingSchema = z.object({
+  sourceId: retryBindingSchema.shape.source_id,
+  albumKey: albumKeySchema, success: albumSuccessSchema.nullable(),
+  revision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+}).strict();
 export const albumViewSchema = z.object({
   state: z.enum(["not-configured", "offline", "disabled", "idle", "armed", "sampling", "recognizing", "identified", "unavailable"]),
   expiresAt: z.number().finite(),
   key: z.string().regex(/^[a-f0-9]{32}-[0-9]+$/).nullable(),
   album: z.object({
     title: text, artist: text,
-    artworkUrl: z.string().regex(/^\/api\/line-in-album\/artwork\/[a-f0-9]{32}-[0-9]+$/).nullable(),
+    artworkUrl: z.string().regex(/^\/api\/line-in-album\/artwork\/[a-f0-9]{32}-[0-9]+(?:\?(?:edition=[1-9][0-9]{0,15}|cover=[a-f0-9]{64}))?$/).nullable(),
   }).strict().nullable(),
   tracklist: tracklistSchema.default(() => unavailableTracklist()),
   retry: retryBindingSchema.nullable().default(null),
   cacheError: z.string().max(256).nullable().default(null),
+  edition: z.object({
+    binding: albumEditionBindingSchema,
+    original: z.object({ title: text, artist: text, country: z.string().regex(/^[a-z]{2}$/).optional() }).strict(),
+    corrected: z.boolean(),
+    scope: z.enum(["original", "remembered", "current-album"]),
+    provenance: providerProvenanceSchema.nullable().optional(),
+    fallback: fallbackStatusSchema.optional(),
+  }).strict().nullable().optional(),
 }).strict();
 export type AlbumView = z.infer<typeof albumViewSchema>;

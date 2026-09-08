@@ -8,6 +8,8 @@ export const MAX_DIMENSION = 16_384;
 export const MAX_CANONICAL_BYTES = 8 * 1024 * 1024;
 export const DECODE_TIMEOUT_MS = 10_000;
 export const MAX_THUMBNAIL_BYTES = 256 * 1024;
+export const MAX_ALBUM_COVER_BYTES = 2 * 1024 * 1024;
+type DecodePreset = "ambient" | "thumbnail" | "album-cover";
 
 export class AmbientError extends Error {
   constructor(readonly status: number, message: string, options?: ErrorOptions) { super(message, options); }
@@ -113,18 +115,26 @@ function prepareContainer(input: Buffer, contentType: string): Buffer {
 let decoderQueue: Promise<void> = Promise.resolve();
 
 export async function decodeAmbientImage(input: Buffer, contentType: string, signal?: AbortSignal, thumbnail = false): Promise<CanonicalImage> {
+  return decodeImage(input, contentType, signal, thumbnail ? "thumbnail" : "ambient");
+}
+
+export async function decodeAlbumCover(input: Buffer, contentType: string, signal?: AbortSignal): Promise<CanonicalImage> {
+  return decodeImage(input, contentType, signal, "album-cover");
+}
+
+async function decodeImage(input: Buffer, contentType: string, signal: AbortSignal | undefined, preset: DecodePreset): Promise<CanonicalImage> {
   const raster = prepareContainer(input, contentType);
   if (signal?.aborted) throw new AmbientError(408, "Image upload timed out or was cancelled");
   // Upload and preview workers share the appliance's native-memory budget.
-  const operation = decoderQueue.then(() => runDecoder(raster, signal, thumbnail));
+  const operation = decoderQueue.then(() => runDecoder(raster, signal, preset));
   decoderQueue = operation.then(() => {}, () => {});
   return operation;
 }
 
-async function runDecoder(raster: Buffer, signal: AbortSignal | undefined, thumbnail: boolean): Promise<CanonicalImage> {
-  const width = thumbnail ? 480 : 3840;
-  const height = thumbnail ? 270 : 2160;
-  const maximum = thumbnail ? MAX_THUMBNAIL_BYTES : MAX_CANONICAL_BYTES;
+async function runDecoder(raster: Buffer, signal: AbortSignal | undefined, preset: DecodePreset): Promise<CanonicalImage> {
+  const width = preset === "album-cover" ? 1200 : preset === "thumbnail" ? 480 : 3840;
+  const height = preset === "album-cover" ? 1200 : preset === "thumbnail" ? 270 : 2160;
+  const maximum = preset === "album-cover" ? MAX_ALBUM_COVER_BYTES : preset === "thumbnail" ? MAX_THUMBNAIL_BYTES : MAX_CANONICAL_BYTES;
   if (signal?.aborted) throw new AmbientError(408, "Image upload timed out or was cancelled");
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ["--max-old-space-size=96", "--input-type=module", "--eval", decoderProgram], {

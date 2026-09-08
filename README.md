@@ -55,11 +55,43 @@ may identify a different album edition, and does not provide track-following
 or synchronized lyrics. Upgrade both source and display from public `main`;
 repeat `--with-recognition` on each source install to retain the optional extra.
 
+**Current `main` is the pre-colour release.** It includes source 0.6.0,
+the journal, edition correction, Vinyl mode and high-resolution artwork, but
+no artwork-matched colour UI or extraction. Existing saved colour preferences
+are accepted without effect. See the [main-based upgrade guide](docs/upgrading.md).
+
+**Dedicated Vinyl view:** a saved, cover-first line-in display with optional
+full tracklist, subtle stereo meters and idle-fading controls. It keeps the
+last identified album separate from live source status and never follows
+Music Assistant's current track. See [Vinyl mode and saved preferences](docs/vinyl-mode.md).
+
+Line-in and corrected-edition covers retain up to 1200 x 1200 pixels, with
+aspect ratio preserved and no artificial enlargement of small source images.
+Existing thumbnail caches upgrade without discarding their offline image.
+See [album artwork quality and resource limits](docs/album-artwork.md).
+An [alternate catalog fallback](docs/album-catalog-fallback.md) uses MusicBrainz
+and same-release Cover Art Archive covers when Apple metadata is unavailable.
+Only corroborated exact catalog relationships apply automatically; uncertain
+releases need preview and confirmation. **Retry album metadata** uses the
+cached identification, without sampling audio again.
+
+The local [identification journal and edition correction](docs/journal-and-editions.md)
+add 90-day dated album history with export/confirmed clear, and explicit
+artist/album search, complete-edition preview and remembered correction.
+The journal records identifications, not plays or listening duration; original
+history stays unchanged by later corrections.
+
+**Source tools (source 0.6.0):** the separate **Tools** panel provides passive
+stereo RMS/sample-peak meters, a completed-recording library with private
+display labels and confirmed album sidecars, and health with a sanitized
+diagnostic download. Audio files remain unchanged; no recording controls or
+capture ownership are added. See [setup and privacy limits](docs/source-tools.md).
+
 ## A music-first TV interface
 
 The original dark Now Playing interface puts large album artwork, track/artist/
 album metadata and elapsed/remaining progress beside the music. Choose **Now
-Playing**, **Lyrics**, **Split**, or **Ambient**; the selection persists on the Pi alongside
+Playing**, **Lyrics**, **Split**, **Ambient**, or **Vinyl**; the selection persists on the Pi alongside
 your visual offset. Split is the default, with artwork and synchronized lyrics
 both visible. Missing or untimed lyrics never make the artwork view unusable.
 
